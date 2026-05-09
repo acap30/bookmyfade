@@ -1,10 +1,23 @@
-import { Navigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import Sidebar from "../components/layout/Sidebar";
+import Topbar from "../components/layout/Topbar";
+import Bottombar from "../components/layout/Bottombar";
 
 const RootLayout = () => {
-  const isAuthenticated = true;
-
   return (
-    <>{isAuthenticated ? <div>RootLayout</div> : <Navigate to="/sign-in" />}</>
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
+
+      <div className="flex flex-1 flex-col">
+        <Topbar />
+
+        <main className="flex-1 p-6">
+          <Outlet />
+        </main>
+
+        <Bottombar />
+      </div>
+    </div>
   );
 };
 

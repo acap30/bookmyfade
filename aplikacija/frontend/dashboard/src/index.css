@@ -23,7 +23,7 @@ body {
   --color-primary-foreground: oklch(1 0 0);
 }
 
-.primary-button {
+.button-primary {
   @apply w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition hover:opacity-90 mt-2 cursor-pointer disabled:opacity-70;
 }
 

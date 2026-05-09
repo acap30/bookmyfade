@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { signIn } from "../api/authApi";
+import { useAuth } from "../context/AuthContext";
 
 const SigninForm = () => {
   const [formData, setFormData] = useState({
@@ -7,6 +9,8 @@ const SigninForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
+
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -23,10 +27,10 @@ const SigninForm = () => {
 
       console.log("Submitting:", formData);
 
-      // Example API request
-      // await axios.post("/api/auth/signin", formData);
+      // const data = await signIn(formData.email, formData.password);
 
-      // Reset form
+      // login(data);
+
       setFormData({
         email: "",
         password: "",
@@ -76,7 +80,7 @@ const SigninForm = () => {
             />
           </div>
 
-          <button type="submit" disabled={loading} className="primary-button">
+          <button type="submit" disabled={loading} className="button-primary">
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>

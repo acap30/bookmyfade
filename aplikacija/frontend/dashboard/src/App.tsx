@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import RootLayout from "./pages/RootLayout";
 import AuthLayout from "./auth/AuthLayout";
 import SigninForm from "./auth/SigninForm";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import { Home } from "./pages";
 
 function App() {
   return (
@@ -13,8 +15,10 @@ function App() {
         </Route>
 
         {/* private routes */}
-        <Route path="/" element={<RootLayout />}>
-          {/* protected routes and role routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<RootLayout />}>
+            <Route index path="/" element={<Home />} />
+          </Route>
         </Route>
 
         {/* Redirect unknown routes */}
