@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { signIn } from "../api/authApi";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const SigninForm = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -27,14 +30,16 @@ const SigninForm = () => {
 
       console.log("Submitting:", formData);
 
-      // const data = await signIn(formData.email, formData.password);
+      const data = await signIn(formData.username, formData.password);
 
-      // login(data);
+      login(data);
 
       setFormData({
-        email: "",
+        username: "",
         password: "",
       });
+
+      navigate("/", { replace: true });
     } catch (error) {
       console.error(error);
     } finally {
@@ -53,14 +58,14 @@ const SigninForm = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm text-muted">Email</label>
+            <label className="mb-2 block text-sm text-muted">Username</label>
 
             <input
-              type="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
-              placeholder="you@example.com"
+              placeholder="Enter your username"
               className="light-input"
               required
             />
