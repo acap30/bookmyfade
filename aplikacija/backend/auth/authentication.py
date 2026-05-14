@@ -36,7 +36,12 @@ def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(
         'refresh_token': refresh_token,
         'token_type': 'bearer',
         'id': user.id,
-        'username': user.username
+        'username': user.username,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'phone_number': user.phone_number,
+        'role': user.role,
     }
 
 @router.post('/refresh')
