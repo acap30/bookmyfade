@@ -13,6 +13,8 @@ def create_admin():
         username='Admin',
         email='admin@example.com',
         password=Hash.bcrypt('admin'),
+        first_name='Admin',
+        last_name='Adminovski',
         role=Role.ADMIN
     )
 
@@ -45,6 +47,9 @@ def create_user(db: Session, request: User):
         username = request.username,
         email = request.email,
         password = Hash.bcrypt(request.password),
+        first_name=request.first_name,
+        last_name=request.last_name,
+        phone_number=request.phone_number,
         role = Role.OWNER 
     )
 
@@ -65,5 +70,8 @@ def get_user_by_id(db: Session, user_id: int):
         id=user.id,
         username=user.username,
         email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        phone_number=user.phone_number,
         role=user.role
     )
