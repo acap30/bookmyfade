@@ -19,7 +19,10 @@ export const signIn = async (
   return {
     user: {
       id: response.data.id,
+      name: "Jovan Tomic",
       username: response.data.username,
+      email: "jovan@example.com",
+      role: "admin",
     },
     token: response.data.access_token,
     refreshToken: response.data.refresh_token,
