@@ -31,9 +31,9 @@ const Topbar = () => {
       {/* Right */}
       <Dropdown
         align="right"
-        trigger={<UserAvatar fullName={user.name} />}
+        trigger={<UserAvatar fullName={user.fullName} />}
         header={{
-          name: user.name,
+          name: user.fullName,
           role: user.role.charAt(0).toUpperCase() + user.role.slice(1),
           subtitle: user.email,
         }}

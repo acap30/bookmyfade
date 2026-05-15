@@ -8,10 +8,13 @@ export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 export interface IUser {
   id: string;
-  name: string;
+  fullName: string;
+  firstName: string;
+  lastName: string;
   username: string;
   email: string;
   role: Role;
+  phoneNumber: string | null;
 }
 
 export interface IAuthData {
