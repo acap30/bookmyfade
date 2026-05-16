@@ -8,6 +8,7 @@ interface AuthContextType {
   token: string | null;
   login: (data: IAuthData) => void;
   logout: () => void;
+  updateUser: (user: IUser) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -34,6 +35,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     authStorage.clear();
   };
 
+  const updateUser = (newUser: IUser) => {
+    setUser(newUser);
+
+    authStorage.setUser(newUser);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -41,6 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         token,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

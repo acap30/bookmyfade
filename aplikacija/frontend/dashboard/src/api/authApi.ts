@@ -1,5 +1,5 @@
 import api from "./axios";
-import type { IAuthData } from "../types/auth";
+import type { IAuthData, IUser } from "../types/auth";
 
 export const signIn = async (
   username: string,
@@ -31,3 +31,5 @@ export const signIn = async (
     refreshToken: response.data.refresh_token,
   };
 };
+
+export const updateProfile = async (newUser: IUser) => {};

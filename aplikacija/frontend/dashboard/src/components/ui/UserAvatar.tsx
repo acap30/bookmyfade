@@ -1,7 +1,8 @@
 type UserAvatarProps = {
   fullName: string;
+  size?: number;
 };
-const UserAvatar = ({ fullName }: UserAvatarProps) => {
+const UserAvatar = ({ fullName, size = 40 }: UserAvatarProps) => {
   const initials = fullName
     .split(" ")
     .map((word) => word[0])
@@ -24,7 +25,12 @@ const UserAvatar = ({ fullName }: UserAvatarProps) => {
   const backgroundColor = colors[hash % colors.length];
   return (
     <div
-      className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold text-white opacity-90
+      style={{
+        width: size,
+        height: size,
+        fontSize: size * 0.4,
+      }}
+      className={`flex items-center justify-center rounded-full font-semibold text-white opacity-90
         ${backgroundColor}`}
     >
       {initials}
