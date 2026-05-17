@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from enum import Enum
 
-class Role(Enum):
+class Role(str, Enum):
     ADMIN = "admin"
     OWNER = "owner"
     HAIRSTYLIST = "hairstylist"
@@ -23,3 +23,46 @@ class UserAuth(BaseModel):
     username:str
     email:str
     role:Role
+
+class OwnerDisplay(BaseModel):
+    id: int
+    user_id: int
+    salon_id: int
+
+    class Config:
+        from_attributes = True
+
+class SalonDisplay(BaseModel):
+    id: int
+    name: str
+    address: str | None = None
+    phone: str | None = None
+
+    class Config:
+        from_attributes = True
+
+class HairdresserDisplay(BaseModel):
+    id: int
+    user_id: int
+    salon_id: int
+
+    class Config:
+        from_attributes = True
+
+class OwnerCreate(BaseModel):
+    user_id: int
+    salon_id: int
+
+class SalonCreate(BaseModel):
+    name: str
+    address: str | None = None
+    phone: str | None = None
+
+class HairdresserCreate(BaseModel):
+    user_id: int
+    salon_id: int
+
+class SalonUpdate(BaseModel):
+    name: str | None = None
+    address: str | None = None
+    phone: str | None = None
