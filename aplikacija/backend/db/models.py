@@ -16,7 +16,7 @@ class DbUser(Base):
     last_name = Column(String(255), nullable=False)
     phone_number = Column(String(255), nullable=True)
     role = Column(Enum(Role), nullable=False)
-
+    
     owners = relationship("Owner", back_populates="user")
     hairdressers = relationship("Hairdresser", back_populates="user")
 
