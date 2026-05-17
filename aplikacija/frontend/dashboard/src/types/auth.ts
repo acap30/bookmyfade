@@ -8,15 +8,17 @@ export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 export interface IUser {
   id: string;
+  fullName: string;
+  firstName: string;
+  lastName: string;
   username: string;
   email: string;
   role: Role;
+  phoneNumber: string | null;
 }
 
-export type AuthUser = Pick<IUser, "id" | "username">;
-
 export interface IAuthData {
-  user: AuthUser;
+  user: IUser;
   token: string;
   refreshToken: string;
 }

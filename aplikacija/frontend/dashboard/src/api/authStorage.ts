@@ -1,4 +1,4 @@
-import type { AuthUser, IUser } from "../types/auth";
+import type { IUser } from "../types/auth";
 
 const TOKEN_KEY = "token";
 const REFRESH_TOKEN_KEY = "refreshToken";
@@ -18,13 +18,13 @@ export const authStorage = {
 
   removeRefreshToken: () => localStorage.removeItem(REFRESH_TOKEN_KEY),
 
-  getUser: (): AuthUser | null => {
+  getUser: (): IUser | null => {
     const user = localStorage.getItem(USER_KEY);
 
     return user ? JSON.parse(user) : null;
   },
 
-  setUser: (user: AuthUser) =>
+  setUser: (user: IUser) =>
     localStorage.setItem(USER_KEY, JSON.stringify(user)),
 
   clear: () => {

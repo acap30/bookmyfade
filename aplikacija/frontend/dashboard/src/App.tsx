@@ -3,7 +3,7 @@ import RootLayout from "./pages/RootLayout";
 import AuthLayout from "./auth/AuthLayout";
 import SigninForm from "./auth/SigninForm";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { Home } from "./pages";
+import { Dashboard, Profile } from "./pages";
 
 function App() {
   return (
@@ -17,7 +17,8 @@ function App() {
         {/* private routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<RootLayout />}>
-            <Route index path="/" element={<Home />} />
+            <Route index path="/" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
 

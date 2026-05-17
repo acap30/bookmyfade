@@ -1,19 +1,20 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
-import type { IUser, IAuthData, AuthUser } from "../types/auth";
+import type { IUser, IAuthData } from "../types/auth";
 import { authStorage } from "../api/authStorage";
 
 interface AuthContextType {
-  user: AuthUser | null;
+  user: IUser | null;
   token: string | null;
   login: (data: IAuthData) => void;
   logout: () => void;
+  updateUser: (user: IUser) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(authStorage.getUser());
+  const [user, setUser] = useState<IUser | null>(authStorage.getUser());
 
   const [token, setToken] = useState<string | null>(authStorage.getToken());
 
@@ -34,6 +35,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     authStorage.clear();
   };
 
+  const updateUser = (newUser: IUser) => {
+    setUser(newUser);
+
+    authStorage.setUser(newUser);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -41,6 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         token,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

@@ -28,8 +28,6 @@ const SigninForm = () => {
     try {
       setLoading(true);
 
-      console.log("Submitting:", formData);
-
       const data = await signIn(formData.username, formData.password);
 
       login(data);
