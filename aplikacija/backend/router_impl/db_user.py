@@ -42,7 +42,6 @@ def create_user(db: Session, request: User):
             detail='User with this email already exists'
         )
     
-
     new_user = DbUser(
         username = request.username,
         email = request.email,
