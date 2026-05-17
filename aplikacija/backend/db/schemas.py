@@ -76,3 +76,6 @@ class SalonUpdate(BaseModel):
     name: str | None = None
     address: str | None = None
     phone: str | None = None
+
+class HairdresserUpdate(BaseModel):
+    salon_id: int | None = None

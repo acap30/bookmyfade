@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from typing import Optional
+from auth.oauth2 import get_current_user
 from db.database import get_db
 from router_impl import hairdresser as hairdresser_impl
-from db.schemas import HairdresserDisplay, HairdresserCreate
-
+from db.schemas import HairdresserDisplay, HairdresserCreate, HairdresserUpdate
 
 router = APIRouter(
     prefix="/hairdresser",
-    tags=["Hairdresser"]
+    tags=["Hairdresser"],
+    dependencies=[Depends(get_current_user)]
 )
 
 @router.post("/", response_model=HairdresserDisplay)
@@ -41,13 +41,13 @@ def get_all_hairdressers(
 @router.put("/{hairdresser_id}", response_model=HairdresserDisplay)
 def update_hairdresser(
     hairdresser_id: int,
-    salon_id: Optional[int] = None,
+    request: HairdresserUpdate,
     db: Session = Depends(get_db)
 ):
     return hairdresser_impl.update_hairdresser(
         db,
         hairdresser_id,
-        salon_id
+        request.salon_id
     )
 
 @router.delete("/{hairdresser_id}")

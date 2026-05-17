@@ -41,11 +41,11 @@ def update_salon(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Salon not found"
         )
-    if name:
+    if name is not None:
         salon.name = name
-    if address:
+    if address is not None:
         salon.address = address
-    if phone:
+    if phone is not None:
         salon.phone = phone
 
     db.commit()

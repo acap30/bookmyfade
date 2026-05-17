@@ -72,14 +72,17 @@ def update_hairdresser(
             detail="Hairdresser not found"
         )
     
-    if salon_id:
+    if salon_id is not None:
         salon = db.query(Salon).filter(Salon.id == salon_id).first()
+        
         if not salon:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Salon not found"
             )
+
         h.salon_id = salon_id
+
     db.commit()
     db.refresh(h)
 
