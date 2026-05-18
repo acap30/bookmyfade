@@ -1,23 +1,57 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, User } from "lucide-react";
+import { LayoutDashboard, Store, Users } from "lucide-react";
+import { ROLES } from "../../types/auth";
+import { useAuth } from "../../context/AuthContext";
 
 const items = [
-  { to: "/", icon: LayoutDashboard, label: "Dash" },
-  { to: "/profile", icon: User, label: "Profile" },
+  {
+    label: "Dash",
+    icon: <LayoutDashboard size={18} />,
+    path: "/",
+    roles: [ROLES.ADMIN, ROLES.BARBER, ROLES.OWNER],
+  },
+  {
+    label: "Salons",
+    icon: <Store size={18} />,
+    path: "/salons",
+    roles: [ROLES.ADMIN],
+  },
+  {
+    label: "Salon",
+    icon: <Store size={18} />,
+    path: "/my-salon",
+    roles: [ROLES.OWNER],
+  },
+  {
+    label: "Owners",
+    icon: <Users size={18} />,
+    path: "/owners",
+    roles: [ROLES.ADMIN],
+  },
+  {
+    label: "Barbers",
+    icon: <Users size={18} />,
+    path: "/barbers",
+    roles: [ROLES.ADMIN, ROLES.OWNER],
+  },
 ];
 
 const Bottombar = () => {
+  const { user } = useAuth();
+
+  if (!user) return null;
+
+  const allowedItems = items.filter((item) => item.roles.includes(user.role));
+
   return (
     <div className="fixed flex items-center justify-center px-4 rounded-lg bottom-0 left-0 right-0 pb-4 bg-transparent h-16 lg:hidden">
       {/* Floating container */}
       <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 shadow-lg">
-        {items.map((item) => {
-          const Icon = item.icon;
-
+        {allowedItems.map((item) => {
           return (
             <NavLink
-              key={item.to}
-              to={item.to}
+              key={item.path}
+              to={item.path}
               className={({ isActive }) =>
                 `flex flex-col items-center justify-center rounded-xl px-3 py-2 text-xs transition
                 ${
@@ -27,7 +61,7 @@ const Bottombar = () => {
                 }`
               }
             >
-              <Icon size={18} />
+              {item.icon}
               <span className="text-[10px] leading-none">{item.label}</span>
             </NavLink>
           );

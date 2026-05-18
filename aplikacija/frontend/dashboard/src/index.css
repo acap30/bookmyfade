@@ -27,6 +27,14 @@ body {
   @apply w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition hover:opacity-90 mt-2 cursor-pointer disabled:opacity-70;
 }
 
+.button-add {
+  @apply flex w-fit max-sm:w-full max-sm:justify-center items-center gap-2 px-5 rounded-xl bg-primary py-3 text-primary-foreground transition hover:opacity-90 mt-2 cursor-pointer disabled:opacity-70;
+}
+
 .light-input {
   @apply w-full rounded-xl border border-border bg-background px-4 py-3 text-text outline-none transition focus:border-text;
+}
+
+.card-input {
+  @apply w-full rounded-xl border border-border bg-card px-4 py-3 text-text outline-none transition focus:border-text;
 }

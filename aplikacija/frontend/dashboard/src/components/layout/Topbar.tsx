@@ -11,6 +11,8 @@ const Topbar = () => {
 
   const { logout, user } = useAuth();
 
+  if (!user) return null;
+
   const currentRoute = routeConfig.find((r) => r.match(location.pathname));
 
   return (

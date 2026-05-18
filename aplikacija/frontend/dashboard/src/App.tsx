@@ -3,7 +3,9 @@ import RootLayout from "./pages/RootLayout";
 import AuthLayout from "./auth/AuthLayout";
 import SigninForm from "./auth/SigninForm";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { Dashboard, Profile } from "./pages";
+import RoleRoute from "./routes/RoleRoute";
+import { Barbers, Dashboard, MySalon, Owners, Profile, Salons } from "./pages";
+import { ROLES } from "./types/auth";
 
 function App() {
   return (
@@ -19,6 +21,16 @@ function App() {
           <Route element={<RootLayout />}>
             <Route index path="/" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route element={<RoleRoute allowedRoles={[ROLES.ADMIN]} />}>
+              <Route path="/salons" element={<Salons />} />
+              <Route path="/owners" element={<Owners />} />
+            </Route>
+            <Route
+              element={<RoleRoute allowedRoles={[ROLES.ADMIN, ROLES.OWNER]} />}
+            >
+              <Route path="/my-salon" element={<MySalon />} />
+              <Route path="/barbers" element={<Barbers />} />
+            </Route>
           </Route>
         </Route>
 
