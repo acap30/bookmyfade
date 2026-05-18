@@ -1,5 +1,5 @@
 from sqlalchemy.orm.session import Session
-from db.schemas import User, UserDisplay, Role
+from db.schemas import User, UserDisplay, UserUpdate, Role
 from db.database import get_db
 from db.models import DbUser
 from fastapi import HTTPException, status
@@ -26,7 +26,7 @@ def create_admin():
             db.commit()
             db.refresh(admin)
 
-            print(f"Admin created successfully")
+            print("Admin created successfully")
         except Exception as e:
             db.rollback()
             print(f"Error occurred while creating superadmin: {e}")
@@ -49,14 +49,14 @@ def create_user(db: Session, request: User):
         first_name=request.first_name,
         last_name=request.last_name,
         phone_number=request.phone_number,
-        role = Role.OWNER 
+        role = request.role,
     )
 
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    return 'User added'
+    return {"message": "User added"}
 
 def get_user_by_id(db: Session, user_id: int):
 
@@ -74,3 +74,32 @@ def get_user_by_id(db: Session, user_id: int):
         phone_number=user.phone_number,
         role=user.role
     )
+
+def update_user(db: Session, user_id: int, request: UserUpdate):
+
+    user = db.query(DbUser).filter(DbUser.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found')
+    
+    user.username = request.username if request.username is not None else user.username,
+    user.first_name = request.first_name if request.first_name is not None else user.first_name,
+    user.last_name = request.last_name if request.last_name is not None else user.last_name,
+    user.phone_number = request.phone_number if request.phone_number is not None else user.phone_number
+
+    db.commit()
+    db.refresh(user)
+
+    return {"message": "User updated successfully"}
+
+def delete_user(db: Session, user_id: int):
+
+    user = db.query(DbUser).filter(DbUser.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found')
+    
+    db.delete(user)
+    db.commit()
+
+    return {"message": "User deleted successfully"}

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user
 from db.database import get_db
-from router_impl import owner as owner_impl
+from router_impl import db_owner as owner_impl
 from db.schemas import OwnerDisplay, OwnerCreate
 
 router = APIRouter(

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import user
+from routers import user, hairdresser, owner, salon
 from auth import authentication
 from router_impl import db_user
 
@@ -16,6 +16,9 @@ app.add_middleware(
 
 app.include_router(user.router)
 app.include_router(authentication.router)
+app.include_router(hairdresser.router)
+app.include_router(owner.router)
+app.include_router(salon.router)
 
 @app.on_event("startup")
 async def create_admin():

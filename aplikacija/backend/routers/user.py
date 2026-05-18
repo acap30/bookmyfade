@@ -17,3 +17,15 @@ def create_user(request: schemas.User, db: Session = Depends(get_db), current_us
 @router.get('/{user_id}')
 def get_user_by_id(user_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_user.get_user_by_id(db, user_id)
+
+@router.put('/{user_id}')
+def update_user(request: schemas.UserUpdate, user_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_user.update_user(db, user_id, request)
+
+@router.put('/update/')
+def update_current_user(request: schemas.UserUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_user.update_user(db, current_user.id, request)
+
+@router.delete('/{user_id}')
+def delete_user(user_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_user.delete_user(db, user_id)

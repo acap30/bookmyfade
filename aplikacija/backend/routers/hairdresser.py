@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user
 from db.database import get_db
-from router_impl import hairdresser as hairdresser_impl
+from router_impl import db_hairdesser as hairdresser_impl
 from db.schemas import HairdresserDisplay, HairdresserCreate, HairdresserUpdate
 
 router = APIRouter(

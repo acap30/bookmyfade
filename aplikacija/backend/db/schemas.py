@@ -25,6 +25,12 @@ class UserDisplay(BaseModel):
     phone_number: Optional[str] = None
     role:Role
 
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone_number: Optional[str] = None
+
 class UserAuth(BaseModel):
     id:int
     username:str

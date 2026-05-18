@@ -8,7 +8,7 @@ Base = declarative_base()
 class DbUser(Base):
     __tablename__ = 'Users'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     username = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
@@ -24,7 +24,7 @@ class Owner(Base):
     __tablename__ = "Vlasnici"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("Users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("Users.id", ondelete="CASCADE"), nullable = "False")
     salon_id = Column(Integer, ForeignKey("Saloni.id"), nullable=False)
     user = relationship("DbUser", back_populates="owners")
     salon = relationship("Salon", back_populates="owners")
@@ -43,7 +43,7 @@ class Hairdresser(Base):
     __tablename__ = "Frizeri"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("Users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("Users.id", ondelete="CASCADE"), nullable = "False")
     salon_id = Column(Integer, ForeignKey("Saloni.id"), nullable=False)
     user = relationship("DbUser", back_populates="hairdressers")
     salon = relationship("Salon", back_populates="hairdressers")
