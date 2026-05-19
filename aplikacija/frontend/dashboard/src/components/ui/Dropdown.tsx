@@ -19,6 +19,8 @@ type Props = {
   items: DropdownItem[];
   header?: DropdownHeader;
   align?: "left" | "right";
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export default function Dropdown({
@@ -26,15 +28,24 @@ export default function Dropdown({
   items,
   header,
   align = "right",
+  open,
+  setOpen,
 }: Props) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isControlled = open !== undefined && setOpen !== undefined;
+
+  const isOpen = isControlled ? open : internalOpen;
+
+  const handleSetOpen = isControlled ? setOpen : setInternalOpen;
+
   const ref = useRef<HTMLDivElement>(null);
 
   // close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
+        handleSetOpen(false);
       }
     };
 
@@ -45,12 +56,12 @@ export default function Dropdown({
   return (
     <div className="relative inline-block" ref={ref}>
       {/* Trigger */}
-      <div onClick={() => setOpen((p) => !p)} className="cursor-pointer">
+      <div onClick={() => handleSetOpen((p) => !p)} className="cursor-pointer">
         {trigger}
       </div>
 
       {/* Menu */}
-      {open && (
+      {isOpen && (
         <div
           className={`absolute mt-2 w-48 rounded-lg border border-border bg-card shadow-lg z-50 overflow-hidden
           ${align === "right" ? "right-0" : "left-0"}`}
@@ -80,7 +91,7 @@ export default function Dropdown({
               key={idx}
               disabled={item.disabled}
               onClick={() => {
-                setOpen(false);
+                handleSetOpen(false);
                 item.onClick();
               }}
               className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition cursor-pointer

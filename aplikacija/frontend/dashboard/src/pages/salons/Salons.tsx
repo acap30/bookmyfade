@@ -1,13 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import SearchInput from "../../components/ui/SearchInput";
-import { Loader2, MapPin, MoreHorizontal, Plus, Store } from "lucide-react";
+import {
+  Eye,
+  Loader2,
+  MapPin,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Store,
+  Trash2,
+} from "lucide-react";
 import { getSalons } from "../../api/salonsApi";
 import type { ISalon } from "../../types/salon";
+import Dropdown from "../../components/ui/Dropdown";
+import AddModal from "../../components/ui/AddModal";
 
 const Salons = () => {
   const [search, setSearch] = useState("");
   const [salons, setSalons] = useState<ISalon[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   const filteredSalons = useMemo(() => {
     return salons.filter((salon) =>
@@ -42,7 +54,7 @@ const Salons = () => {
           onChange={setSearch}
         />
 
-        <button className="button-add">
+        <button className="button-add" onClick={() => setAddModalOpen(true)}>
           <Plus size={18} />
           Add Salon
         </button>
@@ -85,6 +97,31 @@ const Salons = () => {
           </div>
         )}
       </div>
+      <AddModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        title="Add Salon"
+        fields={[
+          {
+            name: "name",
+            label: "Salon Name",
+            placeholder: "Enter salon name",
+          },
+          {
+            name: "address",
+            label: "Address",
+            placeholder: "Enter address",
+          },
+          {
+            name: "phoneNumber",
+            label: "Phone Number",
+            placeholder: "Enter phone number",
+          },
+        ]}
+        onSubmit={async (data) => {
+          console.log(data);
+        }}
+      />
     </div>
   );
 };
@@ -95,8 +132,12 @@ type SalonItemProps = {
 };
 
 const SalonItem = ({ name, location }: SalonItemProps) => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="flex items-center justify-between rounded-xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+    <div
+      className={`relative ${open ? "z-20" : "z-0"} flex items-center justify-between rounded-xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md`}
+    >
       {/* Left */}
       <div className="flex items-center gap-4">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
@@ -114,9 +155,34 @@ const SalonItem = ({ name, location }: SalonItemProps) => {
       </div>
 
       {/* Right */}
-      <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card transition-all hover:scale-105 active:scale-95">
-        <MoreHorizontal size={18} />
-      </button>
+      <Dropdown
+        open={open}
+        setOpen={setOpen}
+        align="right"
+        trigger={
+          <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card transition-all hover:scale-105 active:scale-95">
+            <MoreHorizontal size={18} />
+          </button>
+        }
+        items={[
+          {
+            icon: <Eye size={16} />,
+            label: "View",
+            onClick: () => {},
+          },
+          {
+            icon: <Pencil size={16} />,
+            label: "Edit",
+            onClick: () => {},
+          },
+          {
+            icon: <Trash2 size={16} />,
+            label: "Delete",
+            onClick: () => {},
+            danger: true,
+          },
+        ]}
+      />
     </div>
   );
 };

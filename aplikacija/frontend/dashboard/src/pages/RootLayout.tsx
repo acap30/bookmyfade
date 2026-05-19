@@ -5,13 +5,13 @@ import Bottombar from "../components/layout/Bottombar";
 
 const RootLayout = () => {
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar />
 
       <div className="flex flex-1 flex-col">
         <Topbar />
 
-        <main className="flex-1 p-6 pb-20">
+        <main className="flex-1 p-6 pb-20 overflow-y-auto">
           <Outlet />
         </main>
 

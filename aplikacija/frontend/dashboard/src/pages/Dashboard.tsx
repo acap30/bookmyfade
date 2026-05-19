@@ -1,4 +1,5 @@
 import { Users, Calendar, Scissors, DollarSign } from "lucide-react";
+import StatCard from "../components/ui/StatCard";
 
 type Props = {
   title: string;
@@ -43,20 +44,7 @@ const Dashboard = () => {
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center justify-between rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
-          >
-            <div>
-              <p className="text-sm text-muted">{item.label}</p>
-
-              <p className="text-xl font-semibold text-text">{item.value}</p>
-            </div>
-
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <item.icon size={18} />
-            </div>
-          </div>
+          <StatCard label={item.label} icon={item.icon} value={item.value} />
         ))}
       </div>
 
