@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Enum, Integer, String, ForeignKey
+from sqlalchemy import Column, Enum, Integer, String, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from db.schemas import Role
@@ -24,7 +24,7 @@ class Owner(Base):
     __tablename__ = "Vlasnici"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("Users.id", ondelete="CASCADE"), nullable = "False")
+    user_id = Column(Integer, ForeignKey("Users.id", ondelete="CASCADE"), nullable = False)
     salon_id = Column(Integer, ForeignKey("Saloni.id"), nullable=False)
     user = relationship("DbUser", back_populates="owners")
     salon = relationship("Salon", back_populates="owners")
@@ -43,7 +43,21 @@ class Hairdresser(Base):
     __tablename__ = "Frizeri"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("Users.id", ondelete="CASCADE"), nullable = "False")
+    user_id = Column(Integer, ForeignKey("Users.id", ondelete="CASCADE"), nullable = False)
     salon_id = Column(Integer, ForeignKey("Saloni.id"), nullable=False)
     user = relationship("DbUser", back_populates="hairdressers")
     salon = relationship("Salon", back_populates="hairdressers")
+
+class Service(Base):
+    __tablename__ = "Usluge"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    length_minutes = Column(Integer, nullable=False)
+
+class Hairdresser_Service(Base):
+    __tablename__ = "Usluge_po_frizeru"
+
+    hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"), primary_key = True)
+    service_id = Column(Integer, ForeignKey("Usluge.id", ondelete="CASCADE"), primary_key = True)
+    price = Column(Float, nullable=False)

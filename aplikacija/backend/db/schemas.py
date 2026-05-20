@@ -85,3 +85,11 @@ class SalonUpdate(BaseModel):
 
 class HairdresserUpdate(BaseModel):
     salon_id: int | None = None
+
+class ServiceCreate(BaseModel):
+    name: str
+    length: int
+
+class ServiceUpdate(BaseModel):
+    name: Optional[str] = None
+    length: Optional[int] = None
