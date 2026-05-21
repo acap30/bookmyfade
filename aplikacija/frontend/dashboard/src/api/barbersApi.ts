@@ -30,3 +30,7 @@ export const getBarbers = async (): Promise<IBarber[]> => {
 
   return mappedBarbers;
 };
+
+export const deleteBarber = async (id: number) => {
+  await api.delete(`/hairdresser/${id}`);
+};

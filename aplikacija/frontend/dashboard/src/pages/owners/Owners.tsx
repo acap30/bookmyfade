@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { IOwner } from "../../types/owner";
-import { getOwners } from "../../api/ownersApi";
+import { deleteOwner, getOwners } from "../../api/ownersApi";
 import {
   Eye,
   Loader2,
@@ -32,21 +32,26 @@ const Owners = () => {
     );
   }, [search, owners]);
 
+  const fetchOwners = async () => {
+    try {
+      const data = await getOwners();
+
+      setOwners(data);
+    } catch (err) {
+      console.error("Failed to fetch owners", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchOwners = async () => {
-      try {
-        const data = await getOwners();
-
-        setOwners(data);
-      } catch (err) {
-        console.error("Failed to fetch owners", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOwners();
   }, []);
+
+  const handleDelete = async (id: number) => {
+    await deleteOwner(id);
+    fetchOwners();
+  };
 
   return (
     <div className="space-y-6">
@@ -86,6 +91,8 @@ const Owners = () => {
                   email={owner.user.email}
                   phoneNumber={owner.user.phoneNumber || null}
                   salonName={owner.salon.name}
+                  onEdit={() => {}}
+                  onDelete={() => handleDelete(owner.id)}
                 />
               ))
             ) : (
@@ -148,6 +155,8 @@ type OwnerItemProps = {
   email: string;
   phoneNumber?: string;
   salonName: string;
+  onEdit: () => void;
+  onDelete: () => void;
 };
 
 const OwnerItem = ({
@@ -155,6 +164,8 @@ const OwnerItem = ({
   email,
   phoneNumber,
   salonName,
+  onEdit,
+  onDelete,
 }: OwnerItemProps) => {
   const [open, setOpen] = useState(false);
 
@@ -212,12 +223,12 @@ const OwnerItem = ({
           {
             icon: <Pencil size={16} />,
             label: "Edit",
-            onClick: () => {},
+            onClick: onEdit,
           },
           {
             icon: <Trash2 size={16} />,
             label: "Delete",
-            onClick: () => {},
+            onClick: onDelete,
             danger: true,
           },
         ]}

@@ -30,3 +30,7 @@ export const getOwners = async (): Promise<IOwner[]> => {
 
   return mappedOwners;
 };
+
+export const deleteOwner = async (id: number) => {
+  await api.delete(`/owner/${id}`);
+};

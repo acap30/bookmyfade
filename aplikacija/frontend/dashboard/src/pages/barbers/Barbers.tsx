@@ -13,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import SearchInput from "../../components/ui/SearchInput";
-import { getBarbers } from "../../api/barbersApi";
+import { deleteBarber, getBarbers } from "../../api/barbersApi";
 import UserAvatar from "../../components/ui/UserAvatar";
 import Dropdown from "../../components/ui/Dropdown";
 import AddModal from "../../components/ui/AddModal";
@@ -32,21 +32,26 @@ const Barbers = () => {
     );
   }, [search, barbers]);
 
+  const fetchBarbers = async () => {
+    try {
+      const data = await getBarbers();
+
+      setBarbers(data);
+    } catch (err) {
+      console.error("Failed to fetch barbers", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchBarbers = async () => {
-      try {
-        const data = await getBarbers();
-
-        setBarbers(data);
-      } catch (err) {
-        console.error("Failed to fetch barbers", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchBarbers();
   }, []);
+
+  const handleDelete = async (id: number) => {
+    await deleteBarber(id);
+    fetchBarbers();
+  };
 
   return (
     <div className="space-y-6">
@@ -86,6 +91,8 @@ const Barbers = () => {
                   email={barber.user.email}
                   phoneNumber={barber.user.phoneNumber || null}
                   salonName={barber.salon.name}
+                  onEdit={() => {}}
+                  onDelete={() => handleDelete(barber.id)}
                 />
               ))
             ) : (
@@ -148,6 +155,8 @@ type BarberItemProps = {
   email: string;
   phoneNumber?: string;
   salonName: string;
+  onEdit: () => void;
+  onDelete: () => void;
 };
 
 const BarberItem = ({
@@ -155,6 +164,8 @@ const BarberItem = ({
   email,
   phoneNumber,
   salonName,
+  onEdit,
+  onDelete,
 }: BarberItemProps) => {
   const [open, setOpen] = useState(false);
 
@@ -212,12 +223,12 @@ const BarberItem = ({
           {
             icon: <Pencil size={16} />,
             label: "Edit",
-            onClick: () => {},
+            onClick: onEdit,
           },
           {
             icon: <Trash2 size={16} />,
             label: "Delete",
-            onClick: () => {},
+            onClick: onDelete,
             danger: true,
           },
         ]}

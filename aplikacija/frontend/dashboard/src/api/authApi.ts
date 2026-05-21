@@ -32,4 +32,9 @@ export const signIn = async (
   };
 };
 
+export const refresh = async () => {
+  const response = await api.post("/refresh");
+  return response.data.access_token;
+};
+
 export const updateProfile = async (newUser: IUser) => {};
