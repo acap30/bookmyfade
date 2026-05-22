@@ -4,7 +4,15 @@ import AuthLayout from "./auth/AuthLayout";
 import SigninForm from "./auth/SigninForm";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleRoute from "./routes/RoleRoute";
-import { Barbers, Dashboard, MySalon, Owners, Profile, Salons } from "./pages";
+import {
+  Barbers,
+  Dashboard,
+  MySalon,
+  Owners,
+  Profile,
+  SalonDetails,
+  Salons,
+} from "./pages";
 import { ROLES } from "./types/auth";
 
 function App() {
@@ -23,6 +31,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route element={<RoleRoute allowedRoles={[ROLES.ADMIN]} />}>
               <Route path="/salons" element={<Salons />} />
+              <Route path="/salons/:id" element={<SalonDetails />} />
               <Route path="/owners" element={<Owners />} />
             </Route>
             <Route

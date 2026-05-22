@@ -12,7 +12,12 @@ export const routeConfig = [
   {
     title: "Salons",
     subtitle: "Browse and manage all salon locations",
-    match: (pathname: string) => pathname.startsWith("/salons"),
+    match: (pathname: string) => pathname === "/salons",
+  },
+  {
+    title: "Salon Details",
+    subtitle: "View salon information, services, and activity",
+    match: (pathname: string) => pathname.startsWith("/salons/"),
   },
   {
     title: "My Salon",

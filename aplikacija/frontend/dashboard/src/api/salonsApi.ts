@@ -6,6 +6,11 @@ export const getSalons = async (): Promise<ISalon[]> => {
   return response.data;
 };
 
+export const getSalonById = async (id: string): Promise<ISalon> => {
+  const response = await api.get(`/salon/${id}`);
+  return response.data;
+};
+
 export const deleteSalon = async (id: number) => {
   await api.delete(`/salon/${id}`);
 };

@@ -14,12 +14,15 @@ import { addSalon, deleteSalon, getSalons } from "../../api/salonsApi";
 import type { ISalon } from "../../types/salon";
 import Dropdown from "../../components/ui/Dropdown";
 import AddModal from "../../components/modals/AddModal";
+import { useNavigate } from "react-router-dom";
 
 const Salons = () => {
   const [search, setSearch] = useState("");
   const [salons, setSalons] = useState<ISalon[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const filteredSalons = useMemo(() => {
     return salons.filter((salon) =>
@@ -97,6 +100,7 @@ const Salons = () => {
                   location={salon.address}
                   onEdit={() => {}}
                   onDelete={() => handleDelete(salon.id)}
+                  onView={() => navigate(`/salons/${salon.id}`)}
                 />
               ))
             ) : (
@@ -143,11 +147,18 @@ const Salons = () => {
 type SalonItemProps = {
   name: string;
   location: string;
+  onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
 };
 
-const SalonItem = ({ name, location, onEdit, onDelete }: SalonItemProps) => {
+const SalonItem = ({
+  name,
+  location,
+  onView,
+  onEdit,
+  onDelete,
+}: SalonItemProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -184,7 +195,7 @@ const SalonItem = ({ name, location, onEdit, onDelete }: SalonItemProps) => {
           {
             icon: <Eye size={16} />,
             label: "View",
-            onClick: () => {},
+            onClick: onView,
           },
           {
             icon: <Pencil size={16} />,
