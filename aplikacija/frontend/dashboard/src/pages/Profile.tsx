@@ -4,7 +4,8 @@ import UserAvatar from "../components/ui/UserAvatar";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import ProfileInput from "../components/profile/ProfileInput";
-import ChangePasswordModal from "../components/profile/ChangePasswordModal";
+import ChangePasswordModal from "../components/modals/ChangePasswordModal";
+import { updateProfile } from "../api/authApi";
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -38,8 +39,8 @@ const Profile = () => {
         phoneNumber: formData.phoneNumber || null,
       };
 
-      // TODO: API REQUEST HERE
-      // await updateProfile(newUser);
+      const res = await updateProfile(newUser);
+      console.log(res.data.message);
 
       updateUser(newUser);
 

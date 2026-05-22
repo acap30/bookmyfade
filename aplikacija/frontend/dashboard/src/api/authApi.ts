@@ -37,4 +37,14 @@ export const refresh = async () => {
   return response.data.access_token;
 };
 
-export const updateProfile = async (newUser: IUser) => {};
+export const updateProfile = async (newUser: IUser) => {
+  const response = await api.put("/users/update/", {
+    username: newUser.username,
+    first_name: newUser.firstName,
+    last_name: newUser.lastName,
+    phone_number: newUser.phoneNumber,
+    email: newUser.email,
+  });
+
+  return response;
+};

@@ -16,7 +16,7 @@ import SearchInput from "../../components/ui/SearchInput";
 import { deleteBarber, getBarbers } from "../../api/barbersApi";
 import UserAvatar from "../../components/ui/UserAvatar";
 import Dropdown from "../../components/ui/Dropdown";
-import AddModal from "../../components/ui/AddModal";
+import AddModal from "../../components/modals/AddModal";
 
 const Barbers = () => {
   const [search, setSearch] = useState("");

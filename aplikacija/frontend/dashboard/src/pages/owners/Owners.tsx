@@ -16,7 +16,7 @@ import {
 import SearchInput from "../../components/ui/SearchInput";
 import UserAvatar from "../../components/ui/UserAvatar";
 import Dropdown from "../../components/ui/Dropdown";
-import AddModal from "../../components/ui/AddModal";
+import AddModal from "../../components/modals/AddModal";
 
 const Owners = () => {
   const [search, setSearch] = useState("");

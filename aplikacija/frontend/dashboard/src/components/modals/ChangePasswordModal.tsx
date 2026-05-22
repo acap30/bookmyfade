@@ -2,7 +2,7 @@ import { useState } from "react";
 import { CircleAlert } from "lucide-react";
 
 import Modal from "../ui/Modal";
-import PasswordInput from "./PasswordInput";
+import PasswordInput from "../profile/PasswordInput";
 
 type Props = {
   open: boolean;

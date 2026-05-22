@@ -9,3 +9,8 @@ export const getSalons = async (): Promise<ISalon[]> => {
 export const deleteSalon = async (id: number) => {
   await api.delete(`/salon/${id}`);
 };
+
+export const addSalon = async (data: ISalon) => {
+  const res = await api.post("/salon/", data);
+  return res;
+};

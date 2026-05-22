@@ -10,10 +10,10 @@ import {
   Store,
   Trash2,
 } from "lucide-react";
-import { deleteSalon, getSalons } from "../../api/salonsApi";
+import { addSalon, deleteSalon, getSalons } from "../../api/salonsApi";
 import type { ISalon } from "../../types/salon";
 import Dropdown from "../../components/ui/Dropdown";
-import AddModal from "../../components/ui/AddModal";
+import AddModal from "../../components/modals/AddModal";
 
 const Salons = () => {
   const [search, setSearch] = useState("");
@@ -47,6 +47,15 @@ const Salons = () => {
 
   const handleDelete = async (id: number) => {
     await deleteSalon(id);
+    fetchSalons();
+  };
+
+  const handleAdd = async (data) => {
+    try {
+      await addSalon(data);
+    } catch (error) {
+      console.error(error);
+    }
     fetchSalons();
   };
 
@@ -125,9 +134,7 @@ const Salons = () => {
             placeholder: "Enter phone number",
           },
         ]}
-        onSubmit={async (data) => {
-          console.log(data);
-        }}
+        onSubmit={handleAdd}
       />
     </div>
   );
