@@ -37,7 +37,7 @@ const SigninForm = () => {
         password: "",
       });
 
-      navigate("/dashboard", { replace: true });
+      navigate("/", { replace: true });
     } catch (error) {
       console.error(error);
     } finally {

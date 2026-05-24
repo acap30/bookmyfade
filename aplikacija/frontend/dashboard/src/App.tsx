@@ -4,10 +4,6 @@ import AuthLayout from "./auth/AuthLayout";
 import SigninForm from "./auth/SigninForm";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleRoute from "./routes/RoleRoute";
-import SalonList from "./pages/client/SalonList";
-import SalonPage from "./pages/client/SalonPage";
-import BarberList from "./pages/client/BarberList";
-import BarberPage from "./pages/client/BarberPage";
 import {
   Barbers,
   Dashboard,
@@ -16,7 +12,6 @@ import {
   Profile,
   SalonDetails,
   Salons,
-  Home,
 } from "./pages";
 import { ROLES } from "./types/auth";
 
@@ -25,25 +20,14 @@ function App() {
     <div>
       <Routes>
         {/* public routes */}
-        <Route path="/" element={<Home />} />
-
         <Route element={<AuthLayout />}>
           <Route path="/sign-in" element={<SigninForm />} />
         </Route>
 
-        <Route path="/browse-salons" element={<SalonList />} />
-        <Route path="/salon/:id" element={<SalonPage />} />
-
-        <Route path="/salon/:id/barbers" element={<BarberList />} />
-        <Route
-          path="/salon/:id/barber/:barberId"
-          element={<BarberPage />}
-        />
-
         {/* private routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<RootLayout />}>
-            <Route index path="/dashboard" element={<Dashboard />} />
+            <Route index path="/" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route element={<RoleRoute allowedRoles={[ROLES.ADMIN]} />}>
               <Route path="/salons" element={<Salons />} />
@@ -59,6 +43,7 @@ function App() {
           </Route>
         </Route>
 
+        {/* Redirect unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
