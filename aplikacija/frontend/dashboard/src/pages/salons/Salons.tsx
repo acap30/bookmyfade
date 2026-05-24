@@ -10,17 +10,26 @@ import {
   Store,
   Trash2,
 } from "lucide-react";
-import { addSalon, deleteSalon, getSalons } from "../../api/salonsApi";
+import {
+  addSalon,
+  deleteSalon,
+  getSalons,
+  updateSalon,
+} from "../../api/salonsApi";
 import type { ISalon } from "../../types/salon";
 import Dropdown from "../../components/ui/Dropdown";
 import AddModal from "../../components/modals/AddModal";
 import { useNavigate } from "react-router-dom";
+import EditSalonModal from "../../components/modals/EditSalonModal";
 
 const Salons = () => {
   const [search, setSearch] = useState("");
   const [salons, setSalons] = useState<ISalon[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const [selectedSalon, setSelectedSalon] = useState<ISalon | null>(null);
 
   const navigate = useNavigate();
 
@@ -62,6 +71,18 @@ const Salons = () => {
     fetchSalons();
   };
 
+  const handleEdit = (salon: ISalon) => {
+    setSelectedSalon(salon);
+
+    setEditOpen(true);
+  };
+
+  const editSalon = async (id: number, data: Omit<ISalon, "id">) => {
+    await updateSalon(id, data);
+
+    fetchSalons();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -98,7 +119,7 @@ const Salons = () => {
                   key={salon.id}
                   name={salon.name}
                   location={salon.address}
-                  onEdit={() => {}}
+                  onEdit={() => handleEdit(salon)}
                   onDelete={() => handleDelete(salon.id)}
                   onView={() => navigate(`/salons/${salon.id}`)}
                 />
@@ -139,6 +160,12 @@ const Salons = () => {
           },
         ]}
         onSubmit={handleAdd}
+      />
+      <EditSalonModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        salon={selectedSalon}
+        onSubmit={(id, data) => editSalon(id, data)}
       />
     </div>
   );

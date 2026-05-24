@@ -19,3 +19,7 @@ export const addSalon = async (data: ISalon) => {
   const res = await api.post("/salon/", data);
   return res;
 };
+
+export const updateSalon = async (id: number, data: Omit<ISalon, "id">) => {
+  await api.put(`/salon/${id}`, data);
+};
