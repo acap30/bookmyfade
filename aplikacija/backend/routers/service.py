@@ -11,6 +11,8 @@ router = APIRouter(
     tags = ['service']
 )
 
+# CRUD
+
 @router.post('/')
 def create_service(request: schemas.ServiceCreate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_service.create_service(db, request)
@@ -30,3 +32,13 @@ def update_service(id: int, request: schemas.ServiceUpdate, db: Session = Depend
 @router.delete('/{id}')
 def delete_service(id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_service.delete_service(db, id)
+
+#LINKER TABLE
+
+@router.post('/link/{hairdresser_id}/{service_id}')
+def link_service_to_hairdresser(hairdresser_id: int, service_id: int, req: schemas.ServiceLink, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_service.link_service_to_hairdresser(hairdresser_id, service_id, req, db)
+
+@router.post('/{hairdresser_id}')
+def create_service_with_hairdresser(hairdresser_id: int, req: schemas.ServiceCreateAndLink, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_service.create_service_with_hairdresser(hairdresser_id, req, db)

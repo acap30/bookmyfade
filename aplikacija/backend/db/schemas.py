@@ -1,11 +1,21 @@
 from typing import Optional
 from pydantic import BaseModel
 from enum import Enum
+from datetime import time
 
 class Role(str, Enum):
     ADMIN = "admin"
     OWNER = "owner"
     HAIRSTYLIST = "hairstylist"
+
+class Weekday(int, Enum):
+    MONDAY = 1
+    TUESDAY = 2
+    WEDNESDAY = 3
+    THURSDAY = 4
+    FRIDAY = 5
+    SATURDAY = 6
+    SUNDAY = 7
 
 class User(BaseModel):
     username:str
@@ -93,3 +103,22 @@ class ServiceCreate(BaseModel):
 class ServiceUpdate(BaseModel):
     name: Optional[str] = None
     length: Optional[int] = None
+
+class ServiceLink(BaseModel):
+    price: float
+
+class ServiceCreateAndLink(BaseModel):
+    name: str
+    length: int
+    price: float
+
+class WorkingHoursCreate(BaseModel):
+    hairdresser_id: int
+    weekday: Weekday
+    start: Optional[time] = None
+    end: Optional[time] = None
+
+class WorkingHoursUpdate(BaseModel):
+    weekday: Optional[Weekday] = None
+    start: Optional[time] = None
+    end: Optional[time] = None

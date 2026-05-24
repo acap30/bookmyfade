@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Enum, Integer, String, ForeignKey, Float
+from sqlalchemy import Column, Enum, Integer, String, ForeignKey, Float, Time, Date, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from db.schemas import Role
+from db.schemas import Role, Weekday
 
 Base = declarative_base()
 
@@ -48,6 +48,10 @@ class Hairdresser(Base):
     user = relationship("DbUser", back_populates="hairdressers")
     salon = relationship("Salon", back_populates="hairdressers")
 
+    services = relationship("Hairdresser_Service", back_populates="hairdresser", cascade="all, delete-orphan")
+    working_hours = relationship("WorkingHours", back_populates="hairdresser", cascade="all, delete-orphan")
+    working_hours_exceptions = relationship("WorkingHoursExceptions", back_populates="hairdresser", cascade="all, delete-orphan")
+
 class Service(Base):
     __tablename__ = "Usluge"
 
@@ -55,9 +59,46 @@ class Service(Base):
     name = Column(String(255), nullable=False)
     length_minutes = Column(Integer, nullable=False)
 
+    hairdressers = relationship(
+        "Hairdresser_Service",
+        back_populates="service",
+        cascade="all, delete-orphan"
+    )
+
 class Hairdresser_Service(Base):
     __tablename__ = "Usluge_po_frizeru"
 
     hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"), primary_key = True)
     service_id = Column(Integer, ForeignKey("Usluge.id", ondelete="CASCADE"), primary_key = True)
     price = Column(Float, nullable=False)
+
+    hairdresser = relationship("Hairdresser", back_populates="services")
+    service = relationship("Service", back_populates="hairdressers")
+
+class WorkingHours(Base):
+    __tablename__ = "Radno_vreme"
+
+    id = Column(Integer, primary_key=True)
+    hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"), primary_key = True)
+    weekday = Column(Enum(Weekday), nullable=False)
+    start = Column(Time, nullable=True)
+    end = Column(Time, nullable=True)
+
+    hairdresser = relationship("Hairdresser", back_populates="working_hours")
+
+
+class WorkingHoursExceptions(Base):
+    __tablename__ = "Radno_vreme_izuzeci"
+
+    id = Column(Integer, primary_key=True)
+    hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"), primary_key = True)
+    date = Column(Date, nullable=False)
+    start = Column(Time, nullable=True)
+    end = Column(Time, nullable=True)
+    day_off = Column(Boolean, nullable=False, default=False)
+
+    hairdresser = relationship("Hairdresser", back_populates="working_hours_exceptions")
+    
+
+
+
