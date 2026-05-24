@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 const AuthLayout = () => {
   const { token } = useAuth();
 
-  if (token) return <Navigate to="/" />;
+  if (token) return <Navigate to="/dashboard" />;
 
   return (
     <main className="h-screen w-full">
