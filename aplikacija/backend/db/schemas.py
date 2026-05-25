@@ -97,6 +97,7 @@ class HairdresserUpdate(BaseModel):
     salon_id: int | None = None
 
 class ServiceCreate(BaseModel):
+    salon_id: int
     name: str
     length: int
 
@@ -107,7 +108,11 @@ class ServiceUpdate(BaseModel):
 class ServiceLink(BaseModel):
     price: float
 
+class ServiceLinkUpdate(BaseModel):
+    price: Optional[float] = None
+
 class ServiceCreateAndLink(BaseModel):
+    salon_id: int
     name: str
     length: int
     price: float

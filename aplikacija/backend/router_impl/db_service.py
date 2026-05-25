@@ -1,10 +1,18 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm.session import Session
 from db import schemas
-from db.models import Service, Hairdresser, Hairdresser_Service
+from db.models import Service, Hairdresser, Hairdresser_Service, Salon
 
 def create_service(db: Session, request: schemas.ServiceCreate):
+    
+    salon = db.query(Salon).filter(Salon.id == request.salon_id).first()
+
+    if not salon:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Salon not found")
+    
     new_service = Service(
+        salon_id = salon.id,
         name=request.name,
         length_minutes=request.length
     )
@@ -56,17 +64,22 @@ def delete_service(db: Session, id: int):
 
 def link_service_to_hairdresser(hd_id: int, svc_id: int, req: schemas.ServiceLink, db: Session):
 
-    hd = db.query(Hairdresser).filter(hd_id == Hairdresser.id).first()
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
 
     if not hd:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Hairdresser not found.")
     
-    svc = db.query(Service).filter(svc_id==Service.id).first()
+    
+    svc = db.query(Service).filter(Service.id == svc_id).first()
 
     if not svc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Service not found.")
+    
+    if hd.salon_id != svc.salon_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="service/barber not in the same salon")
     
     new_link = Hairdresser_Service(
         hairdresser_id = hd_id,
@@ -82,13 +95,19 @@ def link_service_to_hairdresser(hd_id: int, svc_id: int, req: schemas.ServiceLin
 
 def create_service_with_hairdresser(hd_id: int, req: schemas.ServiceCreateAndLink, db: Session):
     
-    hd = db.query(Hairdresser).filter(hd_id == Hairdresser.id).first()
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
 
     if not hd:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Hairdresser not found.")
     
+    salon = db.query(Salon).filter(Salon.id == req.salon_id).first()
+
+    if not salon:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Salon not found")
     new_service = Service(
+        salon_id = salon.id,
         name = req.name,
         length_minutes = req.length
     )
@@ -108,3 +127,133 @@ def create_service_with_hairdresser(hd_id: int, req: schemas.ServiceCreateAndLin
     db.refresh(new_link)
 
     return {"message": "good"}
+
+def get_services_by_salon_id(salon_id: int, db: Session):
+
+    salon = db.query(Salon).filter(Salon.id == salon_id).first()
+
+    if not salon:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Salon not found")
+
+    services = db.query(Service).filter(Service.salon_id == salon_id).all()
+
+    return {
+        "salon_id": salon.id,
+        "services": [
+            {
+                "id": service.id,
+                "name": service.name,
+                "length": service.length_minutes
+            }
+            for service in services
+        ]
+    }
+
+
+def get_services_by_hairdresser_id(hd_id: int, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser not found.")
+
+    services = db.query(Hairdresser_Service).filter(Hairdresser_Service.hairdresser_id==hd_id).all()
+
+    return {
+        "salon_id": hd.salon_id,
+        "hairdresser_id": hd.id,
+        "services": [
+            {
+            "id": ser.service.id,
+            "name": ser.service.name,
+            "length": ser.service.length_minutes,
+            "price": ser.price
+            }
+            for ser in services
+        ]
+    }
+
+def unlink_service_to_hairdresser(hd_id: int, svc_id: id, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser not found.")
+    
+    
+    svc = db.query(Service).filter(Service.id == svc_id).first()
+
+    if not svc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Service not found.")
+    
+    to_delete = db.query(Hairdresser_Service).filter(Hairdresser_Service.hairdresser_id == hd_id,
+                                                      Hairdresser_Service.service_id == svc_id).first()
+    
+    if not to_delete:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="link not found")
+    
+    db.delete(to_delete)
+    db.commit()
+
+    return {"message": "good"}
+
+def update_link(hd_id: int, svc_id: int, req: schemas.ServiceLinkUpdate, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser not found.")
+    
+    
+    svc = db.query(Service).filter(Service.id == svc_id).first()
+
+    if not svc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Service not found.")
+    
+    link = db.query(Hairdresser_Service).filter(Hairdresser_Service.hairdresser_id == hd_id,
+                                                      Hairdresser_Service.service_id == svc_id).first()
+    
+    if not link:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="link not found")
+    
+    link.price = req.price if req.price is not None else link.price
+
+    db.commit()
+    db.refresh(link)
+
+    return link
+
+
+def get_all_links_by_service_id(svc_id: int, db: Session):
+
+
+    svc = db.query(Service).filter(Service.id == svc_id).first()
+
+    if not svc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Service not found.")
+    
+    links = db.query(Hairdresser_Service).filter(Hairdresser_Service.service_id == svc_id).all()
+
+    return {
+        "service_id": svc.id,
+        "name": svc.name,
+        "salon_id": svc.salon_id,
+        "length": svc.length_minutes,
+        "links": [
+            {
+                "hairdresser_id": link.hairdresser_id,
+                "price": link.price
+            }
+            for link in links
+        ]
+    }
+    

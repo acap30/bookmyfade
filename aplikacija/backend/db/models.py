@@ -38,6 +38,7 @@ class Salon(Base):
     phone = Column(String(50))
     owners = relationship("Owner", back_populates="salon")
     hairdressers = relationship("Hairdresser", back_populates="salon")
+    services = relationship("Service", back_populates="salon")
 
 class Hairdresser(Base):
     __tablename__ = "Frizeri"
@@ -56,8 +57,14 @@ class Service(Base):
     __tablename__ = "Usluge"
 
     id = Column(Integer, primary_key=True)
+    salon_id = Column(Integer, ForeignKey("Saloni.id", ondelete="CASCADE"), nullable=False)
     name = Column(String(255), nullable=False)
     length_minutes = Column(Integer, nullable=False)
+
+    salon = relationship(
+        "Salon",
+        back_populates="services"
+    )
 
     hairdressers = relationship(
         "Hairdresser_Service",

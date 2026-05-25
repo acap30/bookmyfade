@@ -90,7 +90,15 @@ def update_user(db: Session, user_id: int, request: UserUpdate):
     db.commit()
     db.refresh(user)
 
-    return {"message": "User updated successfully"}
+    return UserDisplay(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        phone_number=user.phone_number,
+        role=user.role
+    )
 
 def delete_user(db: Session, user_id: int):
 

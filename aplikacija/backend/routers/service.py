@@ -42,3 +42,30 @@ def link_service_to_hairdresser(hairdresser_id: int, service_id: int, req: schem
 @router.post('/{hairdresser_id}')
 def create_service_with_hairdresser(hairdresser_id: int, req: schemas.ServiceCreateAndLink, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_service.create_service_with_hairdresser(hairdresser_id, req, db)
+
+@router.put('/link/{hairdresser_id}/{service_id}')
+def update_service_to_hairdresser(hairdresser_id: int, service_id: int, req: schemas.ServiceLinkUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_service.update_link(hairdresser_id, service_id, req, db)
+
+@router.delete('/link/{hairdresser_id}/{service_id}')
+def unlink_service_to_hairdresser(hairdresser_id: int, service_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_service.unlink_service_to_hairdresser(hairdresser_id, service_id, db)
+
+#GET ALL LINKS TO A SERVICE
+
+@router.get('/link/service/{service_id}')
+def get_all_links_by_service_id(service_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_service.get_all_links_by_service_id(service_id, db)
+#ADD SINGLE LINK (ne znam sta sam hteo ovime)
+
+#GET ALL SERVICES BY SALON ID
+
+@router.get('/salon/{salon_id}')
+def get_services_by_salon_id(salon_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_service.get_services_by_salon_id(salon_id, db)
+
+#GET ALL SERVICES BY HAIRDRESSER ID
+
+@router.get('/hairdresser/{hairdresser_id}')
+def get_services_by_hairdresser_id(hd_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_service.get_services_by_hairdresser_id(hd_id, db)

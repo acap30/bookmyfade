@@ -23,7 +23,7 @@ def update_user(request: schemas.UserUpdate, user_id: int, db: Session = Depends
     if current_user.role == schemas.Role.ADMIN:
         return db_user.update_user(db, user_id, request)
     else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
 
 @router.put('/update/')
@@ -34,5 +34,5 @@ def update_current_user(request: schemas.UserUpdate, db: Session = Depends(get_d
 def delete_user(user_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     if current_user.role == schemas.Role.ADMIN:
         return db_user.delete_user(db, user_id)
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
