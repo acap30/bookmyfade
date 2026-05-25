@@ -28,7 +28,7 @@ body {
 }
 
 .button-add {
-  @apply flex w-fit max-sm:w-full max-sm:justify-center items-center gap-2 px-5 rounded-xl bg-primary py-3 text-primary-foreground transition hover:opacity-90 mt-2 cursor-pointer disabled:opacity-70;
+  @apply flex max-sm:w-full justify-center items-center gap-2 px-5 rounded-xl bg-primary py-3 text-primary-foreground transition hover:opacity-90 mt-2 cursor-pointer disabled:opacity-70;
 }
 
 .light-input {
@@ -37,4 +37,8 @@ body {
 
 .card-input {
   @apply w-full rounded-xl border border-border bg-card px-4 py-3 text-text outline-none transition focus:border-text;
+}
+
+.icon-container {
+  @apply flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground;
 }

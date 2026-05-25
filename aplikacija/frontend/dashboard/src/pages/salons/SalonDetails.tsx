@@ -9,38 +9,20 @@ import {
   DollarSign,
   Store,
   Loader2,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getSalonById } from "../../api/salonsApi";
 import StatCard from "../../components/ui/StatCard";
-
-const services = [
-  {
-    id: 1,
-    name: "Haircut (fake)",
-    duration: "30 min",
-    price: "$15",
-  },
-  {
-    id: 2,
-    name: "Fade Cut (fake)",
-    duration: "45 min",
-    price: "$20",
-  },
-  {
-    id: 3,
-    name: "Beard Trim (fake)",
-    duration: "20 min",
-    price: "$10",
-  },
-  {
-    id: 4,
-    name: "Hair + Beard (fake)",
-    duration: "60 min",
-    price: "$25",
-  },
-];
+import type { IService } from "../../types/service";
+import {
+  addServiceWithSalonId,
+  deleteService,
+  getSerivicesBySalonId,
+} from "../../api/servicesApi";
+import AddModal from "../../components/modals/AddModal";
 
 const recentAppointments = [
   {
@@ -67,11 +49,13 @@ const SalonDetails = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [salon, setSalon] = useState(null);
+  const [services, setServices] = useState<IService[]>(null);
+  const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
 
   const fetchData = async (salon_id: string) => {
     try {
       const data = await getSalonById(salon_id);
-
+      const services = await getSerivicesBySalonId(salon_id);
       setSalon({
         id: data.id,
         name: data.name,
@@ -87,8 +71,9 @@ const SalonDetails = () => {
           services: 14,
         },
       });
+      setServices(services);
     } catch (err) {
-      console.error("Failed to fetch salons", err);
+      console.error("Failed to fetch salon details", err);
     } finally {
       setLoading(false);
     }
@@ -97,6 +82,16 @@ const SalonDetails = () => {
   useEffect(() => {
     fetchData(id);
   }, []);
+
+  const handleAddService = async (id, data) => {
+    await addServiceWithSalonId(id, data);
+    fetchData(id);
+  };
+
+  const handleDeleteService = async (service_id) => {
+    await deleteService(service_id);
+    fetchData(salon.id);
+  };
 
   return (
     <div className="space-y-6">
@@ -178,7 +173,7 @@ const SalonDetails = () => {
           {/* Bottom */}
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
             {/* Services */}
-            <div className="xl:col-span-2 rounded-2xl border border-border bg-card p-5">
+            <div className="h-fit xl:col-span-2 rounded-2xl border border-border bg-card p-5">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-text">Services</h2>
 
@@ -193,19 +188,33 @@ const SalonDetails = () => {
                     key={service.id}
                     className="flex items-center justify-between rounded-xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
                   >
-                    <div>
+                    <div className="flex items-center gap-2">
+                      <div className="icon-container">
+                        <Scissors size={18} />
+                      </div>
                       <h3 className="font-medium text-text">{service.name}</h3>
-
-                      <p className="mt-1 text-sm text-muted">
-                        {service.duration}
-                      </p>
                     </div>
 
-                    <div className="rounded-xl border border-border bg-card px-3 py-1 text-sm font-medium text-text">
-                      {service.price}
+                    <div className="flex items-center gap-2">
+                      <div className="rounded-xl border border-border bg-card px-3 py-1 text-sm font-medium text-text">
+                        {service.length} min
+                      </div>
+                      <button
+                        onClick={() => handleDeleteService(service.id)}
+                        className="flex h-9 w-9 items-center justify-center rounded-xl text-red-500 border border-red-500/20 bg-red-500/10 transition-colors hover:bg-red-500/20 cursor-pointer"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
                 ))}
+                <button
+                  className="button-add w-full"
+                  onClick={() => setAddServiceModalOpen(true)}
+                >
+                  <Plus size={18} />
+                  <p>Add Service</p>
+                </button>
               </div>
             </div>
 
@@ -241,6 +250,25 @@ const SalonDetails = () => {
           </div>
         </>
       )}
+      <AddModal
+        open={addServiceModalOpen}
+        onClose={() => setAddServiceModalOpen(false)}
+        title="Add Service"
+        fields={[
+          {
+            name: "name",
+            label: "Service Name",
+            placeholder: "Enter service name",
+          },
+          {
+            name: "length",
+            label: "Service Length",
+            placeholder: "Enter service length",
+            type: "number",
+          },
+        ]}
+        onSubmit={(data) => handleAddService(salon.id, data)}
+      />
     </div>
   );
 };
