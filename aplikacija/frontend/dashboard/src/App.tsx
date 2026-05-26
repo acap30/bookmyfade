@@ -14,6 +14,7 @@ import {
   Salons,
 } from "./pages";
 import { ROLES } from "./types/auth";
+import BarberDetails from "./pages/barbers/BarberDetails";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             >
               <Route path="/my-salon" element={<MySalon />} />
               <Route path="/barbers" element={<Barbers />} />
+              <Route path="/barbers/:id" element={<BarberDetails />} />
             </Route>
           </Route>
         </Route>

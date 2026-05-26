@@ -78,7 +78,7 @@ const AddModal = ({ open, onClose, title, fields, onSubmit }: Props) => {
   };
 
   return (
-    <Modal open={open} onClose={handleCancel} title={title}>
+    <Modal open={open} title={title}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {fields.map((field) => (
           <div key={field.name} className="space-y-2">

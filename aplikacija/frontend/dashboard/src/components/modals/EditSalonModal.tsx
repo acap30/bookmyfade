@@ -81,7 +81,7 @@ const EditSalonModal = ({ open, onClose, salon, onSubmit }: Props) => {
   };
 
   return (
-    <Modal open={open} onClose={handleClose} title="Edit Salon">
+    <Modal open={open} title="Edit Salon">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name */}
         <div>

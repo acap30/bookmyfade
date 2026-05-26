@@ -80,7 +80,7 @@ const ChangePasswordModal = ({ open, onClose }: Props) => {
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Change Password">
+    <Modal open={open} title="Change Password">
       <form onSubmit={handleSubmit} className="space-y-4">
         <PasswordInput
           label="Current Password"

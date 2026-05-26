@@ -31,6 +31,27 @@ export const getBarbers = async (): Promise<IBarber[]> => {
   return mappedBarbers;
 };
 
+export const getBarberById = async (id: string): Promise<IBarber> => {
+  const { data: barber } = await api.get(`/hairdresser/${id}`);
+  const { data: user } = await api.get(`/users/${barber.user_id}`);
+  const { data: salon } = await api.get(`/salon/${barber.salon_id}`);
+
+  return {
+    id: barber.id,
+    user: {
+      id: user.id,
+      fullName: `${user.first_name} ${user.last_name}`,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      phoneNumber: user.phone_number,
+    },
+    salon,
+  };
+};
+
 export const deleteBarber = async (id: number) => {
   await api.delete(`/hairdresser/${id}`);
 };

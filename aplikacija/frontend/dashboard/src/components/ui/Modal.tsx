@@ -2,12 +2,11 @@ import type { ReactNode } from "react";
 
 type Props = {
   open: boolean;
-  onClose: () => void;
   title: string;
   children: ReactNode;
 };
 
-const Modal = ({ open, onClose, title, children }: Props) => {
+const Modal = ({ open, title, children }: Props) => {
   if (!open) return null;
 
   return (

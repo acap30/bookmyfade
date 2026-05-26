@@ -17,12 +17,15 @@ import { deleteBarber, getBarbers } from "../../api/barbersApi";
 import UserAvatar from "../../components/ui/UserAvatar";
 import Dropdown from "../../components/ui/Dropdown";
 import AddModal from "../../components/modals/AddModal";
+import { useNavigate } from "react-router-dom";
 
 const Barbers = () => {
   const [search, setSearch] = useState("");
   const [barbers, setBarbers] = useState<IOwner[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const filteredBarbers = useMemo(() => {
     return barbers.filter((barber) =>
@@ -91,6 +94,7 @@ const Barbers = () => {
                   email={barber.user.email}
                   phoneNumber={barber.user.phoneNumber || null}
                   salonName={barber.salon.name}
+                  onView={() => navigate(`/barbers/${barber.id}`)}
                   onEdit={() => {}}
                   onDelete={() => handleDelete(barber.id)}
                 />
@@ -155,6 +159,7 @@ type BarberItemProps = {
   email: string;
   phoneNumber?: string;
   salonName: string;
+  onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
 };
@@ -164,6 +169,7 @@ const BarberItem = ({
   email,
   phoneNumber,
   salonName,
+  onView,
   onEdit,
   onDelete,
 }: BarberItemProps) => {
@@ -218,7 +224,7 @@ const BarberItem = ({
           {
             icon: <Eye size={16} />,
             label: "View",
-            onClick: () => {},
+            onClick: onView,
           },
           {
             icon: <Pencil size={16} />,
