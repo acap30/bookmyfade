@@ -5,6 +5,25 @@ from db.database import get_db
 from router_impl import db_salon as salon_impl
 from db.schemas import SalonDisplay, SalonCreate, SalonUpdate
 
+router_public = APIRouter(
+    prefix="/public/salon",
+    tags=["Public Salon"]
+)
+
+@router_public.get("/", response_model=list[SalonDisplay])
+def get_public_salons(
+    db: Session = Depends(get_db)
+):
+    return salon_impl.get_all_salons(db)
+
+
+@router_public.get("/{salon_id}", response_model=SalonDisplay)
+def get_public_salon_by_id(
+    salon_id: int,
+    db: Session = Depends(get_db)
+):
+    return salon_impl.get_salon_by_id(db, salon_id)
+
 router = APIRouter(
     prefix="/salon",
     tags=["Salon"],

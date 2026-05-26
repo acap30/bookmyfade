@@ -31,7 +31,11 @@ const BarberList = () => {
       try {
         const data = await getBarbers();
 
-        setBarbers(data);
+        const filteredBarbers = data.filter(
+          (barber) => barber.salon_id === Number(id)
+        );
+
+        setBarbers(filteredBarbers);
       } catch (error) {
         console.error(error);
 
@@ -40,9 +44,9 @@ const BarberList = () => {
         setLoading(false);
       }
     };
-
+    
     fetchBarbers();
-  }, []);
+  }, [id]);
 
   return (
     <div className="list-page">

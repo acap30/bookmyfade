@@ -19,8 +19,10 @@ app.add_middleware(
 app.include_router(user.router)
 app.include_router(authentication.router)
 app.include_router(hairdresser.router)
+app.include_router(hairdresser.router_public)
 app.include_router(owner.router)
 app.include_router(salon.router)
+app.include_router(salon.router_public)
 app.include_router(service.router)
 app.include_router(working_hours.router)
 

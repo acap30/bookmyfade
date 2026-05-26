@@ -8,11 +8,11 @@ export type Salon = {
 import api from "./axios";
 
 export const getSalons = async (): Promise<Salon[]> => {
-  const response = await api.get("/salon/");
+  const response = await api.get("/public/salon/");
   return response.data;
 };
 
 export const getSalonById = async (id: string): Promise<Salon> => {
-  const response = await api.get(`/salon/${id}`);
+  const response = await api.get(`/public/salon/${id}`);
   return response.data;
 };

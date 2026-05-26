@@ -9,13 +9,13 @@ export type Barber = {
 };
 
 export const getBarbers = async (): Promise<Barber[]> => {
-  const response = await api.get("/hairdresser/");
+  const response = await api.get("/public/hairdresser/");
   return response.data;
 };
 
 export const getBarberById = async (
   id: string,
 ): Promise<Barber> => {
-  const response = await api.get(`/hairdresser/${id}`);
+  const response = await api.get(`/public/hairdresser/${id}`);
   return response.data;
 };

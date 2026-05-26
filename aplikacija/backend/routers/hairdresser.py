@@ -5,6 +5,28 @@ from db.database import get_db
 from router_impl import db_hairdesser as hairdresser_impl
 from db.schemas import HairdresserDisplay, HairdresserCreate, HairdresserUpdate
 
+router_public = APIRouter(
+    prefix="/public/hairdresser",
+    tags=["Public Hairdresser"]
+)
+
+@router_public.get("/", response_model=list[HairdresserDisplay])
+def get_public_hairdressers(
+    db: Session = Depends(get_db)
+):
+    return hairdresser_impl.get_all_hairdressers(db)
+
+
+@router_public.get("/{hairdresser_id}", response_model=HairdresserDisplay)
+def get_public_hairdresser_by_id(
+    hairdresser_id: int,
+    db: Session = Depends(get_db)
+):
+    return hairdresser_impl.get_hairdresser_by_id(
+        db,
+        hairdresser_id
+    )
+
 router = APIRouter(
     prefix="/hairdresser",
     tags=["Hairdresser"],

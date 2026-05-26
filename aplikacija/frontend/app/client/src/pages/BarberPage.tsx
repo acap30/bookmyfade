@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import {
-  getBarberById,
-  type Barber,
-} from "../api/barbersApi";
+import { getBarberById, type Barber } from "../api/barbersApi";
 
 type TimeSlot = {
   id: number;
@@ -28,23 +25,19 @@ const BarberPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!barberId) return;
+
     const fetchBarberAndTimes = async () => {
       try {
-        const barberData = await getBarberById(barberId!);
+        const barberData = await getBarberById(barberId);
 
         setBarber({
           id: barberData.id,
-          name:
-            barberData.name ||
-            "Selected Barber",
-          title:
-            barberData.title ||
-            "Professional Barber",
+          name: barberData.name || "Selected Barber",
+          title: barberData.title || "Professional Barber",
         });
 
-        /*
-          Backend endpoint za available slots.
-        */
+        /* TODO: getAvailableSlots(barberId) */
 
         setTimeSlots(fallbackTimes);
       } catch (error) {
@@ -63,7 +56,7 @@ const BarberPage = () => {
     };
 
     fetchBarberAndTimes();
-  }, [id, barberId]);
+  }, [barberId]);
 
   if (loading) {
     return (
