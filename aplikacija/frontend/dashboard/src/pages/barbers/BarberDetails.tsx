@@ -1,12 +1,4 @@
-import {
-  Mail,
-  Phone,
-  Scissors,
-  Plus,
-  Trash2,
-  Loader2,
-  Store,
-} from "lucide-react";
+import { Mail, Phone, Scissors, Plus, Loader2, Store } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { IService } from "../../types/service";
 import { useParams } from "react-router-dom";
@@ -15,11 +7,14 @@ import {
   getServicesByBarberId,
   linkServiceToBarber,
   unlinkServiceFromBarber,
+  updateServiceToBarber,
 } from "../../api/servicesApi";
 import type { IBarber } from "../../types/barber";
 import { getBarberById } from "../../api/barbersApi";
 import UserAvatar from "../../components/ui/UserAvatar";
 import LinkServiceModal from "../../components/modals/LinkServiceModal";
+import BarberServiceItem from "../../components/items/BarberServiceItem";
+import EditServiceModal from "../../components/modals/EditServiceModal";
 
 const weeklySchedule = [
   {
@@ -76,6 +71,9 @@ const BarberDetails = () => {
   const [services, setServices] = useState<IService[]>([]);
   const [avaliableServices, setAvaliableServices] = useState<IService[]>([]);
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const [selectedService, setSelectedService] = useState<IService | null>(null);
 
   const fetchBarber = async (barber_id: string) => {
     try {
@@ -95,6 +93,19 @@ const BarberDetails = () => {
   useEffect(() => {
     fetchBarber(id);
   }, []);
+
+  const startEditService = (service: IService) => {
+    setSelectedService(service);
+    setEditModalOpen(true);
+  };
+
+  const handleEditService = async (
+    service_id: number,
+    service_data: Omit<IService, "id">,
+  ) => {
+    await updateServiceToBarber(service_id, id, service_data.price);
+    fetchBarber(id);
+  };
 
   const handleDeleteService = async (service_id) => {
     await unlinkServiceFromBarber(service_id, id);
@@ -164,36 +175,12 @@ const BarberDetails = () => {
                 <div className="flex flex-1 flex-col space-y-3">
                   {services.length > 0 ? (
                     services.map((service) => (
-                      <div
+                      <BarberServiceItem
                         key={service.id}
-                        className="flex items-center justify-between rounded-xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="icon-container">
-                            <Scissors size={18} />
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-text">
-                              {service.name}
-                            </h3>
-                            <p className="text-sm text-muted">
-                              {service.length} min
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <div className="rounded-xl border border-border bg-card px-3 py-1 text-sm font-medium text-text">
-                            ${service.price}
-                          </div>
-                          <button
-                            onClick={() => handleDeleteService(service.id)}
-                            className="flex h-9 w-9 items-center justify-center rounded-xl text-red-500 border border-red-500/20 bg-red-500/10 transition-colors hover:bg-red-500/20 cursor-pointer"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
+                        service={service}
+                        onEdit={() => startEditService(service)}
+                        onDelete={() => handleDeleteService(service.id)}
+                      />
                     ))
                   ) : (
                     <div className="flex flex-1 flex-col items-center justify-center rounded-xl py-10 text-center">
@@ -289,6 +276,15 @@ const BarberDetails = () => {
               onClose={() => setAddServiceModalOpen(false)}
               services={avaliableServices}
               onSubmit={(data) => handleAddService(data)}
+            />
+            <EditServiceModal
+              open={editModalOpen}
+              onClose={() => setEditModalOpen(false)}
+              service={selectedService}
+              forBarber={true}
+              onSubmit={(service_id, formData) =>
+                handleEditService(service_id, formData)
+              }
             />
           </div>
         </>

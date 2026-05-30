@@ -45,3 +45,18 @@ export const unlinkServiceFromBarber = async (service_id, barber_id) => {
   const res = await api.delete(`/service/link/${barber_id}/${service_id}`);
   return res;
 };
+
+export const updateServiceToBarber = async (service_id, barber_id, price) => {
+  const res = await api.put(`/service/link/${barber_id}/${service_id}`, {
+    price,
+  });
+  return res;
+};
+
+export const updateService = async (service_id, service) => {
+  const res = await api.put(`/service/${service_id}`, {
+    name: service.name,
+    length: service.length,
+  });
+  return res;
+};
