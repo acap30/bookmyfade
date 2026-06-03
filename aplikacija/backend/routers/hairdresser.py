@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user
 from db.database import get_db
@@ -36,13 +36,20 @@ router = APIRouter(
 @router.post("/", response_model=HairdresserDisplay)
 def create_hairdresser(
     request: HairdresserCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return hairdresser_impl.create_hairdresser(
-        db,
-        request.user_id,
-        request.salon_id
-    )
+    if current_user.role == Role.ADMIN:
+
+        return hairdresser_impl.create_hairdresser(
+            db,
+            request.user_id,
+            request.salon_id
+        )
+    
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
     
 @router.get("/{hairdresser_id}", response_model=HairdresserDisplay)
 def get_hairdresser_by_id(
@@ -68,20 +75,31 @@ def get_all_hairdressers(
 def update_hairdresser(
     hairdresser_id: int,
     request: HairdresserUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return hairdresser_impl.update_hairdresser(
-        db,
-        hairdresser_id,
-        request.salon_id
-    )
+    if current_user.role == Role.ADMIN:
+        return hairdresser_impl.update_hairdresser(
+            db,
+            hairdresser_id,
+            request.salon_id
+        )
+
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
 
 @router.delete("/{hairdresser_id}")
 def delete_hairdresser(
     hairdresser_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return hairdresser_impl.delete_hairdresser(
-        db,
-        hairdresser_id
-    )
+    
+    if current_user.role == Role.ADMIN:
+        return hairdresser_impl.delete_hairdresser(
+            db,
+            hairdresser_id
+        )
+
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")

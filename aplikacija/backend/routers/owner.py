@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user
 from db.database import get_db
 from router_impl import db_owner as owner_impl
-from db.schemas import OwnerDisplay, OwnerCreate
+from db.schemas import OwnerDisplay, OwnerCreate, UserAuth, Role
 
 router = APIRouter(
     prefix="/owner",
@@ -14,13 +14,17 @@ router = APIRouter(
 @router.post("/", response_model=OwnerDisplay)
 def create_owner(
     request: OwnerCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return owner_impl.create_owner(
-        db,
-        request.user_id,
-        request.salon_id
-    )
+    if current_user.role == Role.ADMIN:
+        return owner_impl.create_owner(
+            db,
+            request.user_id,
+            request.salon_id
+        )
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
 
 @router.get("/{owner_id}", response_model=OwnerDisplay)
 def get_owner_by_id(
@@ -31,14 +35,24 @@ def get_owner_by_id(
 
 @router.get("/", response_model=list[OwnerDisplay])
 def get_all_owners(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return owner_impl.get_all_owners(db)
+    if current_user.role == Role.ADMIN:
+        return owner_impl.get_all_owners(db)
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
+    
 
 @router.delete("/{owner_id}")
 def delete_owner(
     owner_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return owner_impl.delete_owner(db, owner_id)
+    
+    if current_user.role == Role.ADMIN:
+        return owner_impl.delete_owner(db, owner_id)
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
 

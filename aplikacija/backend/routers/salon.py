@@ -33,14 +33,20 @@ router = APIRouter(
 @router.post("/", response_model=SalonDisplay)
 def create_salon(
     request: SalonCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return salon_impl.create_salon(
+    
+    if current_user.role == Role.ADMIN:
+        return salon_impl.create_salon(
         db,
         request.name,
         request.address,
         request.phone
     )
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
+    
 
 @router.get("/")
 def get_all_salons(
@@ -67,19 +73,31 @@ def get_salon_by_id(
 def update_salon(
     salon_id: int,
     request: SalonUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return salon_impl.update_salon(
+    
+    if current_user.role == Role.ADMIN:
+        return salon_impl.update_salon(
         db,
         salon_id,
         request.name,
         request.address,
         request.phone
-    )
+        )
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
+    
 
 @router.delete("/{salon_id}")
 def delete_salon(
     salon_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return salon_impl.delete_salon(db, salon_id)
+    
+    if current_user.role == Role.ADMIN:
+        return salon_impl.delete_salon(db, salon_id)
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
+    
