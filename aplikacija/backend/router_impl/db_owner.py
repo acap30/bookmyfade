@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from db.models import DbUser, Owner, Salon
+from db.schemas import Role
 
 def create_owner(db: Session, user_id: int, salon_id: int):
     user = db.query(DbUser).filter(DbUser.id == user_id).first()
@@ -8,6 +9,12 @@ def create_owner(db: Session, user_id: int, salon_id: int):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
+        )
+    
+    if user.role != Role.OWNER:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User is not an owner"
         )
 
     salon = db.query(Salon).filter(Salon.id == salon_id).first()

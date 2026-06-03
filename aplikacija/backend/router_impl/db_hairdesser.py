@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from db.models import DbUser, Salon, Hairdresser
+from db.models import DbUser, Salon, Hairdresser, Owner
+from db.schemas import Role
 
 def create_hairdresser(
     db: Session,
@@ -12,6 +13,12 @@ def create_hairdresser(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
+        )
+    
+    if user.role != Role.HAIRSTYLIST:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User is not a hairdresser"
         )
 
     salon = db.query(Salon).filter(Salon.id == salon_id).first()
@@ -56,6 +63,25 @@ def get_hairdresser_by_id(db: Session, hairdresser_id: int):
 
 def get_all_hairdressers(db: Session):
     return db.query(Hairdresser).all()
+
+def get_my_hairdressers(db: Session, user_id: int):
+    salon = (
+        db.query(Salon)
+        .join(Salon.owners)
+        .filter(Owner.user_id == user_id)
+        .first()
+    )
+
+    if not salon:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Salon not found"
+        )
+    
+    h = db.query(Hairdresser).filter(Hairdresser.salon_id == salon.id).all()
+
+    return h
+    
 
 def update_hairdresser(
     db: Session,

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from db.models import Salon
+from db.models import Salon, Owner
 
 def create_salon(db: Session, name: str, address: str = None, phone: str = None):
     salon = Salon(
@@ -65,3 +65,19 @@ def delete_salon(db: Session, salon_id: int):
     db.commit()
 
     return {"message": "Salon deleted"}
+
+def get_my_salon(db: Session, user_id: int):
+    salon = (
+        db.query(Salon)
+        .join(Salon.owners)
+        .filter(Owner.user_id == user_id)
+        .first()
+    )
+
+    if not salon:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Salon not found"
+        )
+    
+    return salon

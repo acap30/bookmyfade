@@ -17,8 +17,17 @@ class DbUser(Base):
     phone_number = Column(String(255), nullable=True)
     role = Column(Enum(Role), nullable=False)
     
-    owners = relationship("Owner", back_populates="user")
-    hairdressers = relationship("Hairdresser", back_populates="user")
+    owners = relationship(
+        "Owner",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    hairdressers = relationship(
+        "Hairdresser",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
 
 class Owner(Base):
     __tablename__ = "Vlasnici"

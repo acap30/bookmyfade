@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from db.database import get_db
 from sqlalchemy.orm.session import Session
@@ -13,6 +15,14 @@ router = APIRouter(
 @router.post('/')
 def create_user(request: schemas.User, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_user.create_user(db, request)
+
+@router.get('/', response_model = List[schemas.UserDisplay])
+def get_all_users(db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    if current_user.role == schemas.Role.ADMIN:
+        return db_user.get_all_users(db)
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
 
 @router.get('/{user_id}')
 def get_user_by_id(user_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):

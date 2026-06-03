@@ -30,13 +30,22 @@ app.include_router(working_hours.router)
 async def create_admin():
     db_user.create_admin()
 
+# @app.exception_handler(IntegrityError)
+# async def integrity_error_handler(request: Request, exc: IntegrityError):
+
+#     return JSONResponse(
+#         status_code=400,
+#         content={
+#             "detail": "Bad request"
+#         },
+#     )
+
+
 @app.exception_handler(IntegrityError)
 async def integrity_error_handler(request: Request, exc: IntegrityError):
-
+    print(exc)
     return JSONResponse(
         status_code=400,
-        content={
-            "detail": "Bad request"
-        },
+        content={"detail": str(exc.orig)},
     )
 

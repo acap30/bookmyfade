@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user
 from db.database import get_db
 from router_impl import db_salon as salon_impl
-from db.schemas import SalonDisplay, SalonCreate, SalonUpdate
+from db.schemas import SalonDisplay, SalonCreate, SalonUpdate, UserAuth, Role
 
 router_public = APIRouter(
     prefix="/public/salon",
@@ -42,11 +42,19 @@ def create_salon(
         request.phone
     )
 
-@router.get("/", response_model=list[SalonDisplay])
+@router.get("/")
 def get_all_salons(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
 ):
-    return salon_impl.get_all_salons(db)
+    if current_user.role == Role.OWNER:
+        return salon_impl.get_my_salon(db, current_user.id)
+    # elif current_user.role == Role.ADMIN:
+    #     return salon_impl.get_all_salons(db)
+    else:
+        return salon_impl.get_all_salons(db)
+        
+    
 
 @router.get("/{salon_id}", response_model=SalonDisplay)
 def get_salon_by_id(

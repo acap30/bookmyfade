@@ -41,3 +41,4 @@ def delete_owner(
     db: Session = Depends(get_db)
 ):
     return owner_impl.delete_owner(db, owner_id)
+

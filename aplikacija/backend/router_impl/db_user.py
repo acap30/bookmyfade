@@ -58,6 +58,10 @@ def create_user(db: Session, request: User):
 
     return {"message": "User added"}
 
+def get_all_users(db: Session):
+
+    return db.query(DbUser).all()
+
 def get_user_by_id(db: Session, user_id: int):
 
     user = db.query(DbUser).filter(DbUser.id == user_id).first()
@@ -106,6 +110,10 @@ def delete_user(db: Session, user_id: int):
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
             detail='User not found')
+    
+    if user.role == Role.ADMIN:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Cannot delete admin')
     
     db.delete(user)
     db.commit()
