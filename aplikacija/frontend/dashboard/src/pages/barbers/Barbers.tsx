@@ -1,23 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { IOwner } from "../../types/owner";
-import {
-  Eye,
-  Loader2,
-  Mail,
-  MoreHorizontal,
-  Pencil,
-  Phone,
-  Plus,
-  Store,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { Loader2, Plus, Users } from "lucide-react";
 import SearchInput from "../../components/ui/SearchInput";
 import { deleteBarber, getBarbers } from "../../api/barbersApi";
-import UserAvatar from "../../components/ui/UserAvatar";
-import Dropdown from "../../components/ui/Dropdown";
 import AddModal from "../../components/modals/AddModal";
 import { useNavigate } from "react-router-dom";
+import BarberItem from "../../components/items/BarberItem";
 
 const Barbers = () => {
   const [search, setSearch] = useState("");
@@ -149,95 +137,6 @@ const Barbers = () => {
         onSubmit={async (data) => {
           console.log(data);
         }}
-      />
-    </div>
-  );
-};
-
-type BarberItemProps = {
-  fullName: string;
-  email: string;
-  phoneNumber?: string;
-  salonName: string;
-  onView: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
-};
-
-const BarberItem = ({
-  fullName,
-  email,
-  phoneNumber,
-  salonName,
-  onView,
-  onEdit,
-  onDelete,
-}: BarberItemProps) => {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div
-      className={`relative ${open ? "z-20" : "z-0"} flex items-center justify-between rounded-xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md`}
-    >
-      {/* Left */}
-      <div className="flex items-center gap-4">
-        {/* <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <User size={18} />
-        </div> */}
-        <UserAvatar fullName={fullName} />
-
-        <div>
-          <h3 className="font-medium text-text">{fullName}</h3>
-
-          <div className="mt-1 flex flex-col gap-1 text-sm text-muted sm:flex-row sm:items-center sm:gap-4">
-            <div className="flex items-center gap-2">
-              <Mail size={14} />
-              {email}
-            </div>
-
-            {phoneNumber && (
-              <div className="flex items-center gap-2">
-                <Phone size={14} />
-                {phoneNumber}
-              </div>
-            )}
-
-            <div className="flex items-center gap-2 text-sm text-muted">
-              <Store size={16} />
-              {salonName}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right */}
-      <Dropdown
-        open={open}
-        setOpen={setOpen}
-        align="right"
-        trigger={
-          <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card transition-all hover:scale-105 active:scale-95">
-            <MoreHorizontal size={18} />
-          </button>
-        }
-        items={[
-          {
-            icon: <Eye size={16} />,
-            label: "View",
-            onClick: onView,
-          },
-          {
-            icon: <Pencil size={16} />,
-            label: "Edit",
-            onClick: onEdit,
-          },
-          {
-            icon: <Trash2 size={16} />,
-            label: "Delete",
-            onClick: onDelete,
-            danger: true,
-          },
-        ]}
       />
     </div>
   );

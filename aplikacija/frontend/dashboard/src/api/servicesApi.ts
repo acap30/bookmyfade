@@ -2,7 +2,7 @@ import type { IService } from "../types/service";
 import api from "./axios";
 
 export const getSerivicesBySalonId = async (
-  id: string,
+  id: string | number,
 ): Promise<IService[]> => {
   const res = await api.get(`/service/salon/${id}`);
   return res.data.services;

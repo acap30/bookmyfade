@@ -19,7 +19,7 @@ const SalonServiceItem = ({
   return (
     <div
       key={service.id}
-      className={`relative ${open ? "z-20" : "z-0"} flex items-center justify-between rounded-xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md`}
+      className={`relative ${open ? "z-20" : "z-0"} flex items-center justify-between rounded-xl border border-border bg-background p-4`}
     >
       <div className="flex items-center gap-2">
         <div className="icon-container">

@@ -56,7 +56,13 @@ export default function Dropdown({
   return (
     <div className="relative inline-block" ref={ref}>
       {/* Trigger */}
-      <div onClick={() => handleSetOpen((p) => !p)} className="cursor-pointer">
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          handleSetOpen((p) => !p);
+        }}
+        className="cursor-pointer"
+      >
         {trigger}
       </div>
 
@@ -90,7 +96,8 @@ export default function Dropdown({
             <button
               key={idx}
               disabled={item.disabled}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 handleSetOpen(false);
                 item.onClick();
               }}
