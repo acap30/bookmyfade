@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import type { IOwner } from "../../types/owner";
-import { deleteOwner, getOwners } from "../../api/ownersApi";
+import { createOwner, deleteOwner, getOwners } from "../../api/ownersApi";
 import { Loader2, Plus, Users } from "lucide-react";
 import SearchInput from "../../components/ui/SearchInput";
-import AddModal from "../../components/modals/AddModal";
 import OwnerItem from "../../components/items/OwnerItem";
+import AddUserModal from "../../components/modals/AddUserModal";
+import type { ISalon } from "../../types/salon";
+import { getSalons } from "../../api/salonsApi";
+import { ROLES } from "../../types/auth";
 
 const Owners = () => {
   const [search, setSearch] = useState("");
   const [owners, setOwners] = useState<IOwner[]>([]);
+  const [salons, setSalons] = useState<ISalon[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
 
@@ -23,8 +27,9 @@ const Owners = () => {
   const fetchOwners = async () => {
     try {
       const data = await getOwners();
-
+      const salons_data = await getSalons();
       setOwners(data);
+      setSalons(salons_data);
     } catch (err) {
       console.error("Failed to fetch owners", err);
     } finally {
@@ -38,6 +43,23 @@ const Owners = () => {
 
   const handleDelete = async (id: number) => {
     await deleteOwner(id);
+    fetchOwners();
+  };
+
+  const handleAdd = async (data) => {
+    await createOwner({
+      user: {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone_number: data.phoneNumber ?? null,
+        role: ROLES.OWNER,
+      },
+      salon_id: Number(data.salon_id),
+    });
+
     fetchOwners();
   };
 
@@ -97,7 +119,7 @@ const Owners = () => {
           </div>
         )}
       </div>
-      <AddModal
+      <AddUserModal
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}
         title="Add Owner"
@@ -130,9 +152,17 @@ const Owners = () => {
             placeholder: "Enter phone number",
           },
         ]}
-        onSubmit={async (data) => {
-          console.log(data);
-        }}
+        selects={[
+          {
+            name: "salon_id",
+            label: "Salon",
+            options: salons.map((salon) => ({
+              value: salon.id,
+              label: salon.name,
+            })),
+          },
+        ]}
+        onSubmit={async (data) => handleAdd(data)}
       />
     </div>
   );

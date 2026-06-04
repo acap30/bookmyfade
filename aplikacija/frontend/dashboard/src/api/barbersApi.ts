@@ -1,5 +1,19 @@
+import type { Role } from "../types/auth";
 import type { IBarber } from "../types/barber";
 import api from "./axios";
+
+interface ICreateBarber {
+  user: {
+    username: string;
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string | null;
+    role: Role;
+  };
+  salon_id: number;
+}
 
 export const getBarbers = async (): Promise<IBarber[]> => {
   const { data: barbers } = await api.get("/hairdresser");
@@ -49,6 +63,18 @@ export const getBarberById = async (id: string): Promise<IBarber> => {
       phoneNumber: user.phone_number,
     },
     salon,
+  };
+};
+
+export const createBarber = async (data: ICreateBarber) => {
+  const { data: user } = await api.post("/users/", data.user);
+  const { data: barber } = await api.post("/hairdresser/", {
+    user_id: user.id,
+    salon_id: data.salon_id,
+  });
+  return {
+    user,
+    barber,
   };
 };
 

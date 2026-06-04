@@ -1,5 +1,19 @@
+import type { Role } from "../types/auth";
 import type { IOwner } from "../types/owner";
 import api from "./axios";
+
+interface ICreateOwner {
+  user: {
+    username: string;
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string | null;
+    role: Role;
+  };
+  salon_id: number;
+}
 
 export const getOwners = async (): Promise<IOwner[]> => {
   const { data: owners } = await api.get("/owner");
@@ -29,6 +43,18 @@ export const getOwners = async (): Promise<IOwner[]> => {
   );
 
   return mappedOwners;
+};
+
+export const createOwner = async (data: ICreateOwner) => {
+  const { data: user } = await api.post("/users/", data.user);
+  const { data: owner } = await api.post("/owner/", {
+    user_id: user.id,
+    salon_id: data.salon_id,
+  });
+  return {
+    user,
+    owner,
+  };
 };
 
 export const deleteOwner = async (id: number) => {

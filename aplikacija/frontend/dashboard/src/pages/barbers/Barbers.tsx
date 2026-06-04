@@ -2,14 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import type { IOwner } from "../../types/owner";
 import { Loader2, Plus, Users } from "lucide-react";
 import SearchInput from "../../components/ui/SearchInput";
-import { deleteBarber, getBarbers } from "../../api/barbersApi";
-import AddModal from "../../components/modals/AddModal";
+import { createBarber, deleteBarber, getBarbers } from "../../api/barbersApi";
 import { useNavigate } from "react-router-dom";
 import BarberItem from "../../components/items/BarberItem";
+import AddUserModal from "../../components/modals/AddUserModal";
+import { getSalons } from "../../api/salonsApi";
+import type { ISalon } from "../../types/salon";
+import { ROLES } from "../../types/auth";
 
 const Barbers = () => {
   const [search, setSearch] = useState("");
   const [barbers, setBarbers] = useState<IOwner[]>([]);
+  const [salons, setSalons] = useState<ISalon[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
 
@@ -26,8 +30,10 @@ const Barbers = () => {
   const fetchBarbers = async () => {
     try {
       const data = await getBarbers();
+      const salons_data = await getSalons();
 
       setBarbers(data);
+      setSalons(salons_data);
     } catch (err) {
       console.error("Failed to fetch barbers", err);
     } finally {
@@ -41,6 +47,23 @@ const Barbers = () => {
 
   const handleDelete = async (id: number) => {
     await deleteBarber(id);
+    fetchBarbers();
+  };
+
+  const handleAdd = async (data) => {
+    await createBarber({
+      user: {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone_number: data.phoneNumber ?? null,
+        role: ROLES.OWNER,
+      },
+      salon_id: Number(data.salon_id),
+    });
+
     fetchBarbers();
   };
 
@@ -101,7 +124,7 @@ const Barbers = () => {
           </div>
         )}
       </div>
-      <AddModal
+      <AddUserModal
         open={addModalOpen}
         onClose={() => setAddModalOpen(false)}
         title="Add Barber"
@@ -134,9 +157,17 @@ const Barbers = () => {
             placeholder: "Enter phone number",
           },
         ]}
-        onSubmit={async (data) => {
-          console.log(data);
-        }}
+        selects={[
+          {
+            name: "salon_id",
+            label: "Salon",
+            options: salons.map((salon) => ({
+              value: salon.id,
+              label: salon.name,
+            })),
+          },
+        ]}
+        onSubmit={async (data) => handleAdd(data)}
       />
     </div>
   );
