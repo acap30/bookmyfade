@@ -25,11 +25,24 @@ def upgrade() -> None:
 
     # Add surrogate key
     op.add_column('Usluge_po_frizeru', sa.Column('id', sa.Integer(), nullable=False))
+    op.drop_constraint('Usluge_po_frizeru_ibfk_1', 'Usluge_po_frizeru', type_='foreignkey')
+    op.drop_constraint('Usluge_po_frizeru_ibfk_2', 'Usluge_po_frizeru', type_='foreignkey')
 
     # Drop old composite PK
     op.drop_constraint('PRIMARY', 'Usluge_po_frizeru', type_='primary')
 
-
+    op.create_foreign_key(
+        'Usluge_po_frizeru_ibfk_1',
+        'Usluge_po_frizeru', 'Frizeri',
+        ['hairdresser_id'], ['id'],
+        ondelete='CASCADE'
+    )
+    op.create_foreign_key(
+        'Usluge_po_frizeru_ibfk_2',
+        'Usluge_po_frizeru', 'Usluge',
+        ['service_id'], ['id'],
+        ondelete='CASCADE'
+    )
     # Add new PK on id
     op.create_primary_key('pk_usluge_po_frizeru', 'Usluge_po_frizeru', ['id'])
 
