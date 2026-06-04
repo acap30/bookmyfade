@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 from enum import Enum
-from datetime import time
+from datetime import time, datetime
 
 class Role(str, Enum):
     ADMIN = "admin"
@@ -127,3 +127,25 @@ class WorkingHoursUpdate(BaseModel):
     weekday: Optional[Weekday] = None
     start: Optional[time] = None
     end: Optional[time] = None
+
+class ReservationCreate(BaseModel):
+    hs_id: int
+    client_name: str
+    client_phone: str
+    start_time: datetime
+    end_time: datetime
+
+class ReservationUpdate(BaseModel):
+    hs_id: int | None = None
+    client_name: str | None = None
+    client_phone: str | None = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+
+class ReservationDisplay(BaseModel):
+    id: int
+    hs_id: int
+    client_name: str
+    client_phone: str
+    start_time: datetime
+    end_time: datetime

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Enum, Integer, String, ForeignKey, Float, Time, Date, Boolean
+from sqlalchemy import Column, Enum, Integer, String, ForeignKey, Float, Time, Date, Boolean, DateTime, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from db.schemas import Role, Weekday
@@ -80,16 +80,22 @@ class Service(Base):
         back_populates="service",
         cascade="all, delete-orphan"
     )
+    
 
 class Hairdresser_Service(Base):
     __tablename__ = "Usluge_po_frizeru"
 
-    hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"), primary_key = True)
-    service_id = Column(Integer, ForeignKey("Usluge.id", ondelete="CASCADE"), primary_key = True)
+    id = Column(Integer, primary_key=True)
+    hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"))
+    service_id = Column(Integer, ForeignKey("Usluge.id", ondelete="CASCADE"))
     price = Column(Float, nullable=False)
 
     hairdresser = relationship("Hairdresser", back_populates="services")
     service = relationship("Service", back_populates="hairdressers")
+    reservations = relationship(
+        "Reservations",
+        back_populates="hairdresser_service"
+    )
 
 class WorkingHours(Base):
     __tablename__ = "Radno_vreme"
@@ -114,6 +120,24 @@ class WorkingHoursExceptions(Base):
     day_off = Column(Boolean, nullable=False, default=False)
 
     hairdresser = relationship("Hairdresser", back_populates="working_hours_exceptions")
+
+class Reservations(Base):
+    __tablename__ = "Rezervacije"
+
+    id = Column(Integer, primary_key=True)
+    hs_id = Column(Integer, ForeignKey("Usluge_po_frizeru.id", ondelete="SET NULL"))
+    client_name = Column(String(255), nullable=False)
+    client_phone = Column(String(35), nullable=False)
+    start_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime, nullable=False)
+
+    hairdresser_service = relationship("Hairdresser_Service", back_populates="reservations")
+
+    __table_args__ = (
+        UniqueConstraint("hs_id", "start_time", name="uq_timeslot_hs_start"),
+    )
+
+
     
 
 

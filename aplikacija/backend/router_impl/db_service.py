@@ -167,6 +167,7 @@ def get_services_by_hairdresser_id(hd_id: int, db: Session):
         "services": [
             {
             "id": ser.service.id,
+            "hs_id": ser.id,
             "name": ser.service.name,
             "length": ser.service.length_minutes,
             "price": ser.price

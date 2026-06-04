@@ -1,0 +1,41 @@
+from typing import List
+from fastapi import APIRouter, Depends
+from db import schemas
+from sqlalchemy.orm.session import Session
+from db.database import get_db
+from auth.oauth2 import get_current_user
+from router_impl import db_reservation
+
+
+
+router = APIRouter(
+    tags=["reservation"],
+    prefix="/reservation"
+)
+
+@router.post("/")
+def create_reservation(req: schemas.ReservationCreate, db: Session = Depends(get_db)):
+    return db_reservation.create_reservation(req, db)
+
+@router.get("/", response_model = List[schemas.ReservationDisplay])
+def get_all_reservations(db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    if current_user.role == schemas.Role.ADMIN:
+        return db_reservation.get_all_reservations(db)
+    elif current_user.role == schemas.Role.OWNER:
+        return db_reservation.get_all_reservations_by_owner_id(current_user.id, db)
+    else:
+        return db_reservation.get_all_reservations_by_hairdresser_id(current_user.id, db)   
+
+@router.get("/{reservation_id}", response_model = schemas.ReservationDisplay)
+def get_reservation_by_id(reservation_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_reservation.get_reservation_by_id(reservation_id, db)
+
+@router.put("/{reservation_id}", response_model = schemas.ReservationDisplay)
+def update_reservation(reservation_id: int, req: schemas.ReservationUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_reservation.update_reservation(reservation_id, req, db)
+
+@router.delete("/{reservation_id}")
+def delete_reservation(reservation_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_reservation.delete_reservation(reservation_id, db)
+
+
