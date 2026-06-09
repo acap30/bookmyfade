@@ -78,6 +78,24 @@ export const createBarber = async (data: ICreateBarber) => {
   };
 };
 
-export const deleteBarber = async (id: number) => {
-  await api.delete(`/hairdresser/${id}`);
+export const updateBarber = async (
+  barber_id: number | string,
+  user,
+  salon_id: number,
+) => {
+  await api.put(`/users/${user.id}`, {
+    username: user.username,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    phone_number: user.phone_number,
+  });
+  await api.put(`/hairdresser/${barber_id}`, { salon_id });
+};
+
+export const deleteBarber = async (
+  barber_id: number | string,
+  user_id: number | string,
+) => {
+  await api.delete(`/hairdresser/${barber_id}`);
+  await api.delete(`/users/${user_id}`);
 };

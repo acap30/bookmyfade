@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { IOwner } from "../../types/owner";
-import { createOwner, deleteOwner, getOwners } from "../../api/ownersApi";
+import {
+  createOwner,
+  deleteOwner,
+  getOwners,
+  updateOwner,
+} from "../../api/ownersApi";
 import { Loader2, Plus, Users } from "lucide-react";
 import SearchInput from "../../components/ui/SearchInput";
 import OwnerItem from "../../components/items/OwnerItem";
@@ -8,13 +13,17 @@ import AddUserModal from "../../components/modals/AddUserModal";
 import type { ISalon } from "../../types/salon";
 import { getSalons } from "../../api/salonsApi";
 import { ROLES } from "../../types/auth";
+import EditUserModal from "../../components/modals/EditUserModal";
 
 const Owners = () => {
   const [search, setSearch] = useState("");
   const [owners, setOwners] = useState<IOwner[]>([]);
   const [salons, setSalons] = useState<ISalon[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedOwner, setSelectedOwner] = useState<IOwner | null>(null);
 
   const filteredOwners = useMemo(() => {
     return owners.filter((owner) =>
@@ -41,8 +50,11 @@ const Owners = () => {
     fetchOwners();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    await deleteOwner(id);
+  const handleDelete = async (
+    ownerId: number | string,
+    userId: number | string,
+  ) => {
+    await deleteOwner(ownerId, userId);
     fetchOwners();
   };
 
@@ -61,6 +73,25 @@ const Owners = () => {
     });
 
     fetchOwners();
+  };
+
+  const handleEdit = async (data) => {
+    if (!selectedOwner) return;
+
+    await updateOwner(
+      selectedOwner.id,
+      {
+        id: selectedOwner.user.id,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        username: data.username,
+        email: data.email,
+        phone_number: data.phone_number,
+      },
+      Number(data.salon_id),
+    );
+
+    await fetchOwners();
   };
 
   return (
@@ -101,8 +132,11 @@ const Owners = () => {
                   email={owner.user.email}
                   phoneNumber={owner.user.phoneNumber || null}
                   salonName={owner.salon.name}
-                  onEdit={() => {}}
-                  onDelete={() => handleDelete(owner.id)}
+                  onEdit={() => {
+                    setSelectedOwner(owner);
+                    setEditModalOpen(true);
+                  }}
+                  onDelete={() => handleDelete(owner.id, owner.user.id)}
                 />
               ))
             ) : (
@@ -135,6 +169,11 @@ const Owners = () => {
             placeholder: "Enter last name",
           },
           {
+            name: "username",
+            label: "Username",
+            placeholder: "Enter username",
+          },
+          {
             name: "email",
             label: "Email",
             placeholder: "Enter email",
@@ -163,6 +202,41 @@ const Owners = () => {
           },
         ]}
         onSubmit={async (data) => handleAdd(data)}
+      />
+      <EditUserModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Owner"
+        fields={[
+          { name: "first_name", label: "First Name" },
+          { name: "last_name", label: "Last Name" },
+          { name: "username", label: "Username" },
+          { name: "email", label: "Email", type: "email" },
+          { name: "phone_number", label: "Phone Number" },
+        ]}
+        selects={[
+          {
+            name: "salon_id",
+            label: "Salon",
+            options: salons.map((salon) => ({
+              value: salon.id,
+              label: salon.name,
+            })),
+          },
+        ]}
+        initialData={
+          selectedOwner
+            ? {
+                first_name: selectedOwner.user.firstName,
+                last_name: selectedOwner.user.lastName,
+                username: selectedOwner.user.username,
+                email: selectedOwner.user.email,
+                phone_number: selectedOwner.user.phoneNumber,
+                salon_id: String(selectedOwner.salon.id),
+              }
+            : {}
+        }
+        onSubmit={async (data) => handleEdit(data)}
       />
     </div>
   );

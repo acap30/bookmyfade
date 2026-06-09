@@ -1,21 +1,31 @@
 import { useEffect, useMemo, useState } from "react";
-import type { IOwner } from "../../types/owner";
 import { Loader2, Plus, Users } from "lucide-react";
 import SearchInput from "../../components/ui/SearchInput";
-import { createBarber, deleteBarber, getBarbers } from "../../api/barbersApi";
+import {
+  createBarber,
+  deleteBarber,
+  getBarbers,
+  updateBarber,
+} from "../../api/barbersApi";
 import { useNavigate } from "react-router-dom";
 import BarberItem from "../../components/items/BarberItem";
 import AddUserModal from "../../components/modals/AddUserModal";
 import { getSalons } from "../../api/salonsApi";
 import type { ISalon } from "../../types/salon";
 import { ROLES } from "../../types/auth";
+import EditUserModal from "../../components/modals/EditUserModal";
+import type { IBarber } from "../../types/barber";
 
 const Barbers = () => {
-  const [search, setSearch] = useState("");
-  const [barbers, setBarbers] = useState<IOwner[]>([]);
+  const [barbers, setBarbers] = useState<IBarber[]>([]);
   const [salons, setSalons] = useState<ISalon[]>([]);
+
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedBarber, setSelectedBarber] = useState<IBarber | null>(null);
 
   const navigate = useNavigate();
 
@@ -45,8 +55,11 @@ const Barbers = () => {
     fetchBarbers();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    await deleteBarber(id);
+  const handleDelete = async (
+    barberId: number | string,
+    userId: number | string,
+  ) => {
+    await deleteBarber(barberId, userId);
     fetchBarbers();
   };
 
@@ -59,12 +72,31 @@ const Barbers = () => {
         first_name: data.firstName,
         last_name: data.lastName,
         phone_number: data.phoneNumber ?? null,
-        role: ROLES.OWNER,
+        role: ROLES.BARBER,
       },
       salon_id: Number(data.salon_id),
     });
 
     fetchBarbers();
+  };
+
+  const handleEdit = async (data) => {
+    if (!selectedBarber) return;
+
+    await updateBarber(
+      selectedBarber.id,
+      {
+        id: selectedBarber.user.id,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        username: data.username,
+        email: data.email,
+        phone_number: data.phone_number,
+      },
+      Number(data.salon_id),
+    );
+
+    await fetchBarbers();
   };
 
   return (
@@ -106,8 +138,11 @@ const Barbers = () => {
                   phoneNumber={barber.user.phoneNumber || null}
                   salonName={barber.salon.name}
                   onView={() => navigate(`/barbers/${barber.id}`)}
-                  onEdit={() => {}}
-                  onDelete={() => handleDelete(barber.id)}
+                  onEdit={() => {
+                    setSelectedBarber(barber);
+                    setEditModalOpen(true);
+                  }}
+                  onDelete={() => handleDelete(barber.id, barber.user.id)}
                 />
               ))
             ) : (
@@ -140,6 +175,11 @@ const Barbers = () => {
             placeholder: "Enter last name",
           },
           {
+            name: "username",
+            label: "Username",
+            placeholder: "Enter username",
+          },
+          {
             name: "email",
             label: "Email",
             placeholder: "Enter email",
@@ -168,6 +208,41 @@ const Barbers = () => {
           },
         ]}
         onSubmit={async (data) => handleAdd(data)}
+      />
+      <EditUserModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Barber"
+        fields={[
+          { name: "first_name", label: "First Name" },
+          { name: "last_name", label: "Last Name" },
+          { name: "username", label: "Username" },
+          { name: "email", label: "Email", type: "email" },
+          { name: "phone_number", label: "Phone Number" },
+        ]}
+        selects={[
+          {
+            name: "salon_id",
+            label: "Salon",
+            options: salons.map((salon) => ({
+              value: salon.id,
+              label: salon.name,
+            })),
+          },
+        ]}
+        initialData={
+          selectedBarber
+            ? {
+                first_name: selectedBarber.user.firstName,
+                last_name: selectedBarber.user.lastName,
+                username: selectedBarber.user.username,
+                email: selectedBarber.user.email,
+                phone_number: selectedBarber.user.phoneNumber,
+                salon_id: String(selectedBarber.salon.id),
+              }
+            : {}
+        }
+        onSubmit={async (data) => handleEdit(data)}
       />
     </div>
   );

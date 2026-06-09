@@ -99,7 +99,7 @@ const AddUserModal = ({
 
       onClose();
     } catch (error) {
-      console.error(error);
+      console.error(error.response.data.detail);
 
       setError("Something went wrong");
     }
@@ -156,7 +156,7 @@ const AddUserModal = ({
         ))}
 
         {error && (
-          <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-500">
+          <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-500 md:col-span-2">
             <CircleAlert size={16} />
             <span>{error}</span>
           </div>

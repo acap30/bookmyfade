@@ -1,0 +1,167 @@
+import { useEffect, useState } from "react";
+import { CircleAlert } from "lucide-react";
+
+import Modal from "../ui/Modal";
+
+type Field = {
+  name: string;
+  label: string;
+  type?: string;
+  placeholder?: string;
+};
+
+type SelectField = {
+  name: string;
+  label: string;
+  options: {
+    value: number;
+    label: string;
+  }[];
+};
+
+type Props = {
+  open: boolean;
+  onClose: () => void;
+
+  title: string;
+
+  fields: Field[];
+
+  selects?: SelectField[];
+
+  initialData: Record<string, string>;
+
+  onSubmit: (data: Record<string, string>) => Promise<void> | void;
+};
+
+const EditUserModal = ({
+  open,
+  onClose,
+  title,
+  fields,
+  selects = [],
+  initialData,
+  onSubmit,
+}: Props) => {
+  const [formData, setFormData] = useState<Record<string, string>>(initialData);
+
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setFormData(initialData);
+      setError("");
+    }
+  }, [open, initialData]);
+
+  const handleChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setError("");
+
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const hasEmptyField = Object.values(formData).some(
+      (value) => !value.trim(),
+    );
+
+    if (hasEmptyField) {
+      setError("All fields are required");
+      return;
+    }
+
+    try {
+      await onSubmit(formData);
+
+      onClose();
+    } catch (error: any) {
+      setError(error?.response?.data?.detail ?? "Something went wrong");
+    }
+  };
+
+  const handleCancel = () => {
+    setError("");
+    setFormData(initialData);
+    onClose();
+  };
+
+  return (
+    <Modal open={open} title={title}>
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 gap-4 md:grid-cols-2"
+      >
+        {fields.map((field) => (
+          <div key={field.name} className="space-y-2">
+            <label className="text-sm text-muted">{field.label}</label>
+
+            <input
+              type={field.type || "text"}
+              name={field.name}
+              value={formData[field.name] || ""}
+              onChange={handleChange}
+              placeholder={field.placeholder}
+              className="light-input"
+            />
+          </div>
+        ))}
+
+        {selects.map((select) => (
+          <div key={select.name} className="space-y-2">
+            <label className="text-sm text-muted">{select.label}</label>
+
+            <select
+              name={select.name}
+              value={formData[select.name] || ""}
+              onChange={handleChange}
+              className="light-input cursor-pointer"
+            >
+              <option value="">Select {select.label}</option>
+
+              {select.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+
+        {error && (
+          <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-500 md:col-span-2">
+            <CircleAlert size={16} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        <div className="flex gap-3 pt-2 md:col-span-2">
+          <button
+            type="submit"
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:brightness-110 cursor-pointer"
+          >
+            Save Changes
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="rounded-xl border border-border bg-background px-4 py-2 text-sm text-text transition hover:bg-accent cursor-pointer"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+export default EditUserModal;
