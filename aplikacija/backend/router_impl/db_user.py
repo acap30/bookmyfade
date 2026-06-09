@@ -56,7 +56,7 @@ def create_user(db: Session, request: User):
     db.commit()
     db.refresh(new_user)
 
-    return {"message": "User added"}
+    return {"id": new_user.id}
 
 def get_all_users(db: Session):
 
