@@ -17,25 +17,42 @@ router = APIRouter(
 def create_reservation(req: schemas.ReservationCreate, db: Session = Depends(get_db)):
     return db_reservation.create_reservation(req, db)
 
-@router.get("/", response_model = List[schemas.ReservationDisplay])
-def get_all_reservations(db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+@router.get("/", response_model = schemas.ReservationWrapper)
+def get_all_reservations(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     if current_user.role == schemas.Role.ADMIN:
-        return db_reservation.get_all_reservations(db)
+        return db_reservation.get_all_reservations(db, skip, limit)
     elif current_user.role == schemas.Role.OWNER:
-        return db_reservation.get_all_reservations_by_owner_id(current_user.id, db)
+        return db_reservation.get_all_reservations_by_owner_id(current_user.id, db, skip, limit)
     else:
-        return db_reservation.get_all_reservations_by_hairdresser_id(current_user.id, db)   
+        return db_reservation.get_all_reservations_by_hairdresser_id(current_user.id, db, skip, limit)   
 
 @router.get("/{reservation_id}", response_model = schemas.ReservationDisplay)
 def get_reservation_by_id(reservation_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
-    return db_reservation.get_reservation_by_id(reservation_id, db)
+    if current_user.role == schemas.Role.ADMIN:
+        return db_reservation.get_reservation_by_id(reservation_id, db)
+    elif current_user.role == schemas.Role.OWNER:
+        return db_reservation.get_reservation_by_id_owner(current_user.id, reservation_id, db)
+    else:
+        return db_reservation.get_reservation_by_id_hd(current_user.id, reservation_id, db)
 
 @router.put("/{reservation_id}", response_model = schemas.ReservationDisplay)
 def update_reservation(reservation_id: int, req: schemas.ReservationUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
-    return db_reservation.update_reservation(reservation_id, req, db)
+    if current_user.role == schemas.Role.ADMIN:
+        return db_reservation.update_reservation(reservation_id, req, db)
+    elif current_user.role == schemas.Role.OWNER:
+        return db_reservation.update_reservation_owner(current_user.id, reservation_id, req, db)
+    else:
+        return db_reservation.update_reservation_hd(current_user.id, reservation_id, req, db)
 
 @router.delete("/{reservation_id}")
 def delete_reservation(reservation_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
-    return db_reservation.delete_reservation(reservation_id, db)
+    if current_user.role == schemas.Role.ADMIN:
+        return db_reservation.delete_reservation(reservation_id, db)
+    elif current_user.role == schemas.Role.OWNER:
+        return db_reservation.delete_reservation_owner(current_user.id, reservation_id, db)
+    else:
+        return db_reservation.delete_reservation_hd(current_user.id, reservation_id, db)
+
+
 
 

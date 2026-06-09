@@ -149,3 +149,9 @@ class ReservationDisplay(BaseModel):
     client_phone: str
     start_time: datetime
     end_time: datetime
+
+class ReservationWrapper(BaseModel):
+    total: int
+    skip: int
+    limit: int
+    data: list[ReservationDisplay]
