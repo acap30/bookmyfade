@@ -1,4 +1,15 @@
-import { Mail, Phone, Scissors, Plus, Loader2, Store } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  Scissors,
+  Plus,
+  Loader2,
+  Store,
+  Pencil,
+  Calendar,
+  CalendarX2,
+  Trash2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import type { IService } from "../../types/service";
 import { useParams } from "react-router-dom";
@@ -15,64 +26,73 @@ import UserAvatar from "../../components/ui/UserAvatar";
 import LinkServiceModal from "../../components/modals/LinkServiceModal";
 import BarberServiceItem from "../../components/items/BarberServiceItem";
 import EditServiceModal from "../../components/modals/EditServiceModal";
+import type { IDayOff, IWorkSchedule } from "../../types/workSchedule";
+import WorkScheduleModal from "../../components/modals/WorkScheduleModal";
+import {
+  createWorkSchedule,
+  updateWorkSchedule,
+} from "../../api/workScheduleApi";
+import AddModal from "../../components/modals/AddModal";
 
-const weeklySchedule = [
-  {
-    day: "Monday",
-    from: "09:00",
-    to: "17:00",
-  },
-  {
-    day: "Tuesday",
-    from: "09:00",
-    to: "17:00",
-  },
-  {
-    day: "Wednesday",
-    from: "10:00",
-    to: "18:00",
-  },
-  {
-    day: "Thursday",
-    from: "09:00",
-    to: "17:00",
-  },
-  {
-    day: "Friday",
-    from: "09:00",
-    to: "15:00",
-  },
-  {
-    day: "Saturday",
-    from: "09:00",
-    to: "15:00",
-  },
-];
+// export const schedule: IWorkSchedule = {
+//   monday: {
+//     from: "08:00",
+//     to: "16:00",
+//   },
+//   tuesday: {
+//     from: "08:00",
+//     to: "16:00",
+//   },
+//   wednesday: {
+//     from: "08:00",
+//     to: "16:00",
+//   },
+//   thursday: {
+//     from: "08:00",
+//     to: "16:00",
+//   },
+//   friday: {
+//     from: "08:00",
+//     to: "16:00",
+//   },
+//   saturday: {
+//     from: "09:00",
+//     to: "14:00",
+//   },
+//   sunday: {
+//     from: "",
+//     to: "",
+//   },
+// };
 
-const daysOff = [
-  {
-    id: 1,
-    from: "2026-05-20",
-    to: "2026-05-22",
-    reason: "Vacation",
-  },
-  {
-    id: 2,
-    from: "2026-06-02",
-    to: "2026-06-02",
-    reason: "Medical Leave",
-  },
+const daysOff: IDayOff[] = [
+  // {
+  //   id: 1,
+  //   from: "2026-05-20",
+  //   to: "2026-05-22",
+  //   reason: "Vacation",
+  // },
+  // {
+  //   id: 2,
+  //   from: "2026-06-02",
+  //   to: "2026-06-02",
+  //   reason: "Medical Leave",
+  // },
 ];
 
 const BarberDetails = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
-  const [barber, setBarber] = useState<IBarber>(null);
+  const [barber, setBarber] = useState<IBarber | null>(null);
   const [services, setServices] = useState<IService[]>([]);
   const [avaliableServices, setAvaliableServices] = useState<IService[]>([]);
-  const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [schedule, setSchedule] = useState<IWorkSchedule | null>(null);
 
+  const [scheduleModalOpen, setScheduleModalOpen] = useState<boolean>(false);
+  const [dayOffModalOpen, setDayOffModalOpen] = useState<boolean>(false);
+  const [addServiceModalOpen, setAddServiceModalOpen] =
+    useState<boolean>(false);
+  const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
   const [selectedService, setSelectedService] = useState<IService | null>(null);
 
   const fetchBarber = async (barber_id: string) => {
@@ -115,6 +135,14 @@ const BarberDetails = () => {
   const handleAddService = async (data) => {
     await linkServiceToBarber(id, data.serviceId, data.price);
     fetchBarber(id);
+  };
+
+  const addDayOff = async (data) => {
+    //TODO
+  };
+
+  const deleteDayOff = async (id: string | number) => {
+    //TODO
   };
   return (
     <div className="space-y-6">
@@ -207,27 +235,52 @@ const BarberDetails = () => {
             </div>
 
             {/* Weekly Schedule */}
-            <div className="rounded-2xl h-fit border border-border bg-card p-5">
+            <div className="rounded-2xl border border-border bg-card p-5">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-text">
                   Weekly Schedule
                 </h2>
+
+                <button
+                  onClick={() => setScheduleModalOpen(true)}
+                  className="flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:brightness-110 cursor-pointer"
+                >
+                  {schedule ? <Pencil size={16} /> : <Plus size={16} />}
+                  {schedule ? "Edit" : "Set Schedule"}
+                </button>
               </div>
 
-              <div className="space-y-3">
-                {weeklySchedule.map((schedule) => (
-                  <div
-                    key={schedule.day}
-                    className="flex items-center justify-between rounded-xl border border-border bg-background px-4 py-3"
-                  >
-                    <div className="font-medium text-text">{schedule.day}</div>
+              {!schedule ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <Calendar size={32} className="mb-3 text-muted" />
 
-                    <div className="text-sm text-muted">
-                      {schedule.from} - {schedule.to}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  <h3 className="font-medium text-text">No schedule set</h3>
+
+                  <p className="mt-1 text-sm text-muted">
+                    Set working hours for this barber
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {schedule &&
+                    Object.entries(schedule).map(([day, time]) => (
+                      <div
+                        key={day}
+                        className="flex items-center justify-between rounded-xl border border-border bg-background px-4 py-3"
+                      >
+                        <div className="font-medium text-text capitalize">
+                          {day}
+                        </div>
+
+                        <div className="text-sm text-muted">
+                          {time.from && time.to
+                            ? `${time.from} - ${time.to}`
+                            : "Day Off"}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
 
             {/* Days Off */}
@@ -235,41 +288,51 @@ const BarberDetails = () => {
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-text">Days Off</h2>
 
-                <button className="flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:brightness-110 cursor-pointer">
+                <button
+                  className="flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:brightness-110 cursor-pointer"
+                  onClick={() => setDayOffModalOpen(true)}
+                >
                   <Plus size={16} />
                   Add
                 </button>
               </div>
+              {daysOff.length > 0 ? (
+                <div className="space-y-3">
+                  {daysOff.map((day) => (
+                    <div
+                      key={day.id}
+                      className="rounded-xl border border-border bg-background p-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-text">{day.reason}</p>
 
-              <div className="overflow-x-auto">
-                <table className="w-full border-separate border-spacing-y-2">
-                  <thead>
-                    <tr className="text-left text-sm text-muted">
-                      <th className="pb-2 font-medium">From</th>
-                      <th className="pb-2 font-medium">To</th>
-                      <th className="pb-2 font-medium">Reason</th>
-                    </tr>
-                  </thead>
+                          <p className="mt-1 text-sm text-muted">
+                            {day.from} → {day.to}
+                          </p>
+                        </div>
 
-                  <tbody>
-                    {daysOff.map((day) => (
-                      <tr key={day.id} className="bg-background">
-                        <td className="rounded-l-xl border-y border-l border-border px-3 py-3 text-sm text-text">
-                          {day.from}
-                        </td>
+                        <button
+                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 transition-colors hover:bg-red-500/20 cursor-pointer"
+                          onClick={() => deleteDayOff(day.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <CalendarX2 size={32} className="mb-3 text-muted" />
 
-                        <td className="border-y border-border px-3 py-3 text-sm text-text">
-                          {day.to}
-                        </td>
+                  <h3 className="font-medium text-text">No days off</h3>
 
-                        <td className="rounded-r-xl border-y border-r border-border px-3 py-3 text-sm text-muted">
-                          {day.reason}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  <p className="mt-1 text-sm text-muted">
+                    Add planned absences for this barber
+                  </p>
+                </div>
+              )}
             </div>
             <LinkServiceModal
               open={addServiceModalOpen}
@@ -286,7 +349,44 @@ const BarberDetails = () => {
                 handleEditService(service_id, formData)
               }
             />
+            <WorkScheduleModal
+              open={scheduleModalOpen}
+              onClose={() => setScheduleModalOpen(false)}
+              schedule={schedule}
+              onSubmit={async (data) => {
+                if (schedule) {
+                  await updateWorkSchedule(id, data);
+                } else {
+                  await createWorkSchedule(id, data);
+                }
+
+                fetchBarber(id);
+              }}
+            />
           </div>
+          <AddModal
+            open={dayOffModalOpen}
+            onClose={() => setDayOffModalOpen(false)}
+            title="Add Day Off"
+            fields={[
+              {
+                name: "from",
+                label: "From",
+                type: "date",
+              },
+              {
+                name: "to",
+                label: "To",
+                type: "date",
+              },
+              {
+                name: "reason",
+                label: "Reason",
+                placeholder: "Reason for day off",
+              },
+            ]}
+            onSubmit={addDayOff}
+          />
         </>
       )}
     </div>

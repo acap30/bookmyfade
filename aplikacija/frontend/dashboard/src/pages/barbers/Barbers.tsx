@@ -10,15 +10,17 @@ import {
 import { useNavigate } from "react-router-dom";
 import BarberItem from "../../components/items/BarberItem";
 import AddUserModal from "../../components/modals/AddUserModal";
-import { getSalons } from "../../api/salonsApi";
+import { getMySalon, getSalons } from "../../api/salonsApi";
 import type { ISalon } from "../../types/salon";
 import { ROLES } from "../../types/auth";
 import EditUserModal from "../../components/modals/EditUserModal";
 import type { IBarber } from "../../types/barber";
+import { useAuth } from "../../context/AuthContext";
 
 const Barbers = () => {
   const [barbers, setBarbers] = useState<IBarber[]>([]);
   const [salons, setSalons] = useState<ISalon[]>([]);
+  const [mySalon, setMySalon] = useState<ISalon | null>(null);
 
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -26,6 +28,8 @@ const Barbers = () => {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedBarber, setSelectedBarber] = useState<IBarber | null>(null);
+
+  const { user } = useAuth();
 
   const navigate = useNavigate();
 
@@ -40,10 +44,15 @@ const Barbers = () => {
   const fetchBarbers = async () => {
     try {
       const data = await getBarbers();
-      const salons_data = await getSalons();
-
       setBarbers(data);
-      setSalons(salons_data);
+
+      if (user.role === ROLES.OWNER) {
+        const salon_data = await getMySalon();
+        setMySalon(salon_data);
+      } else {
+        const salons_data = await getSalons();
+        setSalons(salons_data);
+      }
     } catch (err) {
       console.error("Failed to fetch barbers", err);
     } finally {
@@ -74,7 +83,7 @@ const Barbers = () => {
         phone_number: data.phoneNumber ?? null,
         role: ROLES.BARBER,
       },
-      salon_id: Number(data.salon_id),
+      salon_id: user.role !== ROLES.OWNER ? Number(data.salon_id) : mySalon.id,
     });
 
     fetchBarbers();
@@ -93,7 +102,7 @@ const Barbers = () => {
         email: data.email,
         phone_number: data.phone_number,
       },
-      Number(data.salon_id),
+      user.role !== ROLES.OWNER ? Number(data.salon_id) : mySalon.id,
     );
 
     await fetchBarbers();
@@ -197,16 +206,20 @@ const Barbers = () => {
             placeholder: "Enter phone number",
           },
         ]}
-        selects={[
-          {
-            name: "salon_id",
-            label: "Salon",
-            options: salons.map((salon) => ({
-              value: salon.id,
-              label: salon.name,
-            })),
-          },
-        ]}
+        selects={
+          user.role !== ROLES.OWNER
+            ? [
+                {
+                  name: "salon_id",
+                  label: "Salon",
+                  options: salons.map((salon) => ({
+                    value: salon.id,
+                    label: salon.name,
+                  })),
+                },
+              ]
+            : []
+        }
         onSubmit={async (data) => handleAdd(data)}
       />
       <EditUserModal
@@ -220,16 +233,20 @@ const Barbers = () => {
           { name: "email", label: "Email", type: "email" },
           { name: "phone_number", label: "Phone Number" },
         ]}
-        selects={[
-          {
-            name: "salon_id",
-            label: "Salon",
-            options: salons.map((salon) => ({
-              value: salon.id,
-              label: salon.name,
-            })),
-          },
-        ]}
+        selects={
+          user.role !== ROLES.OWNER
+            ? [
+                {
+                  name: "salon_id",
+                  label: "Salon",
+                  options: salons.map((salon) => ({
+                    value: salon.id,
+                    label: salon.name,
+                  })),
+                },
+              ]
+            : []
+        }
         initialData={
           selectedBarber
             ? {
