@@ -68,7 +68,7 @@ export const updateOwner = async (
     last_name: user.last_name,
     phone_number: user.phone_number,
   });
-  // await api.put(`/owner/${owner_id}`, { salon_id });
+  await api.put(`/owner/${owner_id}`, { salon_id });
 };
 
 export const deleteOwner = async (

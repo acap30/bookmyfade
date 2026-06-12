@@ -1,4 +1,10 @@
-import { LayoutDashboard, Scissors, Store, Users } from "lucide-react";
+import {
+  CalendarDays,
+  LayoutDashboard,
+  Scissors,
+  Store,
+  Users,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { ROLES } from "../../types/auth";
@@ -34,6 +40,12 @@ const sidebarItems = [
     icon: <Users size={18} />,
     path: "/barbers",
     roles: [ROLES.ADMIN, ROLES.OWNER],
+  },
+  {
+    label: "Appointments",
+    icon: <CalendarDays size={18} />,
+    path: "/appointments",
+    roles: [ROLES.ADMIN, ROLES.OWNER, ROLES.BARBER],
   },
 ];
 

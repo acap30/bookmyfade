@@ -15,6 +15,7 @@ import {
 } from "./pages";
 import { ROLES } from "./types/auth";
 import BarberDetails from "./pages/barbers/BarberDetails";
+import Appointments from "./pages/appointments/Appointments";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route element={<RootLayout />}>
             <Route index path="/" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/appointments" element={<Appointments />} />
             <Route element={<RoleRoute allowedRoles={[ROLES.ADMIN]} />}>
               <Route path="/salons" element={<Salons />} />
               <Route path="/salons/:id" element={<SalonDetails />} />

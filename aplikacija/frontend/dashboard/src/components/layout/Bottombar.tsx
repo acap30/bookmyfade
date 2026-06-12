@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Store, Users } from "lucide-react";
+import { CalendarDays, LayoutDashboard, Store, Users } from "lucide-react";
 import { ROLES } from "../../types/auth";
 import { useAuth } from "../../context/AuthContext";
 
@@ -33,6 +33,12 @@ const items = [
     icon: <Users size={18} />,
     path: "/barbers",
     roles: [ROLES.ADMIN, ROLES.OWNER],
+  },
+  {
+    label: "Appointments",
+    icon: <CalendarDays size={18} />,
+    path: "/appointments",
+    roles: [ROLES.ADMIN, ROLES.OWNER, ROLES.BARBER],
   },
 ];
 

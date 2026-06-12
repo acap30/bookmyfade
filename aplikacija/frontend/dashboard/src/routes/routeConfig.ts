@@ -39,4 +39,9 @@ export const routeConfig = [
     subtitle: "Barber's overview, services, and work schedule",
     match: (pathname: string) => pathname.startsWith("/barbers/"),
   },
+  {
+    title: "Appointments",
+    subtitle: "See all recent appointments",
+    match: (pathname: string) => pathname === "/appointments",
+  },
 ];
