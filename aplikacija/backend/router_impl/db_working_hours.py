@@ -23,6 +23,37 @@ def create_working_hours(req: schemas.WorkingHoursCreate, db: Session):
 
     return {"message": "Good."}
 
+def create_working_hours_week(req: schemas.WorkingHoursWeekCreate, db: Session):
+    existing_hairdresser = db.query(Hairdresser).filter(req.hairdresser_id == Hairdresser.id).first()
+    if not existing_hairdresser:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser not found.")
+    
+    days = req.model_dump(exclude={"hairdresser_id"})
+
+    mapping = {
+        "monday": 1,
+        "tuesday": 2,
+        "wednesday": 3,
+        "thursday": 4,
+        "friday": 5,
+        "saturday": 6,
+        "sunday": 7,
+    }
+
+    for weekday, schedule in days.items():
+        sch = schemas.WorkingHoursCreate(
+            hairdresser_id = req.hairdresser_id,
+            weekday = mapping[weekday],
+            start = schedule["start"],
+            end = schedule["end"],
+            off = schedule["off"]
+        )
+        create_working_hours(sch, db)
+
+    return {"message": "good"}
+
+
 def get_all_working_hours(db: Session):
 
     return db.query(WorkingHours).all()

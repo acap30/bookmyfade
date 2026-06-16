@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from db import schemas
 from sqlalchemy.orm.session import Session
+from sqlalchemy.orm import joinedload
 from db.models import Hairdresser_Service, Reservations, Owner, Hairdresser, Salon
 from datetime import datetime
 
@@ -14,7 +15,7 @@ def time_conflict(db: Session, hd_id: int, start_time: datetime, end_time: datet
         Reservations.end_time > start_time
     )
     .first()
-)
+    )
 
     
     return existing
@@ -50,13 +51,46 @@ def create_reservation(req: schemas.ReservationCreate, db: Session):
     return new_res
 
 def get_all_reservations(db: Session, skip: int, limit: int):
-    reservations = db.query(Reservations).offset(skip).limit(limit).all()
+    reservations = (
+        db.query(Reservations)
+        .options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    data = []
+    for r in reservations:
+        data.append({
+            "id": r.id,
+            "client_name": r.client_name,
+            "client_phone": r.client_phone,
+            "start_time": r.start_time,
+            "end_time": r.end_time,
+            "hairdresser": {
+                "id": r.hairdresser_service.hairdresser.id,
+                "user_id": r.hairdresser_service.hairdresser.user.id,
+                "first_name": r.hairdresser_service.hairdresser.user.first_name,
+                "last_name": r.hairdresser_service.hairdresser.user.last_name
+            },
+            "service": {
+                "id": r.hairdresser_service.service.id,
+                "name": r.hairdresser_service.service.name,
+                "length_minutes": r.hairdresser_service.service.length_minutes
+            }
+        })
 
     return {
         "total": db.query(Reservations).count(),
         "skip": skip,
         "limit": limit,
-        "data": reservations
+        "data": data
     }
 
 def get_all_reservations_by_owner_id(user_id: int, db: Session, skip: int, limit: int):
@@ -71,20 +105,47 @@ def get_all_reservations_by_owner_id(user_id: int, db: Session, skip: int, limit
         .join(Hairdresser_Service, Reservations.hs_id == Hairdresser_Service.id)
         .join(Hairdresser, Hairdresser_Service.hairdresser_id == Hairdresser.id)
         .join(Salon, Hairdresser.salon_id == Salon.id)
-        .join(Owner, Owner.salon_id == Salon.id) 
+        .join(Owner, Owner.salon_id == Salon.id)
+        .options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        ) 
         .filter(Owner.id == owner.id)
-        
     )
 
     res = query.offset(skip).limit(limit).all()
     total = query.count()
+
+    data = []
+    for r in res:
+        data.append({
+            "id": r.id,
+            "client_name": r.client_name,
+            "client_phone": r.client_phone,
+            "start_time": r.start_time,
+            "end_time": r.end_time,
+            "hairdresser": {
+                "id": r.hairdresser_service.hairdresser.id,
+                "user_id": r.hairdresser_service.hairdresser.user.id,
+                "first_name": r.hairdresser_service.hairdresser.user.first_name,
+                "last_name": r.hairdresser_service.hairdresser.user.last_name
+            },
+            "service": {
+                "id": r.hairdresser_service.service.id,
+                "name": r.hairdresser_service.service.name,
+                "length_minutes": r.hairdresser_service.service.length_minutes
+            }
+        })
 
 
     return {
         "total": total,
         "skip": skip,
         "limit": limit,
-        "data": res
+        "data": data
     }
 
 def get_all_reservations_by_hairdresser_id(user_id: int, db: Session, skip: int, limit: int):
@@ -97,31 +158,88 @@ def get_all_reservations_by_hairdresser_id(user_id: int, db: Session, skip: int,
     query = (
         db.query(Reservations)
         .join(Hairdresser_Service, Reservations.hs_id == Hairdresser_Service.id)
+        .options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        ) 
         .filter(Hairdresser_Service.hairdresser_id == hd.id)
     )
 
     res = query.offset(skip).limit(limit).all()
     total = query.count()
-        
+    
+    data = []
+    for r in res:
+        data.append({
+            "id": r.id,
+            "client_name": r.client_name,
+            "client_phone": r.client_phone,
+            "start_time": r.start_time,
+            "end_time": r.end_time,
+            "hairdresser": {
+                "id": r.hairdresser_service.hairdresser.id,
+                "user_id": r.hairdresser_service.hairdresser.user.id,
+                "first_name": r.hairdresser_service.hairdresser.user.first_name,
+                "last_name": r.hairdresser_service.hairdresser.user.last_name
+            },
+            "service": {
+                "id": r.hairdresser_service.service.id,
+                "name": r.hairdresser_service.service.name,
+                "length_minutes": r.hairdresser_service.service.length_minutes
+            }
+        })
 
 
     return {
         "total": total,
         "skip": skip,
         "limit": limit,
-        "data": res
+        "data": data
     }
 
 
 def get_reservation_by_id(res_id: int, db: Session):
 
-    res = db.query(Reservations).filter(Reservations.id == res_id).first()
+    res = (
+        db.query(Reservations)
+        .options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        )
+        .filter(Reservations.id == res_id)
+        .first()
+    )
 
     if not res:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="reservation not found")
     
-    return res
+    data = {
+            "id": res.id,
+            "client_name": res.client_name,
+            "client_phone": res.client_phone,
+            "start_time": res.start_time,
+            "end_time": res.end_time,
+            "hairdresser": {
+                "id": res.hairdresser_service.hairdresser.id,
+                "user_id": res.hairdresser_service.hairdresser.user.id,
+                "first_name": res.hairdresser_service.hairdresser.user.first_name,
+                "last_name": res.hairdresser_service.hairdresser.user.last_name
+            },
+            "service": {
+                "id": res.hairdresser_service.service.id,
+                "name": res.hairdresser_service.service.name,
+                "length_minutes": res.hairdresser_service.service.length_minutes
+            }
+        }
+    
+    return data
 
 def get_reservation_by_id_owner(user_id: int, res_id: int, db: Session):
 
@@ -130,7 +248,13 @@ def get_reservation_by_id_owner(user_id: int, res_id: int, db: Session):
         raise HTTPException(status_code=404, detail="Owner not found")
 
     
-    res = db.query(Reservations).filter(Reservations.id == res_id).first()
+    res = db.query(Reservations).options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        ).filter(Reservations.id == res_id).first()
     if not res:
         raise HTTPException(status_code=404, detail="Reservation not found")
 
@@ -147,8 +271,28 @@ def get_reservation_by_id_owner(user_id: int, res_id: int, db: Session):
 
     if not authorized:
         raise HTTPException(status_code=404, detail="Reservation not found")
+    
+    data = {
+            "id": res.id,
+            "client_name": res.client_name,
+            "client_phone": res.client_phone,
+            "start_time": res.start_time,
+            "end_time": res.end_time,
+            "hairdresser": {
+                "id": res.hairdresser_service.hairdresser.id,
+                "user_id": res.hairdresser_service.hairdresser.user.id,
+                "first_name": res.hairdresser_service.hairdresser.user.first_name,
+                "last_name": res.hairdresser_service.hairdresser.user.last_name
+            },
+            "service": {
+                "id": res.hairdresser_service.service.id,
+                "name": res.hairdresser_service.service.name,
+                "length_minutes": res.hairdresser_service.service.length_minutes
+            }
+        }
+    
+    return data
 
-    return res
 
 
 def get_reservation_by_id_hd(user_id: int, res_id: int, db: Session):
@@ -158,7 +302,13 @@ def get_reservation_by_id_hd(user_id: int, res_id: int, db: Session):
         raise HTTPException(status_code=404, detail="Hairdresser not found")
 
     
-    res = db.query(Reservations).filter(Reservations.id == res_id).first()
+    res = db.query(Reservations).options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        ).filter(Reservations.id == res_id).first()
     if not res:
         raise HTTPException(status_code=404, detail="Reservation not found")
 
@@ -174,7 +324,26 @@ def get_reservation_by_id_hd(user_id: int, res_id: int, db: Session):
     if not authorized:
         raise HTTPException(status_code=404, detail="Reservation not found")
 
-    return res
+    data = {
+            "id": res.id,
+            "client_name": res.client_name,
+            "client_phone": res.client_phone,
+            "start_time": res.start_time,
+            "end_time": res.end_time,
+            "hairdresser": {
+                "id": res.hairdresser_service.hairdresser.id,
+                "user_id": res.hairdresser_service.hairdresser.user.id,
+                "first_name": res.hairdresser_service.hairdresser.user.first_name,
+                "last_name": res.hairdresser_service.hairdresser.user.last_name
+            },
+            "service": {
+                "id": res.hairdresser_service.service.id,
+                "name": res.hairdresser_service.service.name,
+                "length_minutes": res.hairdresser_service.service.length_minutes
+            }
+        }
+    
+    return data
 
 
 
@@ -182,7 +351,13 @@ def get_reservation_by_id_hd(user_id: int, res_id: int, db: Session):
 def update_reservation(res_id: int, req: schemas.ReservationUpdate, db: Session):
 
     
-    res = db.query(Reservations).filter(Reservations.id == res_id).first()
+    res = db.query(Reservations).options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        ).filter(Reservations.id == res_id).first()
 
 
 
@@ -201,9 +376,10 @@ def update_reservation(res_id: int, req: schemas.ReservationUpdate, db: Session)
     start_time = req.start_time if req.start_time is not None else res.start_time
     end_time = req.end_time if req.end_time is not None else res.end_time
 
-    if time_conflict(db, res.hairdresser_service.hairdresser_id, start_time, end_time):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="timeslot is full for this hairdresser")
+    if (start_time != res.start_time or end_time != res.end_time):
+        if time_conflict(db, res.hairdresser_service.hairdresser_id, start_time, end_time):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail="timeslot is full for this hairdresser")
     
     res.hs_id = req.hs_id if req.hs_id is not None else res.hs_id
     res.client_name = req.client_name if req.client_name is not None else res.client_name
@@ -216,7 +392,26 @@ def update_reservation(res_id: int, req: schemas.ReservationUpdate, db: Session)
     db.commit()
     db.refresh(res)
 
-    return res
+    data = {
+            "id": res.id,
+            "client_name": res.client_name,
+            "client_phone": res.client_phone,
+            "start_time": res.start_time,
+            "end_time": res.end_time,
+            "hairdresser": {
+                "id": res.hairdresser_service.hairdresser.id,
+                "user_id": res.hairdresser_service.hairdresser.user.id,
+                "first_name": res.hairdresser_service.hairdresser.user.first_name,
+                "last_name": res.hairdresser_service.hairdresser.user.last_name
+            },
+            "service": {
+                "id": res.hairdresser_service.service.id,
+                "name": res.hairdresser_service.service.name,
+                "length_minutes": res.hairdresser_service.service.length_minutes
+            }
+        }
+    
+    return data
 
 
 def update_reservation_owner(user_id: int, res_id: int, req: schemas.ReservationUpdate, db: Session):
@@ -225,7 +420,13 @@ def update_reservation_owner(user_id: int, res_id: int, req: schemas.Reservation
     if not owner:
         raise HTTPException(status_code=404, detail="Owner not found")
 
-    res = db.query(Reservations).filter(Reservations.id == res_id).first()
+    res = db.query(Reservations).options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        ).filter(Reservations.id == res_id).first()
 
     if not res:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -254,9 +455,10 @@ def update_reservation_owner(user_id: int, res_id: int, req: schemas.Reservation
     start_time = req.start_time if req.start_time is not None else res.start_time
     end_time = req.end_time if req.end_time is not None else res.end_time
 
-    if time_conflict(db, res.hairdresser_service.hairdresser_id, start_time, end_time):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="timeslot is full for this hairdresser")
+    if (start_time != res.start_time or end_time != res.end_time):
+        if time_conflict(db, res.hairdresser_service.hairdresser_id, start_time, end_time):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail="timeslot is full for this hairdresser")
     
     res.hs_id = req.hs_id if req.hs_id is not None else res.hs_id
     res.client_name = req.client_name if req.client_name is not None else res.client_name
@@ -269,7 +471,26 @@ def update_reservation_owner(user_id: int, res_id: int, req: schemas.Reservation
     db.commit()
     db.refresh(res)
 
-    return res
+    data = {
+            "id": res.id,
+            "client_name": res.client_name,
+            "client_phone": res.client_phone,
+            "start_time": res.start_time,
+            "end_time": res.end_time,
+            "hairdresser": {
+                "id": res.hairdresser_service.hairdresser.id,
+                "user_id": res.hairdresser_service.hairdresser.user.id,
+                "first_name": res.hairdresser_service.hairdresser.user.first_name,
+                "last_name": res.hairdresser_service.hairdresser.user.last_name
+            },
+            "service": {
+                "id": res.hairdresser_service.service.id,
+                "name": res.hairdresser_service.service.name,
+                "length_minutes": res.hairdresser_service.service.length_minutes
+            }
+        }
+    
+    return data
 
 def update_reservation_hd(user_id: int, res_id: int, req: schemas.ReservationUpdate, db: Session):
 
@@ -277,7 +498,13 @@ def update_reservation_hd(user_id: int, res_id: int, req: schemas.ReservationUpd
     if not hd:
         raise HTTPException(status_code=404, detail="Hairdresser not found")
 
-    res = db.query(Reservations).filter(Reservations.id == res_id).first()
+    res = db.query(Reservations).options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        ).filter(Reservations.id == res_id).first()
 
     if not res:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -304,9 +531,10 @@ def update_reservation_hd(user_id: int, res_id: int, req: schemas.ReservationUpd
     start_time = req.start_time if req.start_time is not None else res.start_time
     end_time = req.end_time if req.end_time is not None else res.end_time
 
-    if time_conflict(db, res.hairdresser_service.hairdresser_id, start_time, end_time):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="timeslot is full for this hairdresser")
+    if (start_time != res.start_time or end_time != res.end_time):
+        if time_conflict(db, res.hairdresser_service.hairdresser_id, start_time, end_time):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                                detail="timeslot is full for this hairdresser")
     
     res.hs_id = req.hs_id if req.hs_id is not None else res.hs_id
     res.client_name = req.client_name if req.client_name is not None else res.client_name
@@ -319,7 +547,26 @@ def update_reservation_hd(user_id: int, res_id: int, req: schemas.ReservationUpd
     db.commit()
     db.refresh(res)
 
-    return res
+    data = {
+            "id": res.id,
+            "client_name": res.client_name,
+            "client_phone": res.client_phone,
+            "start_time": res.start_time,
+            "end_time": res.end_time,
+            "hairdresser": {
+                "id": res.hairdresser_service.hairdresser.id,
+                "user_id": res.hairdresser_service.hairdresser.user.id,
+                "first_name": res.hairdresser_service.hairdresser.user.first_name,
+                "last_name": res.hairdresser_service.hairdresser.user.last_name
+            },
+            "service": {
+                "id": res.hairdresser_service.service.id,
+                "name": res.hairdresser_service.service.name,
+                "length_minutes": res.hairdresser_service.service.length_minutes
+            }
+        }
+    
+    return data
 
 
 def delete_reservation(res_id: int, db: Session):

@@ -101,25 +101,34 @@ class WorkingHours(Base):
     __tablename__ = "Radno_vreme"
 
     id = Column(Integer, primary_key=True)
-    hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"), primary_key = True)
+    hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"), nullable=False)
     weekday = Column(Enum(Weekday), nullable=False)
     start = Column(Time, nullable=True)
     end = Column(Time, nullable=True)
+    off = Column(Boolean, nullable=False, default=False)
 
     hairdresser = relationship("Hairdresser", back_populates="working_hours")
+
+    __table_args__ = (
+        UniqueConstraint("hairdresser_id", "weekday", name="uq_hairdresser_weekday"),
+    )
 
 
 class WorkingHoursExceptions(Base):
     __tablename__ = "Radno_vreme_izuzeci"
 
     id = Column(Integer, primary_key=True)
-    hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"), primary_key = True)
+    hairdresser_id = Column(Integer, ForeignKey("Frizeri.id", ondelete="CASCADE"), nullable=False)
     date = Column(Date, nullable=False)
     start = Column(Time, nullable=True)
     end = Column(Time, nullable=True)
     day_off = Column(Boolean, nullable=False, default=False)
 
     hairdresser = relationship("Hairdresser", back_populates="working_hours_exceptions")
+
+    __table_args__ = (
+        UniqueConstraint("hairdresser_id", "date", name="uq_hairdresser_date"),
+    )
 
 class Reservations(Base):
     __tablename__ = "Rezervacije"

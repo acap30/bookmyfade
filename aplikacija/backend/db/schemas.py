@@ -1,7 +1,7 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from enum import Enum
-from datetime import time, datetime
+from datetime import time, datetime, date
 
 class Role(str, Enum):
     ADMIN = "admin"
@@ -117,16 +117,58 @@ class ServiceCreateAndLink(BaseModel):
     length: int
     price: float
 
+class DaySchedule(BaseModel):
+    start: Optional[time] = None
+    end: Optional[time] = None
+    off: bool
+
 class WorkingHoursCreate(BaseModel):
     hairdresser_id: int
     weekday: Weekday
     start: Optional[time] = None
     end: Optional[time] = None
+    off: bool
+
+class WorkingHoursWeekCreate(BaseModel):
+    hairdresser_id: int
+    monday: DaySchedule
+    tuesday: DaySchedule
+    wednesday: DaySchedule
+    thursday: DaySchedule
+    friday: DaySchedule
+    saturday: DaySchedule
+    sunday: DaySchedule
 
 class WorkingHoursUpdate(BaseModel):
     weekday: Optional[Weekday] = None
     start: Optional[time] = None
     end: Optional[time] = None
+
+class WorkingHoursExceptionCreate(BaseModel):
+    hairdresser_id: int
+    date: date
+    start: Optional[time] = None
+    end: Optional[time] = None
+    day_off: bool
+
+class WorkingHoursExceptionDisplay(BaseModel):
+    id: int
+    hairdresser_id: int
+    date: date
+    start: Optional[time] = None
+    end: Optional[time] = None
+    day_off: bool
+
+class ReservationService(BaseModel):
+    id: int
+    name: str
+    length_minutes: int
+
+class ReservationHairdresser(BaseModel):
+    id: int
+    user_id: int
+    first_name: str
+    last_name: str
 
 class ReservationCreate(BaseModel):
     hs_id: int
@@ -144,11 +186,14 @@ class ReservationUpdate(BaseModel):
 
 class ReservationDisplay(BaseModel):
     id: int
-    hs_id: int
     client_name: str
     client_phone: str
     start_time: datetime
     end_time: datetime
+    hairdresser: ReservationHairdresser
+    service: ReservationService
+
+    model_config = ConfigDict(from_attributes=True)
 
 class ReservationWrapper(BaseModel):
     total: int

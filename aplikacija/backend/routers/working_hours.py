@@ -12,9 +12,14 @@ router = APIRouter(
     prefix="/workhours"
 )
 
+
 @router.post("/")
 def create_working_hours(req: schemas.WorkingHoursCreate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_working_hours.create_working_hours(req,db)
+
+@router.post("/week/")
+def create_wokring_hours_week(req: schemas.WorkingHoursWeekCreate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_working_hours.create_working_hours_week(req, db)
 
 @router.get("/")
 def get_all_working_hours(db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
