@@ -22,20 +22,33 @@ const days = [
 ] as const;
 
 const emptyForm = {
-  mondayFrom: "",
-  mondayTo: "",
-  tuesdayFrom: "",
-  tuesdayTo: "",
-  wednesdayFrom: "",
-  wednesdayTo: "",
-  thursdayFrom: "",
-  thursdayTo: "",
-  fridayFrom: "",
-  fridayTo: "",
-  saturdayFrom: "",
-  saturdayTo: "",
+  mondayFrom: "09:00",
+  mondayTo: "17:00",
+  mondayOff: false,
+
+  tuesdayFrom: "09:00",
+  tuesdayTo: "17:00",
+  tuesdayOff: false,
+
+  wednesdayFrom: "09:00",
+  wednesdayTo: "17:00",
+  wednesdayOff: false,
+
+  thursdayFrom: "09:00",
+  thursdayTo: "17:00",
+  thursdayOff: false,
+
+  fridayFrom: "09:00",
+  fridayTo: "17:00",
+  fridayOff: false,
+
+  saturdayFrom: "09:00",
+  saturdayTo: "15:00",
+  saturdayOff: false,
+
   sundayFrom: "",
   sundayTo: "",
+  sundayOff: true,
 };
 
 const WorkScheduleModal = ({ open, onClose, schedule, onSubmit }: Props) => {
@@ -54,24 +67,31 @@ const WorkScheduleModal = ({ open, onClose, schedule, onSubmit }: Props) => {
     setFormData({
       mondayFrom: schedule.monday.from,
       mondayTo: schedule.monday.to,
+      mondayOff: schedule.monday.off,
 
       tuesdayFrom: schedule.tuesday.from,
       tuesdayTo: schedule.tuesday.to,
+      tuesdayOff: schedule.tuesday.off,
 
       wednesdayFrom: schedule.wednesday.from,
       wednesdayTo: schedule.wednesday.to,
+      wednesdayOff: schedule.wednesday.off,
 
       thursdayFrom: schedule.thursday.from,
       thursdayTo: schedule.thursday.to,
+      thursdayOff: schedule.thursday.off,
 
       fridayFrom: schedule.friday.from,
       fridayTo: schedule.friday.to,
+      fridayOff: schedule.friday.off,
 
       saturdayFrom: schedule.saturday.from,
       saturdayTo: schedule.saturday.to,
+      saturdayOff: schedule.saturday.off,
 
       sundayFrom: schedule.sunday.from,
       sundayTo: schedule.sunday.to,
+      sundayOff: schedule.sunday.off,
     });
 
     setError("");
@@ -80,9 +100,11 @@ const WorkScheduleModal = ({ open, onClose, schedule, onSubmit }: Props) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError("");
 
+    const { name, value, type, checked } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -103,30 +125,37 @@ const WorkScheduleModal = ({ open, onClose, schedule, onSubmit }: Props) => {
       monday: {
         from: formData.mondayFrom,
         to: formData.mondayTo,
+        off: formData.mondayOff,
       },
       tuesday: {
         from: formData.tuesdayFrom,
         to: formData.tuesdayTo,
+        off: formData.tuesdayOff,
       },
       wednesday: {
         from: formData.wednesdayFrom,
         to: formData.wednesdayTo,
+        off: formData.wednesdayOff,
       },
       thursday: {
         from: formData.thursdayFrom,
         to: formData.thursdayTo,
+        off: formData.thursdayOff,
       },
       friday: {
         from: formData.fridayFrom,
         to: formData.fridayTo,
+        off: formData.fridayOff,
       },
       saturday: {
         from: formData.saturdayFrom,
         to: formData.saturdayTo,
+        off: formData.saturdayOff,
       },
       sunday: {
         from: formData.sundayFrom,
         to: formData.sundayTo,
+        off: formData.sundayOff,
       },
     };
 
@@ -151,30 +180,59 @@ const WorkScheduleModal = ({ open, onClose, schedule, onSubmit }: Props) => {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 gap-4">
-          {days.map((day) => (
-            <div
-              key={day.key}
-              className="grid sm:grid-cols-[90px_1fr_1fr] gap-3"
-            >
-              <div className="font-medium text-text">{day.label}</div>
+          {days.map((day) => {
+            const offKey = `${day.key}Off` as keyof typeof formData;
+            const isOff = formData[offKey] as boolean;
 
-              <input
-                type="time"
-                name={`${day.key}From`}
-                value={formData[`${day.key}From` as keyof typeof formData]}
-                onChange={handleChange}
-                className="light-input"
-              />
+            return (
+              <div
+                key={day.key}
+                className="grid sm:grid-cols-[90px_1fr_1fr] gap-6"
+              >
+                <div className="flex items-center gap-2 font-medium">
+                  <input
+                    type="checkbox"
+                    name={offKey}
+                    checked={!isOff}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        [offKey]: !e.target.checked,
+                      }))
+                    }
+                    className="h-4 w-4 shrink-0 accent-primary"
+                  />
+                  <label className={!isOff ? "" : "text-muted"}>
+                    {day.label}
+                  </label>
+                </div>
 
-              <input
-                type="time"
-                name={`${day.key}To`}
-                value={formData[`${day.key}To` as keyof typeof formData]}
-                onChange={handleChange}
-                className="light-input"
-              />
-            </div>
-          ))}
+                <input
+                  type="time"
+                  name={`${day.key}From`}
+                  value={
+                    formData[
+                      `${day.key}From` as keyof typeof formData
+                    ] as string
+                  }
+                  disabled={isOff}
+                  onChange={handleChange}
+                  className="light-input"
+                />
+
+                <input
+                  type="time"
+                  name={`${day.key}To`}
+                  value={
+                    formData[`${day.key}To` as keyof typeof formData] as string
+                  }
+                  disabled={isOff}
+                  onChange={handleChange}
+                  className="light-input"
+                />
+              </div>
+            );
+          })}
         </div>
 
         {error && (

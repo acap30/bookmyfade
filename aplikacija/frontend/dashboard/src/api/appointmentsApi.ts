@@ -16,12 +16,17 @@ export const getAppointments = async (skip = 0, limit = 5) => {
   );
   const mappedAppointments = await Promise.all(
     appointments.data.map(async (appointment: any) => {
-      const barber = getBarberById(appointment.hs_id);
+      const barber = getBarberById(appointment.hairdresser.id);
       return {
         id: appointment.id,
         clientName: appointment.client_name,
         clientPhone: appointment.client_phone,
         barber: barber,
+        service: {
+          id: appointment.service.id,
+          name: appointment.service.name,
+          length: appointment.service.length_minutes,
+        },
         date: formatDate(appointment.start_time),
         startTime: formatTime(appointment.start_time),
         endTime: formatTime(appointment.end_time),

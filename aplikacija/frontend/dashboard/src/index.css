@@ -23,6 +23,43 @@ body {
   --color-primary-foreground: oklch(1 0 0);
 }
 
+.rdp {
+  --rdp-accent-color: hsl(var(--primary));
+}
+
+.rdp-selected .rdp-day_button {
+  background-color: black !important;
+  color: white !important;
+  border-radius: 8px !important;
+  border: none !important;
+}
+
+.rdp-nav button svg {
+  stroke: black !important;
+  fill: black !important;
+}
+
+.override-day .rdp-day_button {
+  position: relative;
+}
+
+.rdp-today .rdp-day_button {
+  color: black !important;
+  font-weight: 700 !important;
+}
+
+.override-day .rdp-day_button::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: black;
+}
+
 .button-primary {
   @apply w-full rounded-xl bg-primary py-3 font-semibold text-primary-foreground transition hover:opacity-90 mt-2 cursor-pointer disabled:opacity-70;
 }
