@@ -9,7 +9,6 @@ import {
   Calendar,
   CalendarX2,
   Trash2,
-  CalendarDays,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { IService } from "../../types/service";
@@ -34,51 +33,19 @@ import type {
 } from "../../types/workSchedule";
 import WorkScheduleModal from "../../components/modals/WorkScheduleModal";
 import {
+  createDaysOff,
+  createOverride,
   createWorkSchedule,
+  deleteOverride,
+  getOverrides,
   getWorkSchedule,
+  updateOverride,
   updateWorkSchedule,
 } from "../../api/workScheduleApi";
 import AddModal from "../../components/modals/AddModal";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-
-// export const schedule: IWorkSchedule = {
-//   monday: {
-//     from: "08:00",
-//     to: "16:00",
-//     off: false,
-//   },
-//   tuesday: {
-//     from: "08:00",
-//     to: "16:00",
-//     off: false,
-//   },
-//   wednesday: {
-//     from: "08:00",
-//     to: "16:00",
-//     off: false,
-//   },
-//   thursday: {
-//     from: "08:00",
-//     to: "16:00",
-//     off: false,
-//   },
-//   friday: {
-//     from: "08:00",
-//     to: "16:00",
-//     off: false,
-//   },
-//   saturday: {
-//     from: "09:00",
-//     to: "14:00",
-//     off: false,
-//   },
-//   sunday: {
-//     from: "",
-//     to: "",
-//     off: true,
-//   },
-// };
+import ScheduleOverrideModal from "../../components/modals/ScheduleOverrideModal";
 
 // const daysOff: IDayOff[] = [
 //   {
@@ -95,44 +62,6 @@ import "react-day-picker/dist/style.css";
 //   },
 // ];
 
-export const overrides: IScheduleOverride[] = [
-  // {
-  //   id: 1,
-  //   date: "2026-6-24",
-  //   from: "",
-  //   to: "",
-  //   off: true,
-  // },
-  // {
-  //   id: 2,
-  //   date: "2026-6-30",
-  //   from: "09:00",
-  //   to: "13:00",
-  //   off: false,
-  // },
-  // {
-  //   id: 3,
-  //   date: "2027-01-07",
-  //   from: "",
-  //   to: "",
-  //   off: true,
-  // },
-  // {
-  //   id: 4,
-  //   date: "2027-02-14",
-  //   from: "10:00",
-  //   to: "18:00",
-  //   off: false,
-  // },
-  // {
-  //   id: 5,
-  //   date: "2027-05-01",
-  //   from: "",
-  //   to: "",
-  //   off: true,
-  // },
-];
-
 const BarberDetails = () => {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
@@ -141,7 +70,7 @@ const BarberDetails = () => {
   const [avaliableServices, setAvaliableServices] = useState<IService[]>([]);
   const [schedule, setSchedule] = useState<IWorkSchedule | null>(null);
   const [daysOff, setDaysOff] = useState<IDayOff[]>([]);
-  // const [overrides, setOverrides] = useState(null);
+  const [overrides, setOverrides] = useState<IScheduleOverride[]>([]);
 
   const [scheduleModalOpen, setScheduleModalOpen] = useState<boolean>(false);
   const [overrideModalOpen, setOverrideModalOpen] = useState<boolean>(false);
@@ -166,9 +95,12 @@ const BarberDetails = () => {
       const services = await getServicesByBarberId(barber_id);
       const barber = await getBarberById(barber_id);
       const salonsServices = await getSerivicesBySalonId(`${barber.salon.id}`);
-      // const workSchedule = await getWorkSchedule(barber_id)
-      // setSchedule(workSchedule);
+      const dateOverrides = await getOverrides(barber_id);
+      const workSchedule = await getWorkSchedule(barber_id);
+
       setBarber(barber);
+      setSchedule(workSchedule);
+      setOverrides(dateOverrides);
       setServices(services);
       setAvaliableServices(salonsServices);
     } catch (err) {
@@ -206,11 +138,30 @@ const BarberDetails = () => {
   };
 
   const addDayOff = async (data) => {
-    //TODO
+    await createDaysOff(id, data);
+    fetchBarber(id);
   };
 
   const deleteDayOff = async (id: string | number) => {
     //TODO
+  };
+
+  const handleCreateOverride = async (data: IScheduleOverride) => {
+    await createOverride(id, data);
+    fetchBarber(id);
+  };
+
+  const handleUpdateOverride = async (
+    override_id: number,
+    data: IScheduleOverride,
+  ) => {
+    await updateOverride(override_id, data);
+    fetchBarber(id);
+  };
+
+  const removeOverride = async (override_id: number) => {
+    await deleteOverride(override_id);
+    fetchBarber(id);
   };
   return (
     <div className="space-y-6">
@@ -419,11 +370,15 @@ const BarberDetails = () => {
                       <button
                         disabled={!selectedDate}
                         className="flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:brightness-110 disabled:opacity-50"
+                        onClick={() => setOverrideModalOpen(true)}
                       >
                         {selectedOverride ? "Edit Override" : "Add Override"}
                       </button>
                       {selectedOverride && (
-                        <button className="rounded-xl border border-border px-3 py-2 text-sm">
+                        <button
+                          className="rounded-xl border border-border px-3 py-2 text-sm"
+                          onClick={() => removeOverride(selectedOverride.id)}
+                        >
                           Remove
                         </button>
                       )}
@@ -540,6 +495,16 @@ const BarberDetails = () => {
               },
             ]}
             onSubmit={addDayOff}
+          />
+          <ScheduleOverrideModal
+            open={overrideModalOpen}
+            override={selectedOverride}
+            selectedDate={selectedDate}
+            onClose={() => {
+              setOverrideModalOpen(false);
+            }}
+            onCreate={handleCreateOverride}
+            onUpdate={handleUpdateOverride}
           />
         </>
       )}

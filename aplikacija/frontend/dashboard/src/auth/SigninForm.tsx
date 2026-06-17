@@ -2,6 +2,7 @@ import { useState } from "react";
 import { signIn } from "../api/authApi";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { CircleAlert } from "lucide-react";
 
 const SigninForm = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const SigninForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const { login } = useAuth();
 
@@ -20,6 +22,7 @@ const SigninForm = () => {
       ...prev,
       [e.target.name]: e.target.value,
     }));
+    setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,9 +40,10 @@ const SigninForm = () => {
         password: "",
       });
 
+      setError("");
       navigate("/", { replace: true });
     } catch (error) {
-      console.error(error);
+      setError(error.response.data.detail);
     } finally {
       setLoading(false);
     }
@@ -82,6 +86,13 @@ const SigninForm = () => {
               required
             />
           </div>
+
+          {error && (
+            <div className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-500 md:col-span-2">
+              <CircleAlert size={16} />
+              <span>{error}</span>
+            </div>
+          )}
 
           <button type="submit" disabled={loading} className="button-primary">
             {loading ? "Signing in..." : "Sign In"}

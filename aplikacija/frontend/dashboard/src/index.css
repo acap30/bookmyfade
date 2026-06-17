@@ -44,7 +44,7 @@ body {
 }
 
 .rdp-today .rdp-day_button {
-  color: black !important;
+  color: black;
   font-weight: 700 !important;
 }
 

@@ -49,4 +49,5 @@ export interface IScheduleOverride {
   from: string;
   to: string;
   off: boolean;
+  detail?: string;
 }

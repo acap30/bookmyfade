@@ -65,32 +65,32 @@ const WorkScheduleModal = ({ open, onClose, schedule, onSubmit }: Props) => {
     }
 
     setFormData({
-      mondayFrom: schedule.monday.from,
-      mondayTo: schedule.monday.to,
+      mondayFrom: schedule.monday.from ?? "09:00",
+      mondayTo: schedule.monday.to ?? "15:00",
       mondayOff: schedule.monday.off,
 
-      tuesdayFrom: schedule.tuesday.from,
-      tuesdayTo: schedule.tuesday.to,
+      tuesdayFrom: schedule.tuesday.from ?? "09:00",
+      tuesdayTo: schedule.tuesday.to ?? "15:00",
       tuesdayOff: schedule.tuesday.off,
 
-      wednesdayFrom: schedule.wednesday.from,
-      wednesdayTo: schedule.wednesday.to,
+      wednesdayFrom: schedule.wednesday.from ?? "09:00",
+      wednesdayTo: schedule.wednesday.to ?? "15:00",
       wednesdayOff: schedule.wednesday.off,
 
-      thursdayFrom: schedule.thursday.from,
-      thursdayTo: schedule.thursday.to,
+      thursdayFrom: schedule.thursday.from ?? "09:00",
+      thursdayTo: schedule.thursday.to ?? "15:00",
       thursdayOff: schedule.thursday.off,
 
-      fridayFrom: schedule.friday.from,
-      fridayTo: schedule.friday.to,
+      fridayFrom: schedule.friday.from ?? "09:00",
+      fridayTo: schedule.friday.to ?? "15:00",
       fridayOff: schedule.friday.off,
 
-      saturdayFrom: schedule.saturday.from,
-      saturdayTo: schedule.saturday.to,
+      saturdayFrom: schedule.saturday.from ?? "09:00",
+      saturdayTo: schedule.saturday.to ?? "15:00",
       saturdayOff: schedule.saturday.off,
 
-      sundayFrom: schedule.sunday.from,
-      sundayTo: schedule.sunday.to,
+      sundayFrom: schedule.sunday.from ?? "09:00",
+      sundayTo: schedule.sunday.to ?? "15:00",
       sundayOff: schedule.sunday.off,
     });
 

@@ -1,4 +1,4 @@
-import { Calendar, Phone, Store } from "lucide-react";
+import { Calendar, Phone, Scissors, Store } from "lucide-react";
 import type { IAppointment } from "../../types/appointments";
 import UserAvatar from "../ui/UserAvatar";
 
@@ -31,6 +31,11 @@ const AppointmentItem = ({ appointment }: Props) => {
                   size={25}
                 />
                 {appointment.barber.user.fullName}
+              </div>
+
+              <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
+                <Scissors size={14} />
+                {`${appointment.service.name} (${appointment.service.length})`}
               </div>
 
               <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
