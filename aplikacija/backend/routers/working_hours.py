@@ -29,9 +29,17 @@ def get_all_working_hours(db: Session = Depends(get_db), current_user: schemas.U
 def get_working_hours_by_id(id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_working_hours.get_working_hours_by_id(id, db)
 
+@router.get("/hairdresser/{id}", response_model=schemas.WorkingHoursWeekCreate)
+def get_working_hours_by_hairdresser_id(hd_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_working_hours.get_working_hours_by_hairdresser_id(hd_id, db)
+
 @router.put("/{id}")
 def update_working_hours_by_id(id: int, req: schemas.WorkingHoursUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_working_hours.update_working_hours_by_id(id, req, db)
+
+@router.put("/hairdresser/{id}", response_model=schemas.WorkingHoursWeekCreate)
+def update_working_hours_by_hairdresser_id(hd_id: int, req: schemas.WorkingHoursWeekUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_working_hours.update_working_hours_by_hairdresser_id(hd_id, req, db)
 
 @router.delete("/{id}")
 def delete_working_hours(id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):

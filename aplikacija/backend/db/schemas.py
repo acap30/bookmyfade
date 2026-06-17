@@ -8,14 +8,14 @@ class Role(str, Enum):
     OWNER = "owner"
     HAIRSTYLIST = "hairstylist"
 
-class Weekday(int, Enum):
-    MONDAY = 1
-    TUESDAY = 2
-    WEDNESDAY = 3
-    THURSDAY = 4
-    FRIDAY = 5
-    SATURDAY = 6
-    SUNDAY = 7
+class Weekday(str, Enum):
+    MONDAY = "monday"
+    TUESDAY = "tuesday"
+    WEDNESDAY = "wednesday"
+    THURSDAY = "thursday"
+    FRIDAY = "friday"
+    SATURDAY = "saturday"
+    SUNDAY = "sunday"
 
 class User(BaseModel):
     username:str
@@ -139,10 +139,21 @@ class WorkingHoursWeekCreate(BaseModel):
     saturday: DaySchedule
     sunday: DaySchedule
 
+
 class WorkingHoursUpdate(BaseModel):
     weekday: Optional[Weekday] = None
     start: Optional[time] = None
     end: Optional[time] = None
+    off: bool
+
+class WorkingHoursWeekUpdate(BaseModel):
+    monday: Optional[DaySchedule] = None
+    tuesday: Optional[DaySchedule] = None
+    wednesday: Optional[DaySchedule] = None
+    thursday: Optional[DaySchedule] = None
+    friday: Optional[DaySchedule] = None
+    saturday: Optional[DaySchedule] = None
+    sunday: Optional[DaySchedule] = None
 
 class WorkingHoursExceptionCreate(BaseModel):
     hairdresser_id: int
