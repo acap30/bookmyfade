@@ -18,9 +18,21 @@ router = APIRouter(
 def create_wh_exception(req: schemas.WorkingHoursExceptionCreate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_wh_exceptions.create_wh_exception(req, db)
 
+@router.post("/off/")
+def create_days_off(req: schemas.DaysOffCreate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_wh_exceptions.create_days_off(req, db)
+
 @router.get("/", response_model=List[schemas.WorkingHoursExceptionDisplay])
 def get_all_exceptions(db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_wh_exceptions.get_all_exceptions(db)
+
+@router.get("/hairdresser/{id}")
+def get_all_exceptions_by_hairdresser_id(hd_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_wh_exceptions.get_all_exceptions_hairdresser_id(hd_id, db)
+
+@router.put("/{exception_id}", response_model=schemas.WorkingHoursExceptionDisplay)
+def update_exception_by_id(id: int, req: schemas.WorkingHoursExceptionUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_wh_exceptions.update_exception_by_id(id, req, db)
 
 @router.delete("/{exception_id}")
 def delete_exception(exception_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):

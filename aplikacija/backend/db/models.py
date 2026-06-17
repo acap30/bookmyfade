@@ -123,6 +123,7 @@ class WorkingHoursExceptions(Base):
     start = Column(Time, nullable=True)
     end = Column(Time, nullable=True)
     day_off = Column(Boolean, nullable=False, default=False)
+    detail = Column(String(255), nullable=True)
 
     hairdresser = relationship("Hairdresser", back_populates="working_hours_exceptions")
 

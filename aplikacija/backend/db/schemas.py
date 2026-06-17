@@ -161,6 +161,7 @@ class WorkingHoursExceptionCreate(BaseModel):
     start: Optional[time] = None
     end: Optional[time] = None
     day_off: bool
+    detail: Optional[str] = None
 
 class WorkingHoursExceptionDisplay(BaseModel):
     id: int
@@ -169,6 +170,19 @@ class WorkingHoursExceptionDisplay(BaseModel):
     start: Optional[time] = None
     end: Optional[time] = None
     day_off: bool
+    detail: Optional[str] = None
+
+class DaysOffCreate(BaseModel):
+    hairdresser_id: int
+    start: date
+    end: date
+    detail: Optional[str] = None
+
+class WorkingHoursExceptionUpdate(BaseModel):
+    start: Optional[time] = None
+    end: Optional[time] = None
+    day_off: Optional[bool] = None
+    detail: Optional[str] = None
 
 class ReservationService(BaseModel):
     id: int
