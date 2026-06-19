@@ -1,4 +1,4 @@
-import { Calendar, Phone, Scissors, Store } from "lucide-react";
+import { Calendar, Clock, Phone, Scissors } from "lucide-react";
 import type { IAppointment } from "../../types/appointments";
 import UserAvatar from "../ui/UserAvatar";
 
@@ -8,62 +8,48 @@ type Props = {
 
 const AppointmentItem = ({ appointment }: Props) => {
   return (
-    <div className="rounded-2xl border border-border bg-background p-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        {/* Left */}
-        <div className="flex min-w-0 items-start gap-4">
-          <UserAvatar fullName={appointment.clientName} size={60} />
+    <div className="flex max-md:flex-col items-center justify-between gap-4 rounded-2xl border border-border bg-card px-5 py-4">
+      <div className="flex w-full lg:w-fit lg:gap-25 items-center justify-between">
+        <div className="flex items-center gap-3">
+          <UserAvatar fullName={appointment.clientName} size={40} />
 
-          <div className="min-w-0">
-            <h3 className="truncate text-lg font-semibold text-text">
-              {appointment.clientName}
-            </h3>
-
-            <div className="mt-1 flex items-center gap-2 text-sm text-muted">
-              <Phone size={14} />
-              {appointment.clientPhone}
-            </div>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
-                <UserAvatar
-                  fullName={appointment.barber.user.fullName}
-                  size={25}
-                />
-                {appointment.barber.user.fullName}
-              </div>
-
-              <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
-                <Scissors size={14} />
-                {`${appointment.service.name} (${appointment.service.length})`}
-              </div>
-
-              <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
-                <Store size={14} />
-                {appointment.barber.salon.name}
-              </div>
+          <div>
+            <p className="font-semibold">{appointment.clientName}</p>
+            <div className="flex items-center gap-2">
+              <Phone size={12} />
+              <p className="text-sm text-muted">{appointment.clientPhone}</p>
             </div>
           </div>
         </div>
 
-        {/* Right */}
-        <div className="flex flex-row items-center gap-3 lg:flex-col lg:items-end">
-          <div className="rounded-xl border border-border bg-card px-4 py-2 text-center">
-            <div className="text-xs text-muted">Date</div>
-
-            <div className="flex items-center gap-1 font-medium text-text">
-              <Calendar size={14} />
-              {appointment.date}
-            </div>
+        <div className="flex items-center gap-2">
+          <div className="rounded-lg p-3 border border-border">
+            <Scissors size={20} />
           </div>
-
-          <div className="rounded-xl bg-primary px-4 py-2 text-center text-primary-foreground">
-            <div className="text-xs opacity-80">Time</div>
-
-            <div className="font-semibold">
-              {appointment.startTime} - {appointment.endTime}
-            </div>
+          <div>
+            <p className="font-medium">
+              {appointment.service.name}{" "}
+              <span className="text-sm text-muted">
+                ({appointment.service.length} min)
+              </span>
+            </p>
+            <p className="text-sm text-muted">
+              {appointment.barber.user.fullName} •{" "}
+              {appointment.barber.salon.name}
+            </p>
           </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4 justify-between w-full lg:w-fit">
+        <div className="flex items-center gap-2">
+          <Calendar size={18} />
+          <div className="font-medium">{appointment.date}</div>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-lg bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground">
+          <Clock size={18} />
+          <p>{appointment.startTime}</p>
         </div>
       </div>
     </div>

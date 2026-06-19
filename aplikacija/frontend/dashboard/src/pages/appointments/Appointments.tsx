@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import type { IAppointment } from "../../types/appointments";
 import { getAppointments } from "../../api/appointmentsApi";
-import SearchInput from "../../components/ui/SearchInput";
 import AppointmentItem from "../../components/items/AppointmentItem";
 
 const ITEMS_PER_PAGE = 5;
@@ -10,7 +9,7 @@ const ITEMS_PER_PAGE = 5;
 const Appointments = () => {
   const [appointments, setAppointments] = useState<IAppointment[]>([]);
   const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState("");
+  // const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
 
@@ -39,11 +38,11 @@ const Appointments = () => {
 
   return (
     <div className="space-y-6">
-      <SearchInput
+      {/* <SearchInput
         placeholder="Search appointments..."
         value={search}
         onChange={setSearch}
-      />
+      /> */}
 
       <div className="rounded-2xl border border-border bg-card p-5">
         <div className="mb-4 flex items-center justify-between">
