@@ -8,7 +8,7 @@ type Props = {
 
 const AppointmentItem = ({ appointment }: Props) => {
   return (
-    <div className="flex max-md:flex-col items-center justify-between gap-4 rounded-2xl border border-border bg-card px-5 py-4">
+    <div className="flex max-md:flex-col items-center justify-between gap-4 rounded-2xl border border-border bg-background px-5 py-4">
       <div className="flex w-full lg:w-fit lg:gap-25 items-center justify-between">
         <div className="flex items-center gap-3">
           <UserAvatar fullName={appointment.clientName} size={40} />
@@ -23,7 +23,7 @@ const AppointmentItem = ({ appointment }: Props) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="rounded-lg p-3 border border-border">
+          <div className="rounded-lg p-3 border border-border bg-card">
             <Scissors size={20} />
           </div>
           <div>

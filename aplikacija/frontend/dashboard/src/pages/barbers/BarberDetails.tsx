@@ -8,7 +8,6 @@ import {
   Pencil,
   Calendar,
   CalendarX2,
-  Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { IService } from "../../types/service";
@@ -37,6 +36,7 @@ import {
   createOverride,
   createWorkSchedule,
   deleteOverride,
+  getDaysOff,
   getOverrides,
   getWorkSchedule,
   updateOverride,
@@ -46,21 +46,6 @@ import AddModal from "../../components/modals/AddModal";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import ScheduleOverrideModal from "../../components/modals/ScheduleOverrideModal";
-
-// const daysOff: IDayOff[] = [
-//   {
-//     id: 1,
-//     from: "2026-05-20",
-//     to: "2026-05-22",
-//     reason: "Vacation",
-//   },
-//   {
-//     id: 2,
-//     from: "2026-06-02",
-//     to: "2026-06-02",
-//     reason: "Medical Leave",
-//   },
-// ];
 
 const BarberDetails = () => {
   const { id } = useParams();
@@ -97,12 +82,14 @@ const BarberDetails = () => {
       const salonsServices = await getSerivicesBySalonId(`${barber.salon.id}`);
       const dateOverrides = await getOverrides(barber_id);
       const workSchedule = await getWorkSchedule(barber_id);
+      const daysOff = await getDaysOff(barber_id);
 
       setBarber(barber);
       setSchedule(workSchedule);
       setOverrides(dateOverrides);
       setServices(services);
       setAvaliableServices(salonsServices);
+      setDaysOff(daysOff);
     } catch (err) {
       console.error("Failed to fetch barber details", err);
     } finally {
@@ -140,10 +127,6 @@ const BarberDetails = () => {
   const addDayOff = async (data) => {
     await createDaysOff(id, data);
     fetchBarber(id);
-  };
-
-  const deleteDayOff = async (id: string | number) => {
-    //TODO
   };
 
   const handleCreateOverride = async (data: IScheduleOverride) => {
@@ -404,28 +387,21 @@ const BarberDetails = () => {
                 </div>
                 {daysOff.length > 0 ? (
                   <div className="space-y-3">
-                    {daysOff.map((day) => (
+                    {daysOff.map((day, index) => (
                       <div
-                        key={day.id}
+                        key={index}
                         className="rounded-xl border border-border bg-background p-4"
                       >
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-medium text-text">
-                              {day.reason}
+                              {day.detail ?? "Unknown"}
                             </p>
 
                             <p className="mt-1 text-sm text-muted">
-                              {day.from} → {day.to}
+                              {day.start_date} → {day.end_date}
                             </p>
                           </div>
-
-                          <button
-                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 text-red-500 transition-colors hover:bg-red-500/20 cursor-pointer"
-                            onClick={() => deleteDayOff(day.id)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
                         </div>
                       </div>
                     ))}

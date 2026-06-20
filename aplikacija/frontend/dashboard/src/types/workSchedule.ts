@@ -37,10 +37,9 @@ export interface IWorkSchedule {
 }
 
 export interface IDayOff {
-  id: number;
-  from: string;
-  to: string;
-  reason: string;
+  start_date: string;
+  end_date: string;
+  detail: string;
 }
 
 export interface IScheduleOverride {
