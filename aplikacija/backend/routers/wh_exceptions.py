@@ -30,6 +30,10 @@ def get_all_exceptions(db: Session = Depends(get_db), current_user: schemas.User
 def get_all_exceptions_by_hairdresser_id(hd_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_wh_exceptions.get_all_exceptions_hairdresser_id(hd_id, db)
 
+@router.get("/hairdresser/{id}/off")
+def get_all_off_days_by_hairdresser_id(hd_id, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_wh_exceptions.get_all_off_days_hairdresser_id(hd_id, db)
+
 @router.put("/{exception_id}", response_model=schemas.WorkingHoursExceptionDisplay)
 def update_exception_by_id(id: int, req: schemas.WorkingHoursExceptionUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_wh_exceptions.update_exception_by_id(id, req, db)
@@ -37,3 +41,7 @@ def update_exception_by_id(id: int, req: schemas.WorkingHoursExceptionUpdate, db
 @router.delete("/{exception_id}")
 def delete_exception(exception_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_wh_exceptions.delete_exception(exception_id, db)
+
+@router.delete("/hairdresser/{hairdresser_id}/off/")
+def delete_days_off(hd_id: int, req: schemas.DaysOffDelete, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_wh_exceptions.delete_days_off(hd_id, req, db)

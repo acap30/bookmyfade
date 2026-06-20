@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict
 from enum import Enum
 from datetime import time, datetime, date
@@ -177,6 +177,19 @@ class DaysOffCreate(BaseModel):
     start: date
     end: date
     detail: Optional[str] = None
+
+class DaysOffDelete(BaseModel):
+    start: date
+    end: date 
+                
+class DayOff(BaseModel):
+    start_date: date
+    end_date: date
+    detail: Optional[str] = None
+
+class DaysOffDisplay(BaseModel):
+    hairdresser_id: int
+    days: List[DayOff]
 
 class WorkingHoursExceptionUpdate(BaseModel):
     start: Optional[time] = None

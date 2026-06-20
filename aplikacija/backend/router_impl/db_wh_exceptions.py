@@ -65,6 +65,53 @@ def get_all_exceptions_hairdresser_id(hd_id: int, db: Session):
         ]
     }
 
+def get_all_off_days_hairdresser_id(hd_id: int, db: Session):
+    days_off = (
+        db.query(WorkingHoursExceptions)
+        .filter(WorkingHoursExceptions.hairdresser_id == hd_id,
+                 WorkingHoursExceptions.day_off == True)
+                 .order_by(WorkingHoursExceptions.date)
+                 .all()
+                 )
+
+    if not days_off:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Working Hours not found.")
+    
+    days = []
+
+    start_date = days_off[0].date
+    end_date = days_off[0].date
+    detail = days_off[0].detail
+
+    for day in days_off[1:]:
+        if day.detail == detail and day.date == end_date + timedelta(days=1):
+            end_date = day.date
+        else:
+            days.append(
+                schemas.DayOff(
+                    start_date=start_date,
+                    end_date=end_date,
+                    detail=detail
+                )
+            )
+
+            start_date=day.date
+            end_date=day.date
+            detail=day.detail
+
+    days.append(
+        schemas.DayOff(
+            start_date=start_date,
+            end_date=end_date,
+            detail=detail
+        )
+    )
+    return schemas.DaysOffDisplay(
+        hairdresser_id=hd_id,
+        days=days
+    )
+
 def update_exception_by_id(id: int, req: schemas.WorkingHoursExceptionUpdate, db: Session):
 
     exception = db.query(WorkingHoursExceptions).filter(WorkingHoursExceptions.id == id).first()
@@ -93,5 +140,25 @@ def delete_exception(exception_id: int, db: Session):
     
     db.delete(exception)
     db.commit()
+
+    return {"message": "good"}
+
+def delete_days_off(hd_id: int, req: schemas.DaysOffDelete, db: Session):
+    days_off = (
+        db.query(WorkingHoursExceptions)
+        .filter(WorkingHoursExceptions.hairdresser_id == hd_id,
+                WorkingHoursExceptions.day_off == True,
+                WorkingHoursExceptions.date >= req.start,
+                WorkingHoursExceptions.date <= req.end)
+        .order_by(WorkingHoursExceptions.date)
+        .all()
+        )
+
+    if not days_off:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Working Hours not found.")
+    
+    for d in days_off:
+        delete_exception(d.id, db)
 
     return {"message": "good"}
