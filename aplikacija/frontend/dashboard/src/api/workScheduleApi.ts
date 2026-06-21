@@ -223,5 +223,5 @@ export const getDaysOff = async (barber_id: number | string) => {
   const res = await api.get(
     `/workhours/exceptions/hairdresser/{id}/off?hd_id=${barber_id}`,
   );
-  return res.data.days;
+  return res?.data?.days ?? [];
 };

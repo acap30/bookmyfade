@@ -35,7 +35,7 @@ const EditSalonModal = ({ open, onClose, salon, onSubmit }: Props) => {
       setFormData({
         name: salon.name,
         address: salon.address,
-        phone: salon.phone,
+        phone: salon.phone ?? "",
       });
     }
   }, [salon]);
@@ -58,19 +58,21 @@ const EditSalonModal = ({ open, onClose, salon, onSubmit }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !formData.name.trim() ||
-      !formData.address.trim() ||
-      !formData.phone.trim()
-    ) {
-      setError("All fields are required");
+    if (!formData.name.trim() || !formData.address.trim()) {
+      setError("Name and address are required");
       return;
     }
 
     if (!salon) return;
 
+    const mapedData = {
+      name: formData.name.trim(),
+      address: formData.address.trim(),
+      phone: formData.phone.trim() ?? null,
+    };
+
     try {
-      await onSubmit(salon.id, formData);
+      await onSubmit(salon.id, mapedData);
 
       handleClose();
     } catch (error) {
