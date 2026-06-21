@@ -63,11 +63,28 @@ def get_working_hours_by_id(id: int, db: Session):
     return wh
 
 def get_working_hours_by_hairdresser_id(hd_id: int, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser doesn't exist")
+
+
     wh_list = db.query(WorkingHours).filter(WorkingHours.hairdresser_id == hd_id).all()
 
     if not wh_list:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Working Hours not found.")
+        off = schemas.DaySchedule(off=True)
+        return schemas.WorkingHoursWeekCreate(
+            hairdresser_id=hd_id,
+            monday=off,
+            tuesday=off,
+            wednesday=off,
+            thursday=off,
+            friday=off,
+            saturday=off,
+            sunday=off
+        )
     
     weekday_map = {}
     for wh in wh_list:

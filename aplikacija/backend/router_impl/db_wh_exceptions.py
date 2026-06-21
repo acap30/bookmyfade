@@ -1,12 +1,19 @@
 from db import schemas
 from sqlalchemy.orm.session import Session
-from db.models import WorkingHoursExceptions
+from db.models import WorkingHoursExceptions, Hairdresser
 from fastapi import HTTPException, status
 from datetime import timedelta
 
 
 
 def create_wh_exception(req: schemas.WorkingHoursExceptionCreate, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == req.hairdresser_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser doesn't exist")
+
     
     new_exception = WorkingHoursExceptions(
         hairdresser_id = req.hairdresser_id,
@@ -24,6 +31,13 @@ def create_wh_exception(req: schemas.WorkingHoursExceptionCreate, db: Session):
     return {"exception_id", new_exception.id}
 
 def create_days_off(req: schemas.DaysOffCreate, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == req.hairdresser_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser doesn't exist")
+
 
     current = req.start
     while current <= req.end:
@@ -45,11 +59,14 @@ def get_all_exceptions(db: Session):
 
 def get_all_exceptions_hairdresser_id(hd_id: int, db: Session):
 
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser doesn't exist")
+
     exceptions = db.query(WorkingHoursExceptions).filter(WorkingHoursExceptions.hairdresser_id == hd_id).all()
 
-    if not exceptions:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Working Hours not found.")
     
     return {
         "hairdresser_id": hd_id,
@@ -66,6 +83,13 @@ def get_all_exceptions_hairdresser_id(hd_id: int, db: Session):
     }
 
 def get_all_off_days_hairdresser_id(hd_id: int, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser doesn't exist")
+
     days_off = (
         db.query(WorkingHoursExceptions)
         .filter(WorkingHoursExceptions.hairdresser_id == hd_id,
@@ -73,10 +97,10 @@ def get_all_off_days_hairdresser_id(hd_id: int, db: Session):
                  .order_by(WorkingHoursExceptions.date)
                  .all()
                  )
-
+    
     if not days_off:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Working Hours not found.")
+        return []
+
     
     days = []
 
@@ -144,6 +168,13 @@ def delete_exception(exception_id: int, db: Session):
     return {"message": "good"}
 
 def delete_days_off(hd_id: int, req: schemas.DaysOffDelete, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser doesn't exist")
+
     days_off = (
         db.query(WorkingHoursExceptions)
         .filter(WorkingHoursExceptions.hairdresser_id == hd_id,
