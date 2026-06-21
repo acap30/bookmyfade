@@ -43,7 +43,7 @@ const SigninForm = () => {
       setError("");
       navigate("/", { replace: true });
     } catch (error) {
-      setError(error.response.data.detail);
+      setError(error.response?.data?.detail ?? "Something went wrong!");
     } finally {
       setLoading(false);
     }

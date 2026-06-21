@@ -44,4 +44,9 @@ export const routeConfig = [
     subtitle: "See all recent appointments",
     match: (pathname: string) => pathname === "/appointments",
   },
+  {
+    title: "My Schedule & Services",
+    subtitle: "See your services, weekly schedule, exceptions and days off",
+    match: (pathname: string) => pathname === "/schedule-services",
+  },
 ];

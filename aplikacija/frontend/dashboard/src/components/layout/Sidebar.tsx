@@ -1,4 +1,5 @@
 import {
+  CalendarClock,
   CalendarDays,
   LayoutDashboard,
   Scissors,
@@ -46,6 +47,12 @@ const sidebarItems = [
     icon: <CalendarDays size={18} />,
     path: "/appointments",
     roles: [ROLES.ADMIN, ROLES.OWNER, ROLES.BARBER],
+  },
+  {
+    label: "Schedule & Services",
+    icon: <CalendarClock size={18} />,
+    path: "/schedule-services",
+    roles: [ROLES.BARBER],
   },
 ];
 

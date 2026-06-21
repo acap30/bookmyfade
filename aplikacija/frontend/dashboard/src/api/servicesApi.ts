@@ -9,7 +9,7 @@ export const getSerivicesBySalonId = async (
 };
 
 export const getServicesByBarberId = async (
-  id: string,
+  id: string | number,
 ): Promise<IService[]> => {
   const res = await api.get(
     `/service/hairdresser/{hairdresser_id}?hd_id=${id}`,

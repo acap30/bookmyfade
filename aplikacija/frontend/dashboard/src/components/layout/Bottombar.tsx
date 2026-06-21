@@ -1,5 +1,11 @@
 import { NavLink } from "react-router-dom";
-import { CalendarDays, LayoutDashboard, Store, Users } from "lucide-react";
+import {
+  CalendarClock,
+  CalendarDays,
+  LayoutDashboard,
+  Store,
+  Users,
+} from "lucide-react";
 import { ROLES } from "../../types/auth";
 import { useAuth } from "../../context/AuthContext";
 
@@ -39,6 +45,12 @@ const items = [
     icon: <CalendarDays size={18} />,
     path: "/appointments",
     roles: [ROLES.ADMIN, ROLES.OWNER, ROLES.BARBER],
+  },
+  {
+    label: "S & S",
+    icon: <CalendarClock size={18} />,
+    path: "/schedule-services",
+    roles: [ROLES.BARBER],
   },
 ];
 

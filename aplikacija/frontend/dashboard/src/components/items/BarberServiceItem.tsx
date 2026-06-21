@@ -2,6 +2,8 @@ import { MoreHorizontal, Pencil, Scissors, Trash2 } from "lucide-react";
 import type { IService } from "../../types/service";
 import { useState } from "react";
 import Dropdown from "../ui/Dropdown";
+import { useAuth } from "../../context/AuthContext";
+import { ROLES } from "../../types/auth";
 
 type BarberServiceItemProps = {
   service: IService;
@@ -15,6 +17,7 @@ const BarberServiceItem = ({
   onDelete,
 }: BarberServiceItemProps) => {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <div
@@ -35,29 +38,31 @@ const BarberServiceItem = ({
         <div className="rounded-xl border border-border bg-card px-3 py-1 text-sm font-medium text-text">
           {service.price} din
         </div>
-        <Dropdown
-          open={open}
-          setOpen={setOpen}
-          align="right"
-          trigger={
-            <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card transition-all hover:scale-105 active:scale-95">
-              <MoreHorizontal size={18} />
-            </button>
-          }
-          items={[
-            {
-              icon: <Pencil size={16} />,
-              label: "Edit",
-              onClick: onEdit,
-            },
-            {
-              icon: <Trash2 size={16} />,
-              label: "Delete",
-              onClick: onDelete,
-              danger: true,
-            },
-          ]}
-        />
+        {user.role !== ROLES.BARBER && (
+          <Dropdown
+            open={open}
+            setOpen={setOpen}
+            align="right"
+            trigger={
+              <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card transition-all hover:scale-105 active:scale-95">
+                <MoreHorizontal size={18} />
+              </button>
+            }
+            items={[
+              {
+                icon: <Pencil size={16} />,
+                label: "Edit",
+                onClick: onEdit,
+              },
+              {
+                icon: <Trash2 size={16} />,
+                label: "Delete",
+                onClick: onDelete,
+                danger: true,
+              },
+            ]}
+          />
+        )}
       </div>
     </div>
   );

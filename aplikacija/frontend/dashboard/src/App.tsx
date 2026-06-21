@@ -16,6 +16,7 @@ import {
 import { ROLES } from "./types/auth";
 import BarberDetails from "./pages/barbers/BarberDetails";
 import Appointments from "./pages/appointments/Appointments";
+import Schedule from "./pages/barbers/Schedule";
 
 function App() {
   return (
@@ -43,6 +44,9 @@ function App() {
               <Route path="/my-salon" element={<MySalon />} />
               <Route path="/barbers" element={<Barbers />} />
               <Route path="/barbers/:id" element={<BarberDetails />} />
+            </Route>
+            <Route element={<RoleRoute allowedRoles={[ROLES.BARBER]} />}>
+              <Route path="/schedule-services" element={<Schedule />} />
             </Route>
           </Route>
         </Route>
