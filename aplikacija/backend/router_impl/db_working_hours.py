@@ -124,6 +124,13 @@ def update_working_hours_by_id(id: int, req: schemas.WorkingHoursUpdate, db: Ses
     return {"message": "Updated successfully"}
 
 def update_working_hours_by_hairdresser_id(hd_id: int, req: schemas.WorkingHoursUpdate, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser doesn't exist")
+    
     wh_list = db.query(WorkingHours).filter(WorkingHours.hairdresser_id == hd_id).all()
 
     if not wh_list:
