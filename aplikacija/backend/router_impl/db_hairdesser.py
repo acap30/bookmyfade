@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 from db.models import DbUser, Salon, Hairdresser, Owner
 from db.schemas import Role
@@ -128,3 +128,14 @@ def delete_hairdresser(db: Session, hairdresser_id: int):
     db.commit()
 
     return {"message": "Hairdresser deleted"}
+
+def get_hairdresser_id_by_user_id(id: int, db: Session):
+    hd = db.query(Hairdresser).options(joinedload(Hairdresser.user)).filter(Hairdresser.user.user_id==id).first()
+
+    if not hd:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Hairdresser not found"
+        )
+    
+    return hd

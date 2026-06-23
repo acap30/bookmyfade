@@ -58,14 +58,7 @@ class OwnerDisplay(BaseModel):
     class Config:
         from_attributes = True
 
-class SalonDisplay(BaseModel):
-    id: int
-    name: str
-    address: str | None = None
-    phone: str | None = None
 
-    class Config:
-        from_attributes = True
 
 class HairdresserDisplay(BaseModel):
     id: int
@@ -138,6 +131,27 @@ class WorkingHoursWeekCreate(BaseModel):
     friday: DaySchedule
     saturday: DaySchedule
     sunday: DaySchedule
+
+class WorkingHoursSalonWeekCreate(BaseModel):
+    salon_id: int
+    monday: DaySchedule | None = None
+    tuesday: DaySchedule | None = None
+    wednesday: DaySchedule | None = None
+    thursday: DaySchedule | None = None
+    friday: DaySchedule | None = None
+    saturday: DaySchedule | None = None
+    sunday: DaySchedule | None = None
+
+class SalonDisplay(BaseModel):
+    id: int
+    name: str
+    address: str
+    phone: str | None = None
+    email: str | None = None
+    wh: Optional[WorkingHoursSalonWeekCreate] = None
+
+    class Config:
+        from_attributes = True
 
 
 class WorkingHoursUpdate(BaseModel):

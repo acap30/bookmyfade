@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from db.models import Salon, Owner
+from router_impl import db_wh_salon
+from db import schemas
 
 def create_salon(db: Session, name: str, address: str = None, phone: str = None):
     salon = Salon(
@@ -22,10 +24,21 @@ def get_salon_by_id(db: Session, salon_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Salon not found"
         )
-    return salon
+    
+    wh = db_wh_salon.get_wh_by_salon_id(salon_id, db)
+    return schemas.SalonDisplay(
+        id=salon_id,
+        name=salon.name,
+        address=salon.address,
+        phone=salon.phone,
+        email=salon.mail,
+        wh=wh
+    )
 
 def get_all_salons(db: Session):
-    return db.query(Salon).all()
+    salons = db.query(Salon).all()
+    return salons
+    
 
 def update_salon(
     db: Session,

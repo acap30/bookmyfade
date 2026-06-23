@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from fastapi.middleware.cors import CORSMiddleware
-from routers import user, hairdresser, owner, salon, service, working_hours, reservation, wh_exceptions
+from routers import user, hairdresser, owner, salon, service, working_hours, reservation, wh_exceptions, wh_salon
 from auth import authentication
 from router_impl import db_user
 
@@ -27,6 +27,7 @@ app.include_router(service.router)
 app.include_router(working_hours.router)
 app.include_router(reservation.router)
 app.include_router(wh_exceptions.router)
+app.include_router(wh_salon.router)
 
 @app.on_event("startup")
 async def create_admin():

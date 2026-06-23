@@ -70,6 +70,15 @@ def get_all_hairdressers(
         return hairdresser_impl.get_my_hairdressers(db, current_user.id)
     else:
         return hairdresser_impl.get_all_hairdressers(db)
+    
+
+@router.get("/user/", response_model=HairdresserDisplay)    
+def get_hairdresser_id_by_user_id(db: Session = Depends(get_db), current_user: UserAuth = Depends(get_current_user)):
+    if current_user.id == id:
+        return hairdresser_impl.get_hairdresser_id_by_user_id(current_user.id, db)
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
 
 @router.put("/{hairdresser_id}", response_model=HairdresserDisplay)
 def update_hairdresser(

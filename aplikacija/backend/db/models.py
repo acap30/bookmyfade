@@ -43,11 +43,13 @@ class Salon(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
-    address = Column(String(255))
-    phone = Column(String(50))
+    address = Column(String(255), nullable=False)
+    phone = Column(String(50), nullable=True)
+    mail = Column(String(255), nullable=True)
     owners = relationship("Owner", back_populates="salon")
     hairdressers = relationship("Hairdresser", back_populates="salon")
     services = relationship("Service", back_populates="salon")
+    working_hours_salon = relationship("WorkingHoursSalon", back_populates="salon")
 
 class Hairdresser(Base):
     __tablename__ = "Frizeri"
@@ -129,6 +131,22 @@ class WorkingHoursExceptions(Base):
 
     __table_args__ = (
         UniqueConstraint("hairdresser_id", "date", name="uq_hairdresser_date"),
+    )
+
+class WorkingHoursSalon(Base):
+    __tablename__ = "Radno_vreme_saloni"
+
+    id = Column(Integer, primary_key=True)
+    salon_id = Column(Integer, ForeignKey("Saloni.id", ondelete="CASCADE"), nullable=False)
+    weekday = Column(Enum(Weekday), nullable=False)
+    start = Column(Time, nullable=True)
+    end = Column(Time, nullable=True)
+    day_off = Column(Boolean, nullable=False, default=False)
+
+    salon = relationship("Salon", back_populates="working_hours_salon")
+
+    __table_args__ = (
+        UniqueConstraint("salon_id", "weekday", name="uq_salon_weekday"),
     )
 
 class Reservations(Base):
