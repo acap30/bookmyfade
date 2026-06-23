@@ -60,17 +60,13 @@ const BarberPage = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: "40px", color: "white" }}>
-        Loading barber...
-      </div>
+      <div style={{ padding: "40px", color: "white" }}>Loading barber...</div>
     );
   }
 
   if (!barber) {
     return (
-      <div style={{ padding: "40px", color: "white" }}>
-        Barber not found
-      </div>
+      <div style={{ padding: "40px", color: "white" }}>Barber not found</div>
     );
   }
 
@@ -82,9 +78,7 @@ const BarberPage = () => {
         </Link>
 
         <nav className="nav-links">
-          <Link to={`/salon/${id}/barbers`}>
-            Back to barbers
-          </Link>
+          <Link to={`/salon/${id}/barbers`}>Back to barbers</Link>
         </nav>
       </header>
 
@@ -104,8 +98,8 @@ const BarberPage = () => {
           </p>
 
           <p className="barber-bio">
-            Experienced barber focused on clean fades,
-            modern cuts and beard styling.
+            Experienced barber focused on clean fades, modern cuts and beard
+            styling.
           </p>
 
           <div className="booking-card">
@@ -116,14 +110,8 @@ const BarberPage = () => {
                 <button
                   key={slot.id}
                   type="button"
-                  className={
-                    selectedTime === slot.time
-                      ? "time-active"
-                      : ""
-                  }
-                  onClick={() =>
-                    setSelectedTime(slot.time)
-                  }
+                  className={selectedTime === slot.time ? "time-active" : ""}
+                  onClick={() => setSelectedTime(slot.time)}
                 >
                   {slot.time}
                 </button>
@@ -132,8 +120,7 @@ const BarberPage = () => {
 
             {selectedTime && (
               <p className="selected-time">
-                Selected time:{" "}
-                <strong>{selectedTime}</strong>
+                Selected time: <strong>{selectedTime}</strong>
               </p>
             )}
 

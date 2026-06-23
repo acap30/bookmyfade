@@ -91,16 +91,19 @@ const LinkServiceModal = ({ open, onClose, services, onSubmit }: Props) => {
             Price
           </label>
 
-          <input
-            type="number"
-            placeholder="Enter service price"
-            value={price}
-            onChange={(e) => {
-              setError("");
-              setPrice(e.target.value);
-            }}
-            className="light-input"
-          />
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              placeholder="Enter service price"
+              value={price}
+              onChange={(e) => {
+                setError("");
+                setPrice(e.target.value);
+              }}
+              className="light-input"
+            />
+            <p>RSD</p>
+          </div>
         </div>
 
         {/* Error */}

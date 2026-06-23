@@ -6,12 +6,12 @@ export const getSalons = async (): Promise<ISalon[]> => {
   return response.data;
 };
 
-export const getSalonById = async (id: string): Promise<ISalon> => {
+export const getSalonById = async (id: string) => {
   const response = await api.get(`/salon/${id}`);
   return response.data;
 };
 
-export const getMySalon = async (): Promise<ISalon> => {
+export const getMySalon = async () => {
   const response = await api.get("/salon");
   return response.data;
 };

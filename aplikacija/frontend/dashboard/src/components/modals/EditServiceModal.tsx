@@ -121,13 +121,16 @@ const EditServiceModal = ({
               Price
             </label>
 
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              className="light-input"
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                className="light-input"
+              />
+              <p>RSD</p>
+            </div>
           </div>
         )}
 

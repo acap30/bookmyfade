@@ -11,14 +11,12 @@ import type {
   IScheduleOverride,
   IWorkSchedule,
 } from "../../types/workSchedule";
-import { useAuth } from "../../context/AuthContext";
 import BarberServiceItem from "../../components/items/BarberServiceItem";
 import { getServicesByBarberId } from "../../api/servicesApi";
 import type { IService } from "../../types/service";
+import { getBarberIdByUserId } from "../../api/barbersApi";
 
 const Schedule = () => {
-  const { user } = useAuth();
-
   const [loading, setLoading] = useState(true);
   const [schedule, setSchedule] = useState<IWorkSchedule | null>(null);
   const [daysOff, setDaysOff] = useState<IDayOff[]>([]);
@@ -35,8 +33,7 @@ const Schedule = () => {
   );
   const fetchBarber = async () => {
     try {
-      // TODO dobiti barber id od user id-a
-      const barber_id = user.id;
+      const barber_id = await getBarberIdByUserId();
       const services = await getServicesByBarberId(barber_id);
       const dateOverrides = await getOverrides(barber_id);
       const workSchedule = await getWorkSchedule(barber_id);

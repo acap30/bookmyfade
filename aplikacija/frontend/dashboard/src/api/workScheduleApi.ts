@@ -29,6 +29,26 @@ export const getWorkSchedule = async (
   };
 };
 
+// export const getSalonSchedule = async (
+//   salon_id: number | string,
+// ): Promise<IWorkSchedule> => {
+//   const response = await api.get(
+//     `/workhours/hairdresser/{id}?hd_id=${salon_id}`,
+//   );
+
+//   const data = response.data;
+
+//   return {
+//     monday: mapDay(data.monday),
+//     tuesday: mapDay(data.tuesday),
+//     wednesday: mapDay(data.wednesday),
+//     thursday: mapDay(data.thursday),
+//     friday: mapDay(data.friday),
+//     saturday: mapDay(data.saturday),
+//     sunday: mapDay(data.sunday),
+//   };
+// };
+
 export const updateWorkSchedule = async (
   barber_id: number | string,
   schedule: IWorkSchedule,
@@ -141,6 +161,121 @@ export const createWorkSchedule = async (
     },
   };
   const response = await api.post("/workhours/week/", payload);
+  return response.data;
+};
+
+export const updateSalonSchedule = async (
+  id: number | string,
+  schedule: IWorkSchedule,
+) => {
+  const payload = {
+    monday: {
+      start: !schedule.monday.off ? toBackendTime(schedule.monday.from) : null,
+      end: !schedule.monday.off ? toBackendTime(schedule.monday.to) : null,
+      off: schedule.monday.off,
+    },
+    tuesday: {
+      start: !schedule.tuesday.off
+        ? toBackendTime(schedule.tuesday.from)
+        : null,
+      end: !schedule.tuesday.off ? toBackendTime(schedule.tuesday.to) : null,
+      off: schedule.tuesday.off,
+    },
+    wednesday: {
+      start: !schedule.wednesday.off
+        ? toBackendTime(schedule.wednesday.from)
+        : null,
+      end: !schedule.wednesday.off
+        ? toBackendTime(schedule.wednesday.to)
+        : null,
+      off: schedule.wednesday.off,
+    },
+    thursday: {
+      start: !schedule.thursday.off
+        ? toBackendTime(schedule.thursday.from)
+        : null,
+      end: !schedule.thursday.off ? toBackendTime(schedule.thursday.to) : null,
+      off: schedule.thursday.off,
+    },
+    friday: {
+      start: !schedule.friday.off ? toBackendTime(schedule.friday.from) : null,
+      end: !schedule.friday.off ? toBackendTime(schedule.friday.to) : null,
+      off: schedule.friday.off,
+    },
+    saturday: {
+      start: !schedule.saturday.off
+        ? toBackendTime(schedule.saturday.from)
+        : null,
+      end: !schedule.saturday.off ? toBackendTime(schedule.saturday.to) : null,
+      off: schedule.saturday.off,
+    },
+    sunday: {
+      start: !schedule.sunday.off ? toBackendTime(schedule.sunday.from) : null,
+      end: !schedule.sunday.off ? toBackendTime(schedule.sunday.to) : null,
+      off: schedule.sunday.off,
+    },
+  };
+  const response = await api.put(
+    `/salon/working_hours/{salon_id}?salon_id=${id}`,
+    payload,
+  );
+
+  return response.data;
+};
+
+export const createSalonSchedule = async (
+  id: number | string,
+  schedule: IWorkSchedule,
+) => {
+  const payload = {
+    salon_id: id,
+    monday: {
+      start: !schedule.monday.off ? toBackendTime(schedule.monday.from) : null,
+      end: !schedule.monday.off ? toBackendTime(schedule.monday.to) : null,
+      off: schedule.monday.off,
+    },
+    tuesday: {
+      start: !schedule.tuesday.off
+        ? toBackendTime(schedule.tuesday.from)
+        : null,
+      end: !schedule.tuesday.off ? toBackendTime(schedule.tuesday.to) : null,
+      off: schedule.tuesday.off,
+    },
+    wednesday: {
+      start: !schedule.wednesday.off
+        ? toBackendTime(schedule.wednesday.from)
+        : null,
+      end: !schedule.wednesday.off
+        ? toBackendTime(schedule.wednesday.to)
+        : null,
+      off: schedule.wednesday.off,
+    },
+    thursday: {
+      start: !schedule.thursday.off
+        ? toBackendTime(schedule.thursday.from)
+        : null,
+      end: !schedule.thursday.off ? toBackendTime(schedule.thursday.to) : null,
+      off: schedule.thursday.off,
+    },
+    friday: {
+      start: !schedule.friday.off ? toBackendTime(schedule.friday.from) : null,
+      end: !schedule.friday.off ? toBackendTime(schedule.friday.to) : null,
+      off: schedule.friday.off,
+    },
+    saturday: {
+      start: !schedule.saturday.off
+        ? toBackendTime(schedule.saturday.from)
+        : null,
+      end: !schedule.saturday.off ? toBackendTime(schedule.saturday.to) : null,
+      off: schedule.saturday.off,
+    },
+    sunday: {
+      start: !schedule.sunday.off ? toBackendTime(schedule.sunday.from) : null,
+      end: !schedule.sunday.off ? toBackendTime(schedule.sunday.to) : null,
+      off: schedule.sunday.off,
+    },
+  };
+  const response = await api.post("/salon/working_hours/", payload);
   return response.data;
 };
 

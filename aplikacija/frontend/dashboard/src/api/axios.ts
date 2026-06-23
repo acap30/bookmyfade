@@ -32,6 +32,11 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const path = originalRequest.url?.split("?")[0];
 
+    // if (error.response?.status === 403) {
+    //   window.location.replace("/forbidden");
+    //   return Promise.reject(error);
+    // }
+
     if (
       error.response.status === 401 &&
       !originalRequest._retry &&
@@ -45,6 +50,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
+        window.location.href = "/sign-in";
         return Promise.reject(null);
       }
     }

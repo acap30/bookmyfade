@@ -66,6 +66,11 @@ export const getBarberById = async (id: string): Promise<IBarber> => {
   };
 };
 
+export const getBarberIdByUserId = async (): Promise<number> => {
+  const res = await api.get("/hairdresser/user/");
+  return res.data.id;
+};
+
 export const createBarber = async (data: ICreateBarber) => {
   const { data: user } = await api.post("/users/", data.user);
   const { data: barber } = await api.post("/hairdresser/", {

@@ -33,17 +33,13 @@ const SalonPage = () => {
 
   if (loading) {
     return (
-      <div style={{ padding: "40px", color: "white" }}>
-        Loading salon...
-      </div>
+      <div style={{ padding: "40px", color: "white" }}>Loading salon...</div>
     );
   }
 
   if (!salon) {
     return (
-      <div style={{ padding: "40px", color: "white" }}>
-        Salon not found
-      </div>
+      <div style={{ padding: "40px", color: "white" }}>Salon not found</div>
     );
   }
 
@@ -71,9 +67,7 @@ const SalonPage = () => {
 
           <h1>{salon.name}</h1>
 
-          <p>
-            Premium barber experience with modern styling and cuts.
-          </p>
+          <p>Premium barber experience with modern styling and cuts.</p>
 
           <div className="salon-meta">
             <span>{salon.address}</span>
@@ -81,10 +75,7 @@ const SalonPage = () => {
             <span>Open today</span>
           </div>
 
-          <Link
-            to={`/salon/${id}/barbers`}
-            className="primary-btn"
-          >
+          <Link to={`/salon/${id}/barbers`} className="primary-btn">
             View barbers
           </Link>
         </div>
@@ -109,7 +100,7 @@ const SalonPage = () => {
         <div className="info-card">
           <h3>Contact</h3>
 
-          <p>{salon.phone || "+381 64 123 456"}</p>
+          <p>{salon.phone || "No phone number"}</p>
           <p>barberstudio@gmail.com</p>
         </div>
       </section>

@@ -2,13 +2,7 @@ import { useEffect, useState } from "react";
 import { CircleAlert } from "lucide-react";
 
 import Modal from "../ui/Modal";
-
-type ISalon = {
-  id: number;
-  name: string;
-  address: string;
-  phone: string;
-};
+import type { ISalon } from "../../types/salon";
 
 type Props = {
   open: boolean;
@@ -22,6 +16,7 @@ type Props = {
 const initialState = {
   name: "",
   address: "",
+  email: "",
   phone: "",
 };
 
@@ -35,6 +30,7 @@ const EditSalonModal = ({ open, onClose, salon, onSubmit }: Props) => {
       setFormData({
         name: salon.name,
         address: salon.address,
+        email: salon.email ?? "",
         phone: salon.phone ?? "",
       });
     }
@@ -68,6 +64,7 @@ const EditSalonModal = ({ open, onClose, salon, onSubmit }: Props) => {
     const mapedData = {
       name: formData.name.trim(),
       address: formData.address.trim(),
+      email: formData.email.trim() ?? null,
       phone: formData.phone.trim() ?? null,
     };
 
@@ -87,7 +84,9 @@ const EditSalonModal = ({ open, onClose, salon, onSubmit }: Props) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name */}
         <div>
-          <label className="mb-2 block text-sm text-muted">Salon Name</label>
+          <label className="mb-2 block text-sm text-muted">
+            Salon Name<span className="text-red-500 ml-1">*</span>
+          </label>
 
           <input
             type="text"
@@ -101,7 +100,9 @@ const EditSalonModal = ({ open, onClose, salon, onSubmit }: Props) => {
 
         {/* Address */}
         <div>
-          <label className="mb-2 block text-sm text-muted">Address</label>
+          <label className="mb-2 block text-sm text-muted">
+            Address<span className="text-red-500 ml-1">*</span>
+          </label>
 
           <input
             type="text"
@@ -109,6 +110,20 @@ const EditSalonModal = ({ open, onClose, salon, onSubmit }: Props) => {
             value={formData.address}
             onChange={handleChange}
             placeholder="Enter address"
+            className="light-input"
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="mb-2 block text-sm text-muted">Email</label>
+
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter email"
             className="light-input"
           />
         </div>

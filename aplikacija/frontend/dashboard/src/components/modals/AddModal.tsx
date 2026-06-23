@@ -8,6 +8,7 @@ type Field = {
   label: string;
   type?: string;
   placeholder?: string;
+  required?: boolean;
 };
 
 type Props = {
@@ -18,7 +19,7 @@ type Props = {
 
   fields: Field[];
 
-  onSubmit: (data: Record<string, string>) => Promise<void> | void;
+  onSubmit: (data: Record<string, string | null>) => Promise<void> | void;
 };
 
 const AddModal = ({ open, onClose, title, fields, onSubmit }: Props) => {
@@ -47,17 +48,24 @@ const AddModal = ({ open, onClose, title, fields, onSubmit }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const hasEmptyField = Object.values(formData).some(
-      (value) => !value.trim(),
+    const hasEmptyField = fields.some(
+      (field) => field.required && !formData[field.name]?.trim(),
     );
 
     if (hasEmptyField) {
-      setError("All fields are required");
+      setError("Please fill in all required fields.");
       return;
     }
 
+    const submitData = Object.fromEntries(
+      Object.entries(formData).map(([key, value]) => [
+        key,
+        value.trim() === "" ? null : value,
+      ]),
+    );
+
     try {
-      await onSubmit(formData);
+      await onSubmit(submitData);
 
       setFormData(initialState);
 
@@ -82,7 +90,10 @@ const AddModal = ({ open, onClose, title, fields, onSubmit }: Props) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {fields.map((field) => (
           <div key={field.name} className="space-y-2">
-            <label className="text-sm text-muted">{field.label}</label>
+            <label className="text-sm text-muted">
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
 
             <input
               type={field.type || "text"}

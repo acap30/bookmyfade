@@ -17,6 +17,7 @@ import { ROLES } from "./types/auth";
 import BarberDetails from "./pages/barbers/BarberDetails";
 import Appointments from "./pages/appointments/Appointments";
 import Schedule from "./pages/barbers/Schedule";
+import ForbiddenPage from "./pages/ForbiddenPage";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<RootLayout />}>
             <Route index path="/" element={<Dashboard />} />
+            <Route index path="/forbidden" element={<ForbiddenPage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route element={<RoleRoute allowedRoles={[ROLES.ADMIN]} />}>

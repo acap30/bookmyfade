@@ -138,16 +138,26 @@ const Salons = () => {
             name: "name",
             label: "Salon Name",
             placeholder: "Enter salon name",
+            required: true,
           },
           {
             name: "address",
             label: "Address",
             placeholder: "Enter address",
+            required: true,
+          },
+          {
+            name: "email",
+            label: "Email",
+            type: "email",
+            placeholder: "Enter email",
+            required: false,
           },
           {
             name: "phoneNumber",
             label: "Phone Number",
             placeholder: "Enter phone number",
+            required: false,
           },
         ]}
         onSubmit={handleAdd}

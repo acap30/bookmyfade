@@ -2,7 +2,6 @@ import {
   MapPin,
   Mail,
   Phone,
-  Clock3,
   Users,
   Calendar,
   Scissors,
@@ -10,6 +9,7 @@ import {
   Store,
   Loader2,
   Plus,
+  Pencil,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import StatCard from "../../components/ui/StatCard";
@@ -24,6 +24,12 @@ import AddModal from "../../components/modals/AddModal";
 import SalonServiceItem from "../../components/items/SalonServiceItem";
 import EditServiceModal from "../../components/modals/EditServiceModal";
 import { getMySalon } from "../../api/salonsApi";
+import type { IWorkSchedule } from "../../types/workSchedule";
+import {
+  createSalonSchedule,
+  updateSalonSchedule,
+} from "../../api/workScheduleApi";
+import WorkScheduleModal from "../../components/modals/WorkScheduleModal";
 
 const recentAppointments = [
   {
@@ -50,22 +56,24 @@ const MySalon = () => {
   const [loading, setLoading] = useState(true);
   const [salon, setSalon] = useState(null);
   const [services, setServices] = useState<IService[]>(null);
+  const [selectedService, setSelectedService] = useState<IService | null>(null);
+  const [schedule, setSchedule] = useState<IWorkSchedule | null>(null);
+
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-
-  const [selectedService, setSelectedService] = useState<IService | null>(null);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState<boolean>(false);
 
   const fetchData = async () => {
     try {
       const data = await getMySalon();
       const services = await getSerivicesBySalonId(data.id);
+
       setSalon({
         id: data.id,
         name: data.name,
         address: data.address,
-        email: "cadi@example.com (fake data)",
+        email: data.email,
         phone: data.phone,
-        workingHours: "09:00 - 21:00 (fake data)",
 
         stats: {
           barbers: 8,
@@ -74,6 +82,8 @@ const MySalon = () => {
           services: 14,
         },
       });
+      const { salon_id, ...scheduleData } = data.wh;
+      setSchedule(scheduleData);
       setServices(services);
     } catch (err) {
       console.error("Failed to fetch salon details", err);
@@ -140,17 +150,12 @@ const MySalon = () => {
 
                     <div className="flex items-center gap-2">
                       <Mail size={15} />
-                      {salon.email}
+                      {salon.email || "Not provided"}
                     </div>
 
                     <div className="flex items-center gap-2">
                       <Phone size={15} />
                       {salon.phone || "Not provided"}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Clock3 size={15} />
-                      {salon.workingHours}
                     </div>
                   </div>
                 </div>
@@ -187,68 +192,135 @@ const MySalon = () => {
           </div>
 
           {/* Bottom */}
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <div className="columns-1 gap-6 md:columns-2 xl:columns-3">
             {/* Services */}
-            <div className="h-fit xl:col-span-2 rounded-2xl border border-border bg-card p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-text">Services</h2>
+            <div className="mb-6 break-inside-avoid">
+              <div className="h-fit xl:col-span-2 rounded-2xl border border-border bg-card p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-text">Services</h2>
 
-                <span className="text-sm text-muted">
-                  {services.length} services
-                </span>
+                  <span className="text-sm text-muted">
+                    {services.length} services
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {services.map((service) => (
+                    <SalonServiceItem
+                      key={service.id}
+                      service={service}
+                      onEdit={() => startEditService(service)}
+                      onDelete={() => handleDeleteService(service.id)}
+                    />
+                  ))}
+                  <button
+                    className="button-add w-full"
+                    onClick={() => setAddServiceModalOpen(true)}
+                  >
+                    <Plus size={18} />
+                    <p>Add Service</p>
+                  </button>
+                </div>
               </div>
+            </div>
 
-              <div className="space-y-3">
-                {services.map((service) => (
-                  <SalonServiceItem
-                    key={service.id}
-                    service={service}
-                    onEdit={() => startEditService(service)}
-                    onDelete={() => handleDeleteService(service.id)}
-                  />
-                ))}
-                <button
-                  className="button-add w-full"
-                  onClick={() => setAddServiceModalOpen(true)}
-                >
-                  <Plus size={18} />
-                  <p>Add Service</p>
-                </button>
+            {/* Weekly Schedule */}
+            <div className="mb-6 break-inside-avoid">
+              <div className="h-fit rounded-2xl border border-border bg-card p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-text">
+                    Weekly Schedule
+                  </h2>
+
+                  <button
+                    onClick={() => setScheduleModalOpen(true)}
+                    className="flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:brightness-110 cursor-pointer"
+                  >
+                    {schedule ? <Pencil size={16} /> : <Plus size={16} />}
+                    {schedule ? "Edit" : "Set Schedule"}
+                  </button>
+                </div>
+
+                {!schedule ? (
+                  <div className="flex flex-col items-center justify-center py-10 text-center">
+                    <Calendar size={32} className="mb-3 text-muted" />
+
+                    <h3 className="font-medium text-text">No schedule set</h3>
+
+                    <p className="mt-1 text-sm text-muted">
+                      Set working hours for this barber
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {schedule &&
+                      Object.entries(schedule).map(([day, time]) => (
+                        <div
+                          key={day}
+                          className="flex items-center justify-between rounded-xl border border-border bg-background px-4 py-3"
+                        >
+                          <div className="font-medium text-text capitalize">
+                            {day}
+                          </div>
+
+                          <div className="text-sm text-muted">
+                            {time.off ? "Day Off" : `${time.from} - ${time.to}`}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Recent Appointments */}
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-text">
-                  Recent Appointments
-                </h2>
-              </div>
+            <div className="mb-6 break-inside-avoid">
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-text">
+                    Recent Appointments
+                  </h2>
+                </div>
 
-              <div className="space-y-3">
-                {recentAppointments.map((appointment) => (
-                  <div
-                    key={appointment.id}
-                    className="rounded-xl border border-border bg-background p-4"
-                  >
-                    <p className="font-medium text-text">
-                      {appointment.client}
-                    </p>
+                <div className="space-y-3">
+                  {recentAppointments.map((appointment) => (
+                    <div
+                      key={appointment.id}
+                      className="rounded-xl border border-border bg-background p-4"
+                    >
+                      <p className="font-medium text-text">
+                        {appointment.client}
+                      </p>
 
-                    <p className="mt-1 text-sm text-muted">
-                      Barber: {appointment.barber}
-                    </p>
+                      <p className="mt-1 text-sm text-muted">
+                        Barber: {appointment.barber}
+                      </p>
 
-                    <div className="mt-3 text-sm text-muted">
-                      {appointment.time}
+                      <div className="mt-3 text-sm text-muted">
+                        {appointment.time}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </>
       )}
+      <WorkScheduleModal
+        open={scheduleModalOpen}
+        onClose={() => setScheduleModalOpen(false)}
+        schedule={schedule}
+        onSubmit={async (data) => {
+          if (schedule) {
+            await updateSalonSchedule(salon.id, data);
+          } else {
+            await createSalonSchedule(salon.id, data);
+          }
+
+          fetchData();
+        }}
+      />
       <AddModal
         open={addServiceModalOpen}
         onClose={() => setAddServiceModalOpen(false)}

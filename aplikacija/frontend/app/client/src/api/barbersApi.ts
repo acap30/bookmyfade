@@ -13,9 +13,7 @@ export const getBarbers = async (): Promise<Barber[]> => {
   return response.data;
 };
 
-export const getBarberById = async (
-  id: string,
-): Promise<Barber> => {
+export const getBarberById = async (id: string): Promise<Barber> => {
   const response = await api.get(`/public/hairdresser/${id}`);
   return response.data;
 };

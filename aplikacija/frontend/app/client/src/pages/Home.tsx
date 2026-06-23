@@ -11,21 +11,9 @@ const Home = () => {
         <nav className="nav-links">
           <a href="#how">How it works</a>
 
-          <Link to="/browse-salons">
-            Salons
-          </Link>
+          <Link to="/browse-salons">Salons</Link>
 
-          <a
-            href="http://localhost:5173/sign-in"
-            className="nav-link"
-          >
-            Log in
-          </a>
-
-          <Link
-            to="/browse-salons"
-            className="nav-button"
-          >
+          <Link to="/browse-salons" className="nav-button">
             Book now
           </Link>
         </nav>
@@ -33,33 +21,19 @@ const Home = () => {
 
       <main className="hero">
         <section className="hero-content">
-          <span className="badge">
-            Barber booking
-          </span>
+          <span className="badge">Barber booking</span>
 
-          <h1>
-            Book your next cut with the right barber.
-          </h1>
+          <h1>Book your next cut with the right barber.</h1>
 
           <p>
-            Explore salons, choose a barber and reserve
-            your appointment online in just a few clicks.
+            Explore salons, choose a barber and reserve your appointment online
+            in just a few clicks.
           </p>
 
           <div className="hero-actions">
-            <Link
-              to="/browse-salons"
-              className="primary-btn"
-            >
+            <Link to="/browse-salons" className="primary-btn">
               Browse salons
             </Link>
-
-            <a
-              href="http://localhost:5173/sign-in"
-              className="secondary-btn"
-            >
-              Log in
-            </a>
           </div>
         </section>
 
@@ -83,9 +57,7 @@ const Home = () => {
 
           <h3>Choose salon</h3>
 
-          <p>
-            Browse available salons.
-          </p>
+          <p>Browse available salons.</p>
         </div>
 
         <div>
@@ -93,9 +65,7 @@ const Home = () => {
 
           <h3>Select barber</h3>
 
-          <p>
-            Pick the barber and service you want.
-          </p>
+          <p>Pick the barber and service you want.</p>
         </div>
 
         <div>
@@ -103,9 +73,7 @@ const Home = () => {
 
           <h3>Book online</h3>
 
-          <p>
-            Reserve your appointment instantly.
-          </p>
+          <p>Reserve your appointment instantly.</p>
         </div>
       </section>
     </div>
