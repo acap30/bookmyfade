@@ -42,7 +42,8 @@ def create_salon(
         db,
         request.name,
         request.address,
-        request.phone
+        request.phone,
+        request.email
     )
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
@@ -83,7 +84,8 @@ def update_salon(
         salon_id,
         request.name,
         request.address,
-        request.phone
+        request.phone,
+        request.email
         )
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")

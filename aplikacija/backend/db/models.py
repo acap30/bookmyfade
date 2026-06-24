@@ -156,8 +156,9 @@ class Reservations(Base):
     hs_id = Column(Integer, ForeignKey("Usluge_po_frizeru.id", ondelete="SET NULL"))
     client_name = Column(String(255), nullable=False)
     client_phone = Column(String(35), nullable=False)
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=False)
+    date = Column(Date, nullable=False)
+    start_time = Column(Time, nullable=False)
+    end_time = Column(Time, nullable=False)
 
     hairdresser_service = relationship("Hairdresser_Service", back_populates="reservations")
 

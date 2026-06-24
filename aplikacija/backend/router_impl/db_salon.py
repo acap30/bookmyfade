@@ -4,11 +4,12 @@ from db.models import Salon, Owner
 from router_impl import db_wh_salon
 from db import schemas
 
-def create_salon(db: Session, name: str, address: str = None, phone: str = None):
+def create_salon(db: Session, name: str, address: str, phone: str = None, email: str = None):
     salon = Salon(
         name=name,
         address=address,
-        phone=phone
+        phone=phone,
+        mail=email
     )
     db.add(salon)
     db.commit()
@@ -45,7 +46,8 @@ def update_salon(
     salon_id: int,
     name: str = None,
     address: str = None,
-    phone: str = None
+    phone: str = None,
+    email: str = None
 ):
     salon = db.query(Salon).filter(Salon.id == salon_id).first()
 
@@ -60,6 +62,8 @@ def update_salon(
         salon.address = address
     if phone is not None:
         salon.phone = phone
+    if email is not None:
+        salon.mail = email
 
     db.commit()
     db.refresh(salon)

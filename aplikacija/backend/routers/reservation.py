@@ -1,3 +1,4 @@
+from datetime import date
 from typing import List
 from fastapi import APIRouter, Depends
 from db import schemas
@@ -52,6 +53,13 @@ def delete_reservation(reservation_id: int, db: Session = Depends(get_db), curre
         return db_reservation.delete_reservation_owner(current_user.id, reservation_id, db)
     else:
         return db_reservation.delete_reservation_hd(current_user.id, reservation_id, db)
+    
+
+@router.get("/available/hairdresser/{hd_id}", response_model=schemas.Timeslots)
+def get_available_timeslots_by_hairdresser(hd_id: int, date: date, db: Session = Depends(get_db)):
+    return db_reservation.get_available_timeslots_by_hairdresser(hd_id, date, db)
+
+
 
 
 

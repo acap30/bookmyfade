@@ -2,15 +2,16 @@ from fastapi import HTTPException, status
 from db import schemas
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm import joinedload
-from db.models import Hairdresser_Service, Reservations, Owner, Hairdresser, Salon
-from datetime import datetime
+from db.models import Hairdresser_Service, Reservations, Owner, Hairdresser, Salon, WorkingHours, WorkingHoursExceptions
+from datetime import date, datetime, timedelta, time
 
-def time_conflict(db: Session, hd_id: int, start_time: datetime, end_time: datetime):
+def time_conflict(db: Session, hd_id: int, date: date, start_time: time, end_time: time):
     existing = (
     db.query(Reservations)
     .join(Hairdresser_Service)
     .filter(
         Hairdresser_Service.hairdresser_id == hd_id,
+        Reservations.date == date,
         Reservations.start_time < end_time,
         Reservations.end_time > start_time
     )
@@ -19,6 +20,7 @@ def time_conflict(db: Session, hd_id: int, start_time: datetime, end_time: datet
 
     
     return existing
+
 
 def create_reservation(req: schemas.ReservationCreate, db: Session):
     hs = db.query(Hairdresser_Service).filter(Hairdresser_Service.id == req.hs_id).first()
@@ -31,8 +33,8 @@ def create_reservation(req: schemas.ReservationCreate, db: Session):
                             detail="time not good")
     
     #TIME CHECK
-    
-    if time_conflict(db, hs.hairdresser_id, req.start_time, req.end_time):
+    print(hs.hairdresser_id)
+    if time_conflict(db, hs.hairdresser_id, req.res_date, req.start_time, req.end_time):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="timeslot is full for this hairdresser")
 
@@ -40,6 +42,7 @@ def create_reservation(req: schemas.ReservationCreate, db: Session):
         hs_id = hs.id,
         client_name = req.client_name,
         client_phone = req.client_phone,
+        date = req.res_date,
         start_time = req.start_time,
         end_time = req.end_time
     )
@@ -71,6 +74,7 @@ def get_all_reservations(db: Session, skip: int, limit: int):
             "id": r.id,
             "client_name": r.client_name,
             "client_phone": r.client_phone,
+            "res_date": r.date,
             "start_time": r.start_time,
             "end_time": r.end_time,
             "hairdresser": {
@@ -125,6 +129,7 @@ def get_all_reservations_by_owner_id(user_id: int, db: Session, skip: int, limit
             "id": r.id,
             "client_name": r.client_name,
             "client_phone": r.client_phone,
+            "res_date": r.date,
             "start_time": r.start_time,
             "end_time": r.end_time,
             "hairdresser": {
@@ -177,6 +182,7 @@ def get_all_reservations_by_hairdresser_id(user_id: int, db: Session, skip: int,
             "id": r.id,
             "client_name": r.client_name,
             "client_phone": r.client_phone,
+            "res_date": r.date,
             "start_time": r.start_time,
             "end_time": r.end_time,
             "hairdresser": {
@@ -224,6 +230,7 @@ def get_reservation_by_id(res_id: int, db: Session):
             "id": res.id,
             "client_name": res.client_name,
             "client_phone": res.client_phone,
+            "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
             "hairdresser": {
@@ -276,6 +283,7 @@ def get_reservation_by_id_owner(user_id: int, res_id: int, db: Session):
             "id": res.id,
             "client_name": res.client_name,
             "client_phone": res.client_phone,
+            "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
             "hairdresser": {
@@ -328,6 +336,7 @@ def get_reservation_by_id_hd(user_id: int, res_id: int, db: Session):
             "id": res.id,
             "client_name": res.client_name,
             "client_phone": res.client_phone,
+            "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
             "hairdresser": {
@@ -377,7 +386,7 @@ def update_reservation(res_id: int, req: schemas.ReservationUpdate, db: Session)
     end_time = req.end_time if req.end_time is not None else res.end_time
 
     if (start_time != res.start_time or end_time != res.end_time):
-        if time_conflict(db, res.hairdresser_service.hairdresser_id, start_time, end_time):
+        if time_conflict(db, res.hairdresser_service.hairdresser_id, res.date, start_time, end_time):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                                 detail="timeslot is full for this hairdresser")
     
@@ -396,6 +405,7 @@ def update_reservation(res_id: int, req: schemas.ReservationUpdate, db: Session)
             "id": res.id,
             "client_name": res.client_name,
             "client_phone": res.client_phone,
+            "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
             "hairdresser": {
@@ -456,7 +466,7 @@ def update_reservation_owner(user_id: int, res_id: int, req: schemas.Reservation
     end_time = req.end_time if req.end_time is not None else res.end_time
 
     if (start_time != res.start_time or end_time != res.end_time):
-        if time_conflict(db, res.hairdresser_service.hairdresser_id, start_time, end_time):
+        if time_conflict(db, res.hairdresser_service.hairdresser_id, res.date, start_time, end_time):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                                 detail="timeslot is full for this hairdresser")
     
@@ -475,6 +485,7 @@ def update_reservation_owner(user_id: int, res_id: int, req: schemas.Reservation
             "id": res.id,
             "client_name": res.client_name,
             "client_phone": res.client_phone,
+            "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
             "hairdresser": {
@@ -532,7 +543,7 @@ def update_reservation_hd(user_id: int, res_id: int, req: schemas.ReservationUpd
     end_time = req.end_time if req.end_time is not None else res.end_time
 
     if (start_time != res.start_time or end_time != res.end_time):
-        if time_conflict(db, res.hairdresser_service.hairdresser_id, start_time, end_time):
+        if time_conflict(db, res.hairdresser_service.hairdresser_id, res.date, start_time, end_time):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                                 detail="timeslot is full for this hairdresser")
     
@@ -551,6 +562,7 @@ def update_reservation_hd(user_id: int, res_id: int, req: schemas.ReservationUpd
             "id": res.id,
             "client_name": res.client_name,
             "client_phone": res.client_phone,
+            "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
             "hairdresser": {
@@ -640,3 +652,65 @@ def delete_reservation_hd(user_id: int, res_id: int, db: Session):
     db.commit()
 
     return {"message": "deleted"}
+
+def generate_slots(hd_id, start, end, db, interval=30):
+    slots = []
+    current = start
+    while current < end:
+        if time_conflict(db, hd_id, current.date(), current.time(), (current + timedelta(minutes=interval)).time()):
+            print("Conflict")
+        else:
+            slots.append(current.time())
+        current += timedelta(minutes=interval)
+    return slots
+
+
+def get_available_timeslots_by_hairdresser(hd_id: int, res_date: date, db: Session):
+    
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+    if not hd:
+        raise HTTPException(status_code=404, detail="Hairdresser not found")
+    
+    if res_date < date.today():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="invalid date")
+    
+    weekday_str = res_date.strftime("%A").lower()
+    
+    wh_main = (
+        db.query(WorkingHours)
+        .filter(WorkingHours.hairdresser_id==hd_id,
+                WorkingHours.weekday==schemas.Weekday(weekday_str))
+        .first()
+    )
+
+    wh_exception = (
+        db.query(WorkingHoursExceptions)
+        .filter(WorkingHoursExceptions.date==res_date)
+        .first()
+    )
+    
+    start = None
+    end = None
+    if wh_exception is not None and wh_exception.day_off is False:
+        start = wh_exception.start
+        end = wh_exception.end
+    elif wh_main is not None and wh_main.off is False:
+        start = wh_main.start
+        end = wh_main.end
+    else:
+        start = time.min
+        end = start
+    
+    start_dt = datetime.combine(res_date, start)
+    end_dt = datetime.combine(res_date, end)
+    slots = generate_slots(hd_id, start_dt, end_dt, db)
+
+    return schemas.Timeslots(
+        hairdresser_id=hd_id,
+        res_date=res_date,
+        slots=slots
+    )
+    
+
+    

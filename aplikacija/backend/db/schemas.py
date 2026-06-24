@@ -74,8 +74,9 @@ class OwnerCreate(BaseModel):
 
 class SalonCreate(BaseModel):
     name: str
-    address: str | None = None
+    address: str
     phone: str | None = None
+    email: str | None = None
 
 class HairdresserCreate(BaseModel):
     user_id: int
@@ -85,6 +86,7 @@ class SalonUpdate(BaseModel):
     name: str | None = None
     address: str | None = None
     phone: str | None = None
+    email: str | None = None
 
 class HairdresserUpdate(BaseModel):
     salon_id: int | None = None
@@ -226,22 +228,24 @@ class ReservationCreate(BaseModel):
     hs_id: int
     client_name: str
     client_phone: str
-    start_time: datetime
-    end_time: datetime
+    res_date: date
+    start_time: time
+    end_time: time
 
 class ReservationUpdate(BaseModel):
     hs_id: int | None = None
     client_name: str | None = None
     client_phone: str | None = None
-    start_time: datetime | None = None
-    end_time: datetime | None = None
+    start_time: time | None = None
+    end_time: time | None = None
 
 class ReservationDisplay(BaseModel):
     id: int
     client_name: str
     client_phone: str
-    start_time: datetime
-    end_time: datetime
+    res_date: date
+    start_time: time
+    end_time: time
     hairdresser: ReservationHairdresser
     service: ReservationService
 
@@ -252,3 +256,24 @@ class ReservationWrapper(BaseModel):
     skip: int
     limit: int
     data: list[ReservationDisplay]
+
+# class Slots(BaseModel):
+#     start: time
+#     next: time
+
+class Timeslots(BaseModel):
+    hairdresser_id: int
+    res_date: date
+    slots: List[time]
+
+class Service(BaseModel):
+    hs_id: int
+    name: str
+    length: int
+    price: float
+
+class ServiceDisplay(BaseModel):
+    res_date: date
+    start: time
+    services: List[Service]
+

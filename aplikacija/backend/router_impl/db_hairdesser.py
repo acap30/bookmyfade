@@ -130,7 +130,7 @@ def delete_hairdresser(db: Session, hairdresser_id: int):
     return {"message": "Hairdresser deleted"}
 
 def get_hairdresser_id_by_user_id(id: int, db: Session):
-    hd = db.query(Hairdresser).options(joinedload(Hairdresser.user)).filter(Hairdresser.user.user_id==id).first()
+    hd = db.query(Hairdresser).join(DbUser, Hairdresser.user_id==DbUser.id).filter(DbUser.id==id).first()
 
     if not hd:
         raise HTTPException(

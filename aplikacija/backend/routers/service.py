@@ -1,3 +1,5 @@
+from datetime import time, date
+
 from fastapi import APIRouter, Depends
 from db import schemas
 from db.database import get_db
@@ -12,6 +14,9 @@ router = APIRouter(
 )
 
 # CRUD
+@router.get('/angadfae', response_model=schemas.ServiceDisplay)
+def get_services_for_timeslot(hd_id: int, res_date: date, start: time, db: Session = Depends(get_db)):
+    return db_service.get_services_for_timeslot(hd_id, res_date, start, db)
 
 @router.post('/')
 def create_service(request: schemas.ServiceCreate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
@@ -69,3 +74,4 @@ def get_services_by_salon_id(salon_id: int, db: Session = Depends(get_db), curre
 @router.get('/hairdresser/{hairdresser_id}')
 def get_services_by_hairdresser_id(hd_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_service.get_services_by_hairdresser_id(hd_id, db)
+

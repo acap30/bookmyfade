@@ -1,7 +1,10 @@
+from datetime import date, datetime, time
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm.session import Session
+from sqlalchemy.orm import joinedload
 from db import schemas
-from db.models import Service, Hairdresser, Hairdresser_Service, Salon
+from db.models import Service, Hairdresser, Hairdresser_Service, Salon, Reservations, WorkingHours, WorkingHoursExceptions
 
 def create_service(db: Session, request: schemas.ServiceCreate):
     
@@ -257,4 +260,75 @@ def get_all_links_by_service_id(svc_id: int, db: Session):
             for link in links
         ]
     }
+
+def get_services_for_timeslot(hd_id: int, res_date: date, start: time, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+
+    if not hd:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Hairdresser not found.")
+    
+    next_res = (
+        db.query(Reservations)
+        .join(Hairdresser_Service)
+        .filter(
+            Hairdresser_Service.hairdresser_id == hd_id,
+            Reservations.date == res_date,
+            Reservations.start_time >= start
+        )
+        .order_by(Reservations.start_time.asc())
+        .first()
+    )
+    next = None
+    if not next_res:
+        weekday_str = res_date.strftime("%A").lower()
+
+        wh_main = (
+            db.query(WorkingHours)
+            .filter(WorkingHours.hairdresser_id==hd_id,
+                    WorkingHours.weekday==schemas.Weekday(weekday_str))
+            .first()
+        )
+
+        wh_exception = (
+            db.query(WorkingHoursExceptions)
+            .filter(WorkingHoursExceptions.date==res_date)
+            .first()
+        )
+        if wh_exception and wh_exception.day_off is False:
+            next = wh_exception.end
+        elif wh_main and wh_main.off is False:
+            next = wh_main.end
+    else:
+        next = next_res.start_time
+
+    available_minutes = (
+        datetime.combine(res_date, next) -
+        datetime.combine(res_date, start)
+    ).seconds // 60
+
+    svc = (
+        db.query(Hairdresser_Service)
+        .join(Service, Hairdresser_Service.service_id == Service.id)
+        .options(joinedload(Hairdresser_Service.service))
+        .filter(Hairdresser_Service.hairdresser_id==hd_id,
+                Service.length_minutes<=available_minutes)
+        .all()
+    )
+
+    return {
+        "res_date": res_date,
+        "start": start,
+        "services": [
+            {
+                "hs_id": s.id,
+                "name": s.service.name,
+                "length": s.service.length_minutes,
+                "price": s.price
+            }
+            for s in svc
+        ]
+    }
+        
     
