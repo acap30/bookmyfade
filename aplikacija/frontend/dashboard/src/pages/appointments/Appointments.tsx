@@ -112,7 +112,7 @@ const Appointments = () => {
 
             <h3 className="font-medium text-text">No appointments found</h3>
 
-            <p className="mt-1 text-sm text-muted">Try changing your search</p>
+            <p className="mt-1 text-sm text-muted">Try again later</p>
           </div>
         )}
       </div>

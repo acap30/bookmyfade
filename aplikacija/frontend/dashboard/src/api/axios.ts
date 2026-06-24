@@ -50,6 +50,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
+        authStorage.clear();
         window.location.href = "/sign-in";
         return Promise.reject(null);
       }

@@ -16,18 +16,20 @@ import { ROLES } from "../../types/auth";
 import EditUserModal from "../../components/modals/EditUserModal";
 import type { IBarber } from "../../types/barber";
 import { useAuth } from "../../context/AuthContext";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 
 const Barbers = () => {
   const [barbers, setBarbers] = useState<IBarber[]>([]);
   const [salons, setSalons] = useState<ISalon[]>([]);
   const [mySalon, setMySalon] = useState<ISalon | null>(null);
+  const [selectedBarber, setSelectedBarber] = useState<IBarber | null>(null);
 
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedBarber, setSelectedBarber] = useState<IBarber | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const { user } = useAuth();
 
@@ -64,11 +66,8 @@ const Barbers = () => {
     fetchBarbers();
   }, []);
 
-  const handleDelete = async (
-    barberId: number | string,
-    userId: number | string,
-  ) => {
-    await deleteBarber(barberId, userId);
+  const handleDelete = async () => {
+    await deleteBarber(selectedBarber.id, selectedBarber.user.id);
     fetchBarbers();
   };
 
@@ -151,7 +150,10 @@ const Barbers = () => {
                     setSelectedBarber(barber);
                     setEditModalOpen(true);
                   }}
-                  onDelete={() => handleDelete(barber.id, barber.user.id)}
+                  onDelete={() => {
+                    setSelectedBarber(barber);
+                    setDeleteModalOpen(true);
+                  }}
                 />
               ))
             ) : (
@@ -260,6 +262,14 @@ const Barbers = () => {
             : {}
         }
         onSubmit={async (data) => handleEdit(data)}
+      />
+      <ConfirmDeleteModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete Barber"
+        subtitle={`Delete ${selectedBarber?.user?.firstName || "Barber"}`}
+        message="Are you sure you want to delete this barber? This action cannot be undone."
       />
     </div>
   );

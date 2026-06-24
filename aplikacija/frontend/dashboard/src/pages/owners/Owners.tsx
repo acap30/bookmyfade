@@ -14,16 +14,18 @@ import type { ISalon } from "../../types/salon";
 import { getSalons } from "../../api/salonsApi";
 import { ROLES } from "../../types/auth";
 import EditUserModal from "../../components/modals/EditUserModal";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 
 const Owners = () => {
   const [search, setSearch] = useState("");
   const [owners, setOwners] = useState<IOwner[]>([]);
   const [salons, setSalons] = useState<ISalon[]>([]);
+  const [selectedOwner, setSelectedOwner] = useState<IOwner | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedOwner, setSelectedOwner] = useState<IOwner | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const filteredOwners = useMemo(() => {
     return owners.filter((owner) =>
@@ -50,11 +52,8 @@ const Owners = () => {
     fetchOwners();
   }, []);
 
-  const handleDelete = async (
-    ownerId: number | string,
-    userId: number | string,
-  ) => {
-    await deleteOwner(ownerId, userId);
+  const handleDelete = async () => {
+    await deleteOwner(selectedOwner.id, selectedOwner.user.id);
     fetchOwners();
   };
 
@@ -136,7 +135,10 @@ const Owners = () => {
                     setSelectedOwner(owner);
                     setEditModalOpen(true);
                   }}
-                  onDelete={() => handleDelete(owner.id, owner.user.id)}
+                  onDelete={() => {
+                    setSelectedOwner(owner);
+                    setDeleteModalOpen(true);
+                  }}
                 />
               ))
             ) : (
@@ -237,6 +239,14 @@ const Owners = () => {
             : {}
         }
         onSubmit={async (data) => handleEdit(data)}
+      />
+      <ConfirmDeleteModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete Owner"
+        subtitle={`Delete ${selectedOwner?.user?.firstName || "Owner"}`}
+        message="Are you sure you want to delete this owner? This action cannot be undone."
       />
     </div>
   );

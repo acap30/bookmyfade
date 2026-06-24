@@ -21,7 +21,7 @@ const Schedule = () => {
   const [schedule, setSchedule] = useState<IWorkSchedule | null>(null);
   const [daysOff, setDaysOff] = useState<IDayOff[]>([]);
   const [overrides, setOverrides] = useState<IScheduleOverride[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [services, setServices] = useState<IService[]>([]);
 
   const overrideDates = overrides.map((o) => new Date(o.date));

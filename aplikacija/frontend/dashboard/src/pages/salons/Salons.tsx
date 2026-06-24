@@ -12,15 +12,17 @@ import AddModal from "../../components/modals/AddModal";
 import { useNavigate } from "react-router-dom";
 import EditSalonModal from "../../components/modals/EditSalonModal";
 import SalonItem from "../../components/items/SalonItem";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 
 const Salons = () => {
   const [search, setSearch] = useState("");
   const [salons, setSalons] = useState<ISalon[]>([]);
   const [loading, setLoading] = useState(true);
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-
   const [selectedSalon, setSelectedSalon] = useState<ISalon | null>(null);
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -48,8 +50,8 @@ const Salons = () => {
     fetchSalons();
   }, []);
 
-  const handleDelete = async (id: number) => {
-    await deleteSalon(id);
+  const handleDelete = async () => {
+    await deleteSalon(selectedSalon.id);
     fetchSalons();
   };
 
@@ -111,7 +113,10 @@ const Salons = () => {
                   name={salon.name}
                   location={salon.address}
                   onEdit={() => handleEdit(salon)}
-                  onDelete={() => handleDelete(salon.id)}
+                  onDelete={() => {
+                    setSelectedSalon(salon);
+                    setDeleteModalOpen(true);
+                  }}
                   onView={() => navigate(`/salons/${salon.id}`)}
                 />
               ))
@@ -167,6 +172,14 @@ const Salons = () => {
         onClose={() => setEditOpen(false)}
         salon={selectedSalon}
         onSubmit={(id, data) => editSalon(id, data)}
+      />
+      <ConfirmDeleteModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete Salon"
+        subtitle={`Delete ${selectedSalon?.name || "Salon"}`}
+        message="Are you sure you want to delete this salon? This action cannot be undone."
       />
     </div>
   );

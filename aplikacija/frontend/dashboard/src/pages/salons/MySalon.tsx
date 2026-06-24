@@ -30,6 +30,7 @@ import {
   updateSalonSchedule,
 } from "../../api/workScheduleApi";
 import WorkScheduleModal from "../../components/modals/WorkScheduleModal";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 
 const recentAppointments = [
   {
@@ -62,6 +63,7 @@ const MySalon = () => {
   const [addServiceModalOpen, setAddServiceModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [scheduleModalOpen, setScheduleModalOpen] = useState<boolean>(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -114,8 +116,8 @@ const MySalon = () => {
     fetchData();
   };
 
-  const handleDeleteService = async (service_id) => {
-    await deleteService(service_id);
+  const handleDeleteService = async () => {
+    await deleteService(selectedService.id);
     fetchData();
   };
 
@@ -210,7 +212,10 @@ const MySalon = () => {
                       key={service.id}
                       service={service}
                       onEdit={() => startEditService(service)}
-                      onDelete={() => handleDeleteService(service.id)}
+                      onDelete={() => {
+                        setSelectedService(service);
+                        setDeleteModalOpen(true);
+                      }}
                     />
                   ))}
                   <button
@@ -348,6 +353,14 @@ const MySalon = () => {
         onSubmit={(service_id, formData) =>
           handleEditService(service_id, formData)
         }
+      />
+      <ConfirmDeleteModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDeleteService}
+        title="Delete Service"
+        subtitle={`Delete ${selectedService?.name || "Service"}`}
+        message="Are you sure you want to delete this service? This action cannot be undone."
       />
     </div>
   );

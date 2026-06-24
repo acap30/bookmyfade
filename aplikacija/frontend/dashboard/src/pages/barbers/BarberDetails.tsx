@@ -65,7 +65,7 @@ const BarberDetails = () => {
   const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
 
   const [selectedService, setSelectedService] = useState<IService | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const overrideDates = overrides.map((o) => new Date(o.date));
 
