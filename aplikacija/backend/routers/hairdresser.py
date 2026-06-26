@@ -27,6 +27,16 @@ def get_public_hairdresser_by_id(
         hairdresser_id
     )
 
+@router_public.get("/salon/{salon_id}", response_model=list[HairdresserDisplay])
+def get_public_hairdressers_by_salon_id(
+    salon_id: int,
+    db: Session = Depends(get_db)
+):
+    return hairdresser_impl.get_hairdresser_by_salon_id(
+        db,
+        salon_id
+    )
+
 router = APIRouter(
     prefix="/hairdresser",
     tags=["Hairdresser"],

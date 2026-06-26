@@ -7,6 +7,14 @@ from db.database import get_db
 from auth.oauth2 import get_current_user
 from router_impl import db_reservation
 
+public_router = APIRouter(
+    tags=["reservation public"],
+    prefix="/public/reservation"
+)
+
+@public_router.get("/available/hairdresser/{hd_id}/{service_id}", response_model=schemas.Timeslots)
+def get_available_timeslots(hd_id: int, service_id: int, date: date, db: Session = Depends(get_db)):
+    return db_reservation.get_available_timeslots(hd_id, service_id, date, db)
 
 
 router = APIRouter(
@@ -55,9 +63,7 @@ def delete_reservation(reservation_id: int, db: Session = Depends(get_db), curre
         return db_reservation.delete_reservation_hd(current_user.id, reservation_id, db)
     
 
-@router.get("/available/hairdresser/{hd_id}", response_model=schemas.Timeslots)
-def get_available_timeslots_by_hairdresser(hd_id: int, date: date, db: Session = Depends(get_db)):
-    return db_reservation.get_available_timeslots_by_hairdresser(hd_id, date, db)
+
 
 
 
