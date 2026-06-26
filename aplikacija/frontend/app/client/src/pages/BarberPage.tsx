@@ -13,7 +13,7 @@ const BarberPage = () => {
   const [services, setServices] = useState<any[]>([]);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedService, setSelectedService] = useState<string>("");
+  const [selectedService, setSelectedService] = useState<number | "">("");
   const [loading, setLoading] = useState(true);
 
   const handleContinue = async () => {
@@ -95,7 +95,7 @@ const BarberPage = () => {
 
       try {
         const res = await fetch(
-          `http://localhost:8000/services/salon/${id}`
+          `http://localhost:8000/public/service/salon/${id}`
         );
         const data = await res.json();
 
@@ -111,7 +111,7 @@ const BarberPage = () => {
 
   useEffect(() => {
     const fetchSlots = async () => {
-      if (!barberId || !selectedDate) return;
+      if (!barberId || !selectedDate || !selectedService) return;
 
         const hdId = Number(barberId);
         if (isNaN(hdId)) return;
@@ -124,7 +124,7 @@ const BarberPage = () => {
 
           console.log("DATE:", formattedDate);
         const res = await fetch(
-          `http://localhost:8000/reservation/available/hairdresser/${hdId}?date=${formattedDate}`
+          `http://localhost:8000/public/reservation/available/hairdresser/${hdId}/${selectedService}?date=${formattedDate}`
         );
 
         const data = await res.json();
@@ -143,7 +143,7 @@ const BarberPage = () => {
     };
 
     fetchSlots();
-  }, [selectedDate, barberId]);
+  }, [selectedDate, barberId, selectedService]);
 
   if (loading) {
     return (
@@ -215,7 +215,7 @@ const BarberPage = () => {
               <select
                 value={selectedService}
                 onChange={(e) => {
-                  setSelectedService(e.target.value);
+                  setSelectedService(Number(e.target.value));
                   setSelectedTime(null);
                   setAvailableSlots([]);
                 }}
