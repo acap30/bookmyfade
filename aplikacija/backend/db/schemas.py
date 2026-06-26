@@ -264,6 +264,7 @@ class ReservationWrapper(BaseModel):
 class Timeslots(BaseModel):
     hairdresser_id: int
     res_date: date
+    service_id: Optional[int] = None
     slots: List[time]
 
 class Service(BaseModel):

@@ -64,6 +64,17 @@ def get_hairdresser_by_id(db: Session, hairdresser_id: int):
 def get_all_hairdressers(db: Session):
     return db.query(Hairdresser).all()
 
+def get_hairdresser_by_salon_id(db: Session, salon_id: int):
+    salon = db.query(Salon).filter(Salon.id == salon_id).first()
+
+    if not salon:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Salon not found"
+        )
+    
+    return db.query(Hairdresser).filter(Hairdresser.salon_id == salon_id).all()
+
 def get_my_hairdressers(db: Session, user_id: int):
     salon = (
         db.query(Salon)

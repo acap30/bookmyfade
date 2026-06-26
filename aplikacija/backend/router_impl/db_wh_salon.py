@@ -39,7 +39,7 @@ def get_wh_by_salon_id(salon_id: int, db: Session):
                             detail="Hairdresser not found.")
     
 
-    wh_list = db.query(WorkingHoursSalon).filter(WorkingHoursSalon.id==salon_id).all()
+    wh_list = db.query(WorkingHoursSalon).filter(WorkingHoursSalon.salon_id==salon_id).all()
 
     if not wh_list:
         off = schemas.DaySchedule(off=True)

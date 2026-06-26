@@ -2,10 +2,45 @@ from fastapi import HTTPException, status
 from db import schemas
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm import joinedload
-from db.models import Hairdresser_Service, Reservations, Owner, Hairdresser, Salon, WorkingHours, WorkingHoursExceptions
+from db.models import Hairdresser_Service, Reservations, Owner, Hairdresser, Service, Salon, WorkingHours, WorkingHoursExceptions
 from datetime import date, datetime, timedelta, time
 
+def get_hours(res_date: date, db: Session, hd_id: int):
+    weekday_str = res_date.strftime("%A").lower()
+    
+    wh_main = (
+        db.query(WorkingHours)
+        .filter(WorkingHours.hairdresser_id==hd_id,
+                WorkingHours.weekday==schemas.Weekday(weekday_str))
+        .first()
+    )
+
+    wh_exception = (
+        db.query(WorkingHoursExceptions)
+        .filter(WorkingHoursExceptions.date==res_date,
+                WorkingHoursExceptions.hairdresser_id==hd_id)
+        .first()
+    )
+    
+    start = None
+    end = None
+    if wh_exception is not None and wh_exception.day_off is False:
+        start = wh_exception.start
+        end = wh_exception.end
+    elif wh_main is not None and wh_main.off is False:
+        start = wh_main.start
+        end = wh_main.end
+    else:
+        start = time.min
+        end = start
+
+    return start, end
+
 def time_conflict(db: Session, hd_id: int, date: date, start_time: time, end_time: time):
+
+    start, end = get_hours(date, db, hd_id)
+
+    
     existing = (
     db.query(Reservations)
     .join(Hairdresser_Service)
@@ -19,7 +54,8 @@ def time_conflict(db: Session, hd_id: int, date: date, start_time: time, end_tim
     )
 
     
-    return existing
+    
+    return existing or end_time > end
 
 
 def create_reservation(req: schemas.ReservationCreate, db: Session):
@@ -661,46 +697,14 @@ def generate_slots(hd_id, start, end, db, interval=30):
             print("Conflict")
         else:
             slots.append(current.time())
-        current += timedelta(minutes=interval)
+        current += timedelta(minutes=30)
     return slots
+
 
 
 def get_available_timeslots_by_hairdresser(hd_id: int, res_date: date, db: Session):
     
-    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
-    if not hd:
-        raise HTTPException(status_code=404, detail="Hairdresser not found")
-    
-    if res_date < date.today():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="invalid date")
-    
-    weekday_str = res_date.strftime("%A").lower()
-    
-    wh_main = (
-        db.query(WorkingHours)
-        .filter(WorkingHours.hairdresser_id==hd_id,
-                WorkingHours.weekday==schemas.Weekday(weekday_str))
-        .first()
-    )
-
-    wh_exception = (
-        db.query(WorkingHoursExceptions)
-        .filter(WorkingHoursExceptions.date==res_date)
-        .first()
-    )
-    
-    start = None
-    end = None
-    if wh_exception is not None and wh_exception.day_off is False:
-        start = wh_exception.start
-        end = wh_exception.end
-    elif wh_main is not None and wh_main.off is False:
-        start = wh_main.start
-        end = wh_main.end
-    else:
-        start = time.min
-        end = start
+    start, end = get_hours(res_date, db, hd_id)
     
     start_dt = datetime.combine(res_date, start)
     end_dt = datetime.combine(res_date, end)
@@ -709,8 +713,57 @@ def get_available_timeslots_by_hairdresser(hd_id: int, res_date: date, db: Sessi
     return schemas.Timeslots(
         hairdresser_id=hd_id,
         res_date=res_date,
+        service_id=None,
         slots=slots
     )
+
+def get_available_timeslots_by_hairdresser_and_service(hd_id: int, service_id: int, res_date: date, db: Session):
+
+    hs = (
+        db.query(Hairdresser_Service)
+        .options(joinedload(Hairdresser_Service.service))
+        .filter(Hairdresser_Service.hairdresser_id==hd_id,
+                Hairdresser_Service.service_id==service_id)
+        .first()
+    )
+
+    if not hs:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wrong service")
+
+    start, end = get_hours(res_date, db, hd_id)
+
+    start_dt = datetime.combine(res_date, start)
+    end_dt = datetime.combine(res_date, end)
+    slots = generate_slots(hd_id, start_dt, end_dt, db, interval=hs.service.length_minutes)
+
+    return schemas.Timeslots(
+        hairdresser_id=hd_id,
+        res_date=res_date,
+        service_id=service_id,
+        slots=slots
+    )
+
+def get_available_timeslots(hd_id: int, service_id: int, res_date: date, db: Session):
+
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+    if not hd:
+        raise HTTPException(status_code=404, detail="Hairdresser not found")
+    
+    
+    if res_date < date.today():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="invalid date")
+
+    if service_id == 0:        
+        return get_available_timeslots_by_hairdresser(hd_id, res_date, db)
+    else:
+
+        service = db.query(Service).filter(Service.id == service_id).first()
+
+        if not service:
+            raise HTTPException(status_code=404, detail="Service not found")
+        
+        return get_available_timeslots_by_hairdresser_and_service(hd_id, service_id, res_date, db)
     
 
     
