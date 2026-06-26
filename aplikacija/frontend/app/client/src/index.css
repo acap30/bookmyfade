@@ -711,18 +711,110 @@ img {
   }
 }
 
-.time-grid button.time-active {
-  background: white;
-  color: black;
+.booking-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
 }
 
-.selected-time {
-  margin-bottom: 24px;
-  color: rgba(255, 255, 255, 0.75);
+.react-date-picker {
+  width: 100%;
+  max-width: 320px;
 }
 
-.booking-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
+.react-date-picker__wrapper {
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  transition: 0.2s;
+}
+
+.react-date-picker__wrapper:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.booking-section select {
+  width: 100%;
+  max-width: 320px;
+  padding: 14px;
+  border-radius: 18px;
+  height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.booking-section select:hover { 
+  background: rgba(255,255,255,0.2); 
+  color: black; 
+}
+
+.booking-section select option {
+  background: #111;
+  color: white;
+}
+
+.react-calendar {
+  background: #0f0f10;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 10px;
+}
+
+.react-calendar__tile {
+  color: white;
+  background: transparent;
+  border-radius: 10px;
+}
+
+.react-calendar__tile:hover { 
+  background: #d9d9d9 !important; 
+  color: black !important; 
+}
+
+.react-calendar__tile--active {
+  background: white !important;
+  color: black !important;
+  border-radius: 10px;
+}
+
+.react-calendar__tile--now {
+  background: #f5d76e !important;
+  color: black !important;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.react-calendar__tile:disabled {
+  background: #1a1a1a !important;
+  color: #d9d9d9 !important;
+  opacity: 1;
+}
+
+.react-calendar__navigation button {
+  background: transparent;
+  color: #d9d9d9 !important;
+  border-radius: 10px;
+}
+
+.react-calendar__navigation button:hover {
+  background: #d9d9d9 !important;
+  color: black !important;
+}
+
+.react-calendar__navigation button:enabled:hover {
+  background: #d9d9d9 !important;
+  color: black !important;
+}
+
+.react-calendar__navigation button:disabled {
+  background: transparent !important;
+  color: #333 !important;
 }

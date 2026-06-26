@@ -1,28 +1,61 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getBarberById, type Barber } from "../api/barbersApi";
-
-type TimeSlot = {
-  id: number;
-  time: string;
-};
-
-const fallbackTimes: TimeSlot[] = [
-  { id: 1, time: "10:00" },
-  { id: 2, time: "11:30" },
-  { id: 3, time: "13:00" },
-  { id: 4, time: "15:30" },
-  { id: 5, time: "18:00" },
-  { id: 6, time: "19:30" },
-];
+import "react-date-picker/dist/DatePicker.css";
+import "react-calendar/dist/Calendar.css";
+import DatePicker from "react-date-picker";
 
 const BarberPage = () => {
   const { id, barberId } = useParams();
 
   const [barber, setBarber] = useState<Barber | null>(null);
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedService, setSelectedService] = useState<string>("");
   const [loading, setLoading] = useState(true);
+
+  const handleContinue = async () => {
+    if (!selectedDate || !selectedTime || !selectedService) return;
+
+    const service = services.find(
+      (s) => s.hs_id === Number(selectedService)
+    );
+
+    if (!service) return;
+
+    const [hours, minutes] = selectedTime.split(":");
+    const start = new Date(selectedDate);
+    start.setHours(Number(hours), Number(minutes), 0);
+    const end = new Date(start);
+    end.setMinutes(end.getMinutes() + service.length);
+
+    const payload = {
+      hs_id: Number(selectedService),
+      client_name: "Test User",
+      client_phone: "061000000",
+      res_date: selectedDate.toISOString().split("T")[0],
+      start_time: selectedTime + ":00",
+      end_time: end.toTimeString().slice(0, 5) + ":00",
+    };
+
+    try {
+      const res = await fetch(`http://localhost:8000/reservation/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Booking failed");
+
+      alert("Booking successful!");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     if (!barberId) return;
@@ -37,9 +70,7 @@ const BarberPage = () => {
           title: barberData.title || "Professional Barber",
         });
 
-        /* TODO: getAvailableSlots(barberId) */
-
-        setTimeSlots(fallbackTimes);
+        setAvailableSlots([]);
       } catch (error) {
         console.error(error);
 
@@ -49,7 +80,7 @@ const BarberPage = () => {
           title: "Fade Specialist",
         });
 
-        setTimeSlots(fallbackTimes);
+        setAvailableSlots([]);
       } finally {
         setLoading(false);
       }
@@ -57,6 +88,62 @@ const BarberPage = () => {
 
     fetchBarberAndTimes();
   }, [barberId]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      if (!id) return;
+
+      try {
+        const res = await fetch(
+          `http://localhost:8000/services/salon/${id}`
+        );
+        const data = await res.json();
+
+          const safeServices = Array.isArray(data) ? data : [];
+            setServices(safeServices);
+      } catch (err) {
+        console.error("Services error:", err);
+      }
+    };
+
+    fetchServices();
+  }, [id]);
+
+  useEffect(() => {
+    const fetchSlots = async () => {
+      if (!barberId || !selectedDate) return;
+
+        const hdId = Number(barberId);
+        if (isNaN(hdId)) return;
+
+        console.log("BARBER ID:", hdId); 
+      try {
+        const formattedDate = selectedDate
+          .toISOString()
+          .split("T")[0];
+
+          console.log("DATE:", formattedDate);
+        const res = await fetch(
+          `http://localhost:8000/reservation/available/hairdresser/${hdId}?date=${formattedDate}`
+        );
+
+        const data = await res.json();
+        
+          const safeSlots = Array.isArray(data?.slots)
+            ? data.slots
+            : Array.isArray(data)
+            ? data
+            : [];
+
+          setAvailableSlots(safeSlots);
+        setSelectedTime(null);
+      } catch (err) {
+        console.error("Slots error:", err);
+      }
+    };
+
+    fetchSlots();
+  }, [selectedDate, barberId]);
 
   if (loading) {
     return (
@@ -105,15 +192,52 @@ const BarberPage = () => {
           <div className="booking-card">
             <h3>Choose appointment time</h3>
 
+            <div className="booking-section">
+              <h4>Select date</h4>
+
+              <DatePicker
+                onChange={(value) => {
+                  if (value instanceof Date) {
+                    setSelectedDate(value);
+                  }
+                  setSelectedTime(null);
+                  setAvailableSlots([]);
+                }}
+                value={selectedDate}
+                minDate={new Date()}
+                clearIcon={null}
+              />
+            </div>
+
+            <div className="booking-section">
+              <h4>Select service</h4>
+
+              <select
+                value={selectedService}
+                onChange={(e) => {
+                  setSelectedService(e.target.value);
+                  setSelectedTime(null);
+                  setAvailableSlots([]);
+                }}
+              >
+                <option value="">-- choose service --</option>
+                {services.map((s) => (
+                  <option key={s.hs_id} value={s.hs_id}>
+                    {s.name} ({s.length} min)
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="time-grid">
-              {timeSlots.map((slot) => (
+              {(availableSlots || []).map((time, index) => (
                 <button
-                  key={slot.id}
+                  key={index}
                   type="button"
-                  className={selectedTime === slot.time ? "time-active" : ""}
-                  onClick={() => setSelectedTime(slot.time)}
+                  className={selectedTime === time ? "time-active" : ""}
+                  onClick={() => setSelectedTime(time)}
                 >
-                  {slot.time}
+                  {time}
                 </button>
               ))}
             </div>
@@ -126,7 +250,8 @@ const BarberPage = () => {
 
             <button
               className="primary-btn booking-btn"
-              disabled={!selectedTime}
+              disabled={!selectedTime || !selectedDate || !selectedService}
+              onClick={handleContinue}
             >
               Continue booking
             </button>
