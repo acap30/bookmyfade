@@ -32,8 +32,7 @@ img {
   min-height: 100vh;
   background:
     radial-gradient(circle at top left, #2b1f1f 0%, transparent 30%),
-    radial-gradient(circle at top right, #1f1f35 0%, transparent 25%),
-    #0f0f10;
+    radial-gradient(circle at top right, #1f1f35 0%, transparent 25%), #0f0f10;
 }
 
 /* NAVBAR */
@@ -100,12 +99,12 @@ img {
   margin-bottom: 24px;
 
   padding: 10px 16px;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 999px;
 
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
 
   font-size: 13px;
   font-weight: 600;
@@ -126,7 +125,7 @@ img {
 
   max-width: 560px;
 
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 
   font-size: 19px;
   line-height: 1.8;
@@ -154,12 +153,12 @@ img {
 }
 
 .secondary-btn {
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 
   padding: 16px 24px;
   border-radius: 18px;
 
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 
   font-weight: 600;
 
@@ -167,7 +166,7 @@ img {
 }
 
 .secondary-btn:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* IMAGE */
@@ -185,8 +184,8 @@ img {
   border-radius: 36px;
 
   box-shadow:
-    0 40px 80px rgba(0,0,0,0.45),
-    0 0 0 1px rgba(255,255,255,0.06);
+    0 40px 80px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .floating-card {
@@ -202,12 +201,12 @@ img {
 
   border-radius: 22px;
 
-  background: rgba(20,20,20,0.9);
+  background: rgba(20, 20, 20, 0.9);
   backdrop-filter: blur(12px);
 
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 
-  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 .floating-card strong {
@@ -215,7 +214,7 @@ img {
 }
 
 .floating-card span {
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
 }
 
@@ -237,9 +236,9 @@ img {
 
   border-radius: 28px;
 
-  background: rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.04);
 
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 
   backdrop-filter: blur(10px);
 }
@@ -249,7 +248,7 @@ img {
 
   margin-bottom: 22px;
 
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
 
   font-size: 14px;
   font-weight: 700;
@@ -262,7 +261,7 @@ img {
 }
 
 .steps p {
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.65);
 
   line-height: 1.7;
 }
@@ -471,7 +470,7 @@ img {
 .salon-overlay p {
   margin-bottom: 28px;
 
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
 
   font-size: 18px;
   line-height: 1.8;
@@ -483,7 +482,7 @@ img {
 
   margin-bottom: 34px;
 
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .salon-info-grid {
@@ -502,9 +501,9 @@ img {
 
   border-radius: 28px;
 
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .info-card h3 {
@@ -516,7 +515,7 @@ img {
 .info-card p {
   margin-bottom: 12px;
 
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 
   line-height: 1.7;
 }
@@ -570,6 +569,46 @@ img {
 }
 /* BARBER PAGE */
 
+.success-card {
+  max-width: 640px;
+
+  padding: 36px;
+
+  border-radius: 30px;
+
+  background: rgba(255, 255, 255, 0.05);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.success-card h2 {
+  margin-bottom: 16px;
+
+  color: white;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.success-card p {
+  margin-bottom: 32px;
+
+  color: #b3b3b3;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.back-btn {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #b3b3b3;
+}
+
+.btn-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .barber-page {
   min-height: 100vh;
   background: #0f0f10;
@@ -608,7 +647,7 @@ img {
 .barber-title {
   margin-bottom: 26px;
 
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 
   font-size: 20px;
 }
@@ -618,7 +657,7 @@ img {
 
   margin-bottom: 40px;
 
-  color: rgba(255,255,255,0.72);
+  color: rgba(255, 255, 255, 0.72);
 
   line-height: 1.9;
 
@@ -632,15 +671,23 @@ img {
 
   border-radius: 30px;
 
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
 
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .booking-card h3 {
   margin-bottom: 28px;
 
   font-size: 32px;
+}
+
+.no-slots {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: start;
+
+  margin-bottom: 30px;
 }
 
 .time-grid {
@@ -658,7 +705,7 @@ img {
 
   border-radius: 18px;
 
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
 
   color: white;
 
@@ -675,8 +722,18 @@ img {
   color: black;
 }
 
+.time-active {
+  background: white !important;
+  color: black !important;
+}
+
 .booking-btn {
   width: 100%;
+}
+
+.booking-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 1100px) {
@@ -718,6 +775,18 @@ img {
   margin-bottom: 28px;
 }
 
+.booking-section-input {
+  width: 100%;
+  max-width: 320px;
+  padding: 18px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  transition: 0.2s;
+  font-size: small;
+}
+
 .react-date-picker {
   width: 100%;
   max-width: 320px;
@@ -751,9 +820,9 @@ img {
   transition: 0.2s;
 }
 
-.booking-section select:hover { 
-  background: rgba(255,255,255,0.2); 
-  color: black; 
+.booking-section select:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: black;
 }
 
 .booking-section select option {
@@ -774,9 +843,9 @@ img {
   border-radius: 10px;
 }
 
-.react-calendar__tile:hover { 
-  background: #d9d9d9 !important; 
-  color: black !important; 
+.react-calendar__tile:hover {
+  background: #d9d9d9 !important;
+  color: black !important;
 }
 
 .react-calendar__tile--active {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getBarberById, type Barber } from "../api/barbersApi";
 import "react-date-picker/dist/DatePicker.css";
 import "react-calendar/dist/Calendar.css";
@@ -12,16 +12,20 @@ const BarberPage = () => {
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [selectedService, setSelectedService] = useState<number | "">("");
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
   const [loading, setLoading] = useState(true);
+  const [bookingCompleted, setBookingCompleted] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleContinue = async () => {
     if (!selectedDate || !selectedTime || !selectedService) return;
+    if (!clientName || !clientPhone) return;
 
-    const service = services.find(
-      (s) => s.hs_id === Number(selectedService)
-    );
+    const service = services.find((s) => s.id === Number(selectedService));
 
     if (!service) return;
 
@@ -33,12 +37,14 @@ const BarberPage = () => {
 
     const payload = {
       hs_id: Number(selectedService),
-      client_name: "Test User",
-      client_phone: "061000000",
+      client_name: clientName,
+      client_phone: clientPhone,
       res_date: selectedDate.toISOString().split("T")[0],
       start_time: selectedTime + ":00",
       end_time: end.toTimeString().slice(0, 5) + ":00",
     };
+
+    console.log(payload);
 
     try {
       const res = await fetch(`http://localhost:8000/reservation/`, {
@@ -51,7 +57,7 @@ const BarberPage = () => {
 
       if (!res.ok) throw new Error("Booking failed");
 
-      alert("Booking successful!");
+      setBookingCompleted(true);
     } catch (err) {
       console.error(err);
     }
@@ -95,12 +101,12 @@ const BarberPage = () => {
 
       try {
         const res = await fetch(
-          `http://localhost:8000/public/service/salon/${id}`
+          `http://localhost:8000/public/service/salon/${id}`,
         );
         const data = await res.json();
 
-          const safeServices = Array.isArray(data) ? data : [];
-            setServices(safeServices);
+        const safeServices = Array.isArray(data.services) ? data.services : [];
+        setServices(safeServices);
       } catch (err) {
         console.error("Services error:", err);
       }
@@ -113,29 +119,29 @@ const BarberPage = () => {
     const fetchSlots = async () => {
       if (!barberId || !selectedDate || !selectedService) return;
 
-        const hdId = Number(barberId);
-        if (isNaN(hdId)) return;
+      const hdId = Number(barberId);
+      if (isNaN(hdId)) return;
 
-        console.log("BARBER ID:", hdId); 
+      console.log("BARBER ID:", hdId);
       try {
-        const formattedDate = selectedDate
-          .toISOString()
-          .split("T")[0];
+        const formattedDate = selectedDate.toISOString().split("T")[0];
 
-          console.log("DATE:", formattedDate);
+        console.log("DATE:", formattedDate);
         const res = await fetch(
-          `http://localhost:8000/public/reservation/available/hairdresser/${hdId}/${selectedService}?date=${formattedDate}`
+          `http://localhost:8000/public/reservation/available/hairdresser/${hdId}/${selectedService}?date=${formattedDate}`,
         );
 
         const data = await res.json();
-        
-          const safeSlots = Array.isArray(data?.slots)
-            ? data.slots
-            : Array.isArray(data)
+
+        const safeSlots = Array.isArray(data?.slots)
+          ? data.slots
+          : Array.isArray(data)
             ? data
             : [];
 
-          setAvailableSlots(safeSlots);
+        const slicedSlots = safeSlots.map((time) => time.slice(0, 5));
+
+        setAvailableSlots(slicedSlots);
         setSelectedTime(null);
       } catch (err) {
         console.error("Slots error:", err);
@@ -189,73 +195,133 @@ const BarberPage = () => {
             styling.
           </p>
 
-          <div className="booking-card">
-            <h3>Choose appointment time</h3>
+          {bookingCompleted ? (
+            <div className="success-card">
+              <h2>Appointment booked!</h2>
 
-            <div className="booking-section">
-              <h4>Select date</h4>
-
-              <DatePicker
-                onChange={(value) => {
-                  if (value instanceof Date) {
-                    setSelectedDate(value);
-                  }
-                  setSelectedTime(null);
-                  setAvailableSlots([]);
-                }}
-                value={selectedDate}
-                minDate={new Date()}
-                clearIcon={null}
-              />
-            </div>
-
-            <div className="booking-section">
-              <h4>Select service</h4>
-
-              <select
-                value={selectedService}
-                onChange={(e) => {
-                  setSelectedService(Number(e.target.value));
-                  setSelectedTime(null);
-                  setAvailableSlots([]);
-                }}
-              >
-                <option value="">-- choose service --</option>
-                {services.map((s) => (
-                  <option key={s.hs_id} value={s.hs_id}>
-                    {s.name} ({s.length} min)
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="time-grid">
-              {(availableSlots || []).map((time, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  className={selectedTime === time ? "time-active" : ""}
-                  onClick={() => setSelectedTime(time)}
-                >
-                  {time}
-                </button>
-              ))}
-            </div>
-
-            {selectedTime && (
-              <p className="selected-time">
-                Selected time: <strong>{selectedTime}</strong>
+              <p>
+                Your appointment with <strong>{barber.name}</strong> has been
+                scheduled for{" "}
+                <strong>
+                  {selectedDate?.toISOString().split("T")[0] ?? "selected date"}
+                </strong>{" "}
+                at <strong>{selectedTime ?? "selected time"}</strong>.
               </p>
-            )}
 
-            <button
-              className="primary-btn booking-btn"
-              disabled={!selectedTime || !selectedDate || !selectedService}
-              onClick={handleContinue}
-            >
-              Continue booking
-            </button>
-          </div>
+              <div className="btn-section">
+                <button
+                  onClick={() => setBookingCompleted(false)}
+                  className="primary-btn"
+                >
+                  Book another appointment
+                </button>
+                <button
+                  onClick={() => navigate("/")}
+                  className="primary-btn back-btn"
+                >
+                  Back to Home
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="booking-card">
+              <h3>Choose appointment time</h3>
+
+              <div className="booking-section">
+                <h4>Select date</h4>
+
+                <DatePicker
+                  onChange={(value) => {
+                    if (value instanceof Date) {
+                      setSelectedDate(value);
+                    }
+                    setSelectedTime(null);
+                    setAvailableSlots([]);
+                  }}
+                  value={selectedDate}
+                  minDate={new Date()}
+                  clearIcon={null}
+                />
+              </div>
+
+              <div className="booking-section">
+                <h4>Select service</h4>
+
+                <select
+                  value={selectedService}
+                  onChange={(e) => {
+                    setSelectedService(Number(e.target.value));
+                    setSelectedTime(null);
+                    setAvailableSlots([]);
+                  }}
+                >
+                  <option value="">-- choose service --</option>
+                  {services.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} ({s.length} min)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {availableSlots?.length > 0 ? (
+                <div className="time-grid">
+                  {(availableSlots || []).map((time, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      className={selectedTime === time ? "time-active" : ""}
+                      onClick={() => setSelectedTime(time)}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="no-slots">
+                  {selectedService
+                    ? "No available appointments for the selected date and service."
+                    : "No service is selected. Choose service to see available appointments."}
+                </div>
+              )}
+
+              {selectedTime && (
+                <div className="booking-section">
+                  <h4>Full name</h4>
+                  <input
+                    type="text"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    placeholder="Enter your full Name"
+                    className="booking-section-input"
+                  />
+
+                  <h4>Phone number</h4>
+                  <input
+                    type="text"
+                    value={clientPhone}
+                    onChange={(e) => setClientPhone(e.target.value)}
+                    placeholder="Enter your phone number"
+                    className="booking-section-input"
+                  />
+                </div>
+              )}
+
+              <button
+                className="primary-btn booking-btn"
+                disabled={
+                  !selectedTime ||
+                  !selectedDate ||
+                  !selectedService ||
+                  !clientName ||
+                  !clientPhone
+                }
+                onClick={handleContinue}
+              >
+                Finish booking
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>
