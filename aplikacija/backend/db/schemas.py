@@ -59,6 +59,7 @@ class OwnerDisplay(BaseModel):
     id: int
     user_id: int
     salon_id: int
+    is_active: bool
 
     class Config:
         from_attributes = True
@@ -74,6 +75,7 @@ class HairdresserDisplay(BaseModel):
     id: int
     user_id: int
     salon_id: int
+    is_active: bool
 
     class Config:
         from_attributes = True
@@ -160,6 +162,7 @@ class SalonDisplay(BaseModel):
     address: str
     phone: str | None = None
     email: str | None = None
+    is_active: bool
     wh: Optional[WorkingHoursSalonWeekCreate] = None
 
     class Config:

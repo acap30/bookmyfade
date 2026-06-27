@@ -60,6 +60,48 @@ def get_owner_by_id(db: Session, owner_id: int):
 def get_all_owners(db: Session):
     return db.query(Owner).all()
 
+def activate_owner(db: Session, owner_id: int):
+    owner = db.query(Owner).filter(Owner.id == owner_id).first()
+
+    if not owner:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Owner not found"
+        )
+    
+    if owner.is_active==True:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="owner already active"
+        )
+    
+    owner.is_active=True
+    db.commit()
+    db.refresh(owner)
+
+    return {"message": "good"}
+
+def deactivate_owner(db: Session, owner_id: int):
+    owner = db.query(Owner).filter(Owner.id == owner_id).first()
+
+    if not owner:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Owner not found"
+        )
+    
+    if owner.is_active==False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="owner already inactive"
+        )
+    
+    owner.is_active=False
+    db.commit()
+    db.refresh(owner)
+    
+    return {"message": "good"}
+
 
 def delete_owner(db: Session, owner_id: int):
     owner = db.query(Owner).filter(Owner.id == owner_id).first()

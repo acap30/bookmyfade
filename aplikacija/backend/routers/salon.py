@@ -14,7 +14,7 @@ router_public = APIRouter(
 def get_public_salons(
     db: Session = Depends(get_db)
 ):
-    return salon_impl.get_all_salons(db)
+    return salon_impl.get_all_salons_public(db)
 
 
 @router_public.get("/{salon_id}", response_model=SalonDisplay)
@@ -22,7 +22,7 @@ def get_public_salon_by_id(
     salon_id: int,
     db: Session = Depends(get_db)
 ):
-    return salon_impl.get_salon_by_id(db, salon_id)
+    return salon_impl.get_salon_by_id_public(db, salon_id)
 
 router = APIRouter(
     prefix="/salon",
@@ -90,6 +90,28 @@ def update_salon(
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
     
+@router.put("/activate/{salon_id}")
+def activate_salon(
+    salon_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
+):
+    if current_user.role == Role.ADMIN:
+        return salon_impl.activate_salon(db, salon_id)
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
+
+@router.put("/deactivate/{salon_id}")
+def deactivate_salon(
+    salon_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
+):
+    if current_user.role == Role.ADMIN:
+        return salon_impl.deactivate_salon(db, salon_id)
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
+
 
 @router.delete("/{salon_id}")
 def delete_salon(

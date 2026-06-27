@@ -35,6 +35,7 @@ class Owner(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("Users.id", ondelete="CASCADE"), nullable = False)
     salon_id = Column(Integer, ForeignKey("Saloni.id"), nullable=False)
+    is_active = Column(Boolean, nullable=False, default=True)
     user = relationship("DbUser", back_populates="owners")
     salon = relationship("Salon", back_populates="owners")
 
@@ -46,10 +47,11 @@ class Salon(Base):
     address = Column(String(255), nullable=False)
     phone = Column(String(50), nullable=True)
     mail = Column(String(255), nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
     owners = relationship("Owner", back_populates="salon")
     hairdressers = relationship("Hairdresser", back_populates="salon")
-    services = relationship("Service", back_populates="salon")
-    working_hours_salon = relationship("WorkingHoursSalon", back_populates="salon")
+    services = relationship("Service", back_populates="salon", cascade="all, delete-orphan")
+    working_hours_salon = relationship("WorkingHoursSalon", back_populates="salon", cascade="all, delete-orphan")
 
 class Hairdresser(Base):
     __tablename__ = "Frizeri"
@@ -57,6 +59,7 @@ class Hairdresser(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("Users.id", ondelete="CASCADE"), nullable = False)
     salon_id = Column(Integer, ForeignKey("Saloni.id"), nullable=False)
+    is_active = Column(Boolean, nullable=False, default=True)
     user = relationship("DbUser", back_populates="hairdressers")
     salon = relationship("Salon", back_populates="hairdressers")
 

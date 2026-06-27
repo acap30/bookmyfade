@@ -64,11 +64,38 @@ def get_hairdresser_by_id(db: Session, hairdresser_id: int):
         )
     return h
 
+def get_hairdresser_by_id_public(db: Session, hairdresser_id: int):
+    h = db.query(Hairdresser).filter(
+        Hairdresser.id == hairdresser_id,
+        Hairdresser.is_active==True
+    ).first()
+
+    if not h:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Hairdresser not found"
+        )
+    return h
+
 def get_all_hairdressers(db: Session):
     return db.query(Hairdresser).all()
 
+def get_all_hairdressers_public(db: Session):
+    return db.query(Hairdresser).filter(Hairdresser.is_active==True).all()
+
 def get_hairdresser_by_salon_id(db: Session, salon_id: int):
     salon = db.query(Salon).filter(Salon.id == salon_id).first()
+
+    if not salon:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Salon not found"
+        )
+    
+    return db.query(Hairdresser).filter(Hairdresser.salon_id == salon_id).all()
+
+def get_hairdresser_by_salon_id_public(db: Session, salon_id: int):
+    salon = db.query(Salon).filter(Salon.id == salon_id, Salon.is_active==True).first()
 
     if not salon:
         raise HTTPException(
@@ -128,6 +155,53 @@ def update_hairdresser(
 
     return h
 
+def activate_hairdresser(db: Session, hd_id: int):
+    h = db.query(Hairdresser).filter(
+        Hairdresser.id == hd_id
+    ).first()
+
+    if not h:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Hairdresser not found"
+        )
+    
+    if h.is_active==True:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="hairdresser already active"
+        )
+    
+    h.is_active=True
+    db.commit()
+    db.refresh(h)
+    
+    return {"message": "good"}
+
+def deactivate_hairdresser(db: Session, hd_id: int):
+    h = db.query(Hairdresser).filter(
+        Hairdresser.id == hd_id
+    ).first()
+
+    if not h:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Hairdresser not found"
+        )
+    
+    if h.is_active==False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="hairdresser already inactive"
+        )
+    
+    h.is_active=False
+    db.commit()
+    db.refresh(h)
+
+    return {"message": "good"}
+
+
 def delete_hairdresser(db: Session, hairdresser_id: int):
     h = db.query(Hairdresser).filter(
         Hairdresser.id == hairdresser_id
@@ -153,3 +227,4 @@ def get_hairdresser_id_by_user_id(id: int, db: Session):
         )
     
     return hd
+

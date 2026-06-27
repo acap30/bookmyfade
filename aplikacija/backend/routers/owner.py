@@ -43,7 +43,27 @@ def get_all_owners(
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
     
+@router.put("/activate/{owner_id}")
+def activate_owner(
+    owner_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
+):
+    if current_user.role == Role.ADMIN:
+        return owner_impl.activate_owner(db, owner_id)
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
 
+@router.put("/deactivate/{owner_id}")
+def deactivate_owner(
+    owner_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
+):
+    if current_user.role == Role.ADMIN:
+        return owner_impl.deactivate_owner(db, owner_id)
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
 
 @router.delete("/{owner_id}")
 def delete_owner(

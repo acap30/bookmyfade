@@ -14,7 +14,7 @@ router_public = APIRouter(
 def get_public_hairdressers(
     db: Session = Depends(get_db)
 ):
-    return hairdresser_impl.get_all_hairdressers(db)
+    return hairdresser_impl.get_all_hairdressers_public(db)
 
 
 @router_public.get("/{hairdresser_id}", response_model=HairdresserDisplay)
@@ -22,7 +22,7 @@ def get_public_hairdresser_by_id(
     hairdresser_id: int,
     db: Session = Depends(get_db)
 ):
-    return hairdresser_impl.get_hairdresser_by_id(
+    return hairdresser_impl.get_hairdresser_by_id_public(
         db,
         hairdresser_id
     )
@@ -32,7 +32,7 @@ def get_public_hairdressers_by_salon_id(
     salon_id: int,
     db: Session = Depends(get_db)
 ):
-    return hairdresser_impl.get_hairdresser_by_salon_id(
+    return hairdresser_impl.get_hairdresser_by_salon_id_public(
         db,
         salon_id
     )
@@ -101,6 +101,29 @@ def update_hairdresser(
             request.salon_id
         )
 
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
+
+   
+@router.put("/activate/{owner_id}")
+def activate_hairdresser(
+    hd_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
+):
+    if current_user.role == Role.ADMIN:
+        return hairdresser_impl.activate_hairdresser(db, hd_id)
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                             detail="Unauthorized behavior")
+
+@router.put("/deactivate/{owner_id}")
+def deactivate_hairdresser(
+    hd_id: int,
+    db: Session = Depends(get_db),
+    current_user: UserAuth = Depends(get_current_user)
+):
+    if current_user.role == Role.ADMIN:
+        return hairdresser_impl.deactivate_hairdresser(db, hd_id)
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
 

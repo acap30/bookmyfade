@@ -130,9 +130,9 @@ def delete_user(db: Session, user_id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
             detail='User not found')
     
-    if user.role == Role.ADMIN:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Cannot delete admin')
+    # if user.role == Role.ADMIN:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail='Cannot delete admin')
     
     db.delete(user)
     db.commit()
