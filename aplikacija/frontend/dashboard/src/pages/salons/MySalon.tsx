@@ -25,10 +25,7 @@ import SalonServiceItem from "../../components/items/SalonServiceItem";
 import EditServiceModal from "../../components/modals/EditServiceModal";
 import { getMySalon } from "../../api/salonsApi";
 import type { IWorkSchedule } from "../../types/workSchedule";
-import {
-  createSalonSchedule,
-  updateSalonSchedule,
-} from "../../api/workScheduleApi";
+import { updateSalonSchedule } from "../../api/workScheduleApi";
 import WorkScheduleModal from "../../components/modals/WorkScheduleModal";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 
@@ -84,8 +81,7 @@ const MySalon = () => {
           services: 14,
         },
       });
-      const { salon_id, ...scheduleData } = data.wh;
-      setSchedule(scheduleData);
+      setSchedule(data.wh);
       setServices(services);
     } catch (err) {
       console.error("Failed to fetch salon details", err);
@@ -319,8 +315,6 @@ const MySalon = () => {
         onSubmit={async (data) => {
           if (schedule) {
             await updateSalonSchedule(salon.id, data);
-          } else {
-            await createSalonSchedule(salon.id, data);
           }
 
           fetchData();

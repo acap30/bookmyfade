@@ -57,18 +57,14 @@ export const createOwner = async (data: ICreateOwner) => {
   };
 };
 
-export const updateOwner = async (
-  owner_id: number | string,
-  user,
-  salon_id: number,
-) => {
+export const updateOwner = async (user) => {
   await api.put(`/users/${user.id}`, {
     username: user.username,
     first_name: user.first_name,
     last_name: user.last_name,
+    email: user.email,
     phone_number: user.phone_number,
   });
-  await api.put(`/owner/${owner_id}`, { salon_id });
 };
 
 export const deleteOwner = async (

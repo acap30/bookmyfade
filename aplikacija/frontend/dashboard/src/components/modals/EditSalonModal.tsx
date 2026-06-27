@@ -8,7 +8,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
 
-  salon: ISalon | null;
+  salon: any;
 
   onSubmit: (id: number, data: Omit<ISalon, "id">) => Promise<void> | void;
 };
@@ -30,7 +30,7 @@ const EditSalonModal = ({ open, onClose, salon, onSubmit }: Props) => {
       setFormData({
         name: salon.name,
         address: salon.address,
-        email: salon.email ?? "",
+        email: salon.mail ?? "",
         phone: salon.phone ?? "",
       });
     }

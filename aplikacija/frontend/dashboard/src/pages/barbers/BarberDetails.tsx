@@ -34,7 +34,6 @@ import WorkScheduleModal from "../../components/modals/WorkScheduleModal";
 import {
   createDaysOff,
   createOverride,
-  createWorkSchedule,
   deleteOverride,
   getDaysOff,
   getOverrides,
@@ -441,8 +440,6 @@ const BarberDetails = () => {
               onSubmit={async (data) => {
                 if (schedule) {
                   await updateWorkSchedule(id, data);
-                } else {
-                  await createWorkSchedule(id, data);
                 }
 
                 fetchBarber(id);

@@ -77,18 +77,14 @@ const Owners = () => {
   const handleEdit = async (data) => {
     if (!selectedOwner) return;
 
-    await updateOwner(
-      selectedOwner.id,
-      {
-        id: selectedOwner.user.id,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        username: data.username,
-        email: data.email,
-        phone_number: data.phone_number,
-      },
-      Number(data.salon_id),
-    );
+    await updateOwner({
+      id: selectedOwner.user.id,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      username: data.username,
+      email: data.email,
+      phone_number: data.phone_number,
+    });
 
     await fetchOwners();
   };
@@ -215,16 +211,6 @@ const Owners = () => {
           { name: "username", label: "Username" },
           { name: "email", label: "Email", type: "email" },
           { name: "phone_number", label: "Phone Number" },
-        ]}
-        selects={[
-          {
-            name: "salon_id",
-            label: "Salon",
-            options: salons.map((salon) => ({
-              value: salon.id,
-              label: salon.name,
-            })),
-          },
         ]}
         initialData={
           selectedOwner

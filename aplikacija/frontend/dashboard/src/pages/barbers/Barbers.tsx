@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import BarberItem from "../../components/items/BarberItem";
 import AddUserModal from "../../components/modals/AddUserModal";
-import { getMySalon, getSalons } from "../../api/salonsApi";
+import { getMySalonId, getSalons } from "../../api/salonsApi";
 import type { ISalon } from "../../types/salon";
 import { ROLES } from "../../types/auth";
 import EditUserModal from "../../components/modals/EditUserModal";
@@ -21,7 +21,7 @@ import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 const Barbers = () => {
   const [barbers, setBarbers] = useState<IBarber[]>([]);
   const [salons, setSalons] = useState<ISalon[]>([]);
-  const [mySalon, setMySalon] = useState<ISalon | null>(null);
+  const [mySalonId, setMySalonId] = useState(null);
   const [selectedBarber, setSelectedBarber] = useState<IBarber | null>(null);
 
   const [search, setSearch] = useState("");
@@ -49,8 +49,8 @@ const Barbers = () => {
       setBarbers(data);
 
       if (user.role === ROLES.OWNER) {
-        const salon_data = await getMySalon();
-        setMySalon(salon_data);
+        const my_salon_id = await getMySalonId();
+        setMySalonId(my_salon_id);
       } else {
         const salons_data = await getSalons();
         setSalons(salons_data);
@@ -82,7 +82,7 @@ const Barbers = () => {
         phone_number: data.phoneNumber ?? null,
         role: ROLES.BARBER,
       },
-      salon_id: user.role !== ROLES.OWNER ? Number(data.salon_id) : mySalon.id,
+      salon_id: user.role !== ROLES.OWNER ? Number(data.salon_id) : mySalonId,
     });
 
     fetchBarbers();
@@ -91,18 +91,14 @@ const Barbers = () => {
   const handleEdit = async (data) => {
     if (!selectedBarber) return;
 
-    await updateBarber(
-      selectedBarber.id,
-      {
-        id: selectedBarber.user.id,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        username: data.username,
-        email: data.email,
-        phone_number: data.phone_number,
-      },
-      user.role !== ROLES.OWNER ? Number(data.salon_id) : mySalon.id,
-    );
+    await updateBarber({
+      id: selectedBarber.user.id,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      username: data.username,
+      email: data.email,
+      phone_number: data.phone_number,
+    });
 
     await fetchBarbers();
   };
@@ -235,20 +231,6 @@ const Barbers = () => {
           { name: "email", label: "Email", type: "email" },
           { name: "phone_number", label: "Phone Number" },
         ]}
-        selects={
-          user.role !== ROLES.OWNER
-            ? [
-                {
-                  name: "salon_id",
-                  label: "Salon",
-                  options: salons.map((salon) => ({
-                    value: salon.id,
-                    label: salon.name,
-                  })),
-                },
-              ]
-            : []
-        }
         initialData={
           selectedBarber
             ? {

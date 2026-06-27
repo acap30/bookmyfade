@@ -27,10 +27,7 @@ import SalonServiceItem from "../../components/items/SalonServiceItem";
 import EditServiceModal from "../../components/modals/EditServiceModal";
 import type { IWorkSchedule } from "../../types/workSchedule";
 import WorkScheduleModal from "../../components/modals/WorkScheduleModal";
-import {
-  createSalonSchedule,
-  updateSalonSchedule,
-} from "../../api/workScheduleApi";
+import { updateSalonSchedule } from "../../api/workScheduleApi";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 
 const recentAppointments = [
@@ -85,8 +82,7 @@ const SalonDetails = () => {
           services: 14,
         },
       });
-      const { salon_id, ...scheduleData } = data.wh;
-      setSchedule(scheduleData);
+      setSchedule(data.wh);
       setServices(services);
     } catch (err) {
       console.error("Failed to fetch salon details", err);
@@ -254,7 +250,7 @@ const SalonDetails = () => {
                     <h3 className="font-medium text-text">No schedule set</h3>
 
                     <p className="mt-1 text-sm text-muted">
-                      Set working hours for this barber
+                      Set working hours for this salon
                     </p>
                   </div>
                 ) : (
@@ -320,8 +316,6 @@ const SalonDetails = () => {
         onSubmit={async (data) => {
           if (schedule) {
             await updateSalonSchedule(id, data);
-          } else {
-            await createSalonSchedule(id, data);
           }
 
           fetchData(id);

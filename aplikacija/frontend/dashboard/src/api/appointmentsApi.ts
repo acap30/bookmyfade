@@ -1,15 +1,6 @@
 import api from "./axios";
 import { getBarberById } from "./barbersApi";
 
-export const formatDate = (dateString: string) =>
-  new Date(dateString).toLocaleDateString();
-
-export const formatTime = (dateString: string) =>
-  new Date(dateString).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
 export const getAppointments = async (skip = 0, limit = 5) => {
   const { data: appointments } = await api.get(
     `/reservation/?skip=${skip}&limit=${limit}`,
@@ -27,9 +18,9 @@ export const getAppointments = async (skip = 0, limit = 5) => {
           name: appointment.service.name,
           length: appointment.service.length_minutes,
         },
-        date: formatDate(appointment.start_time),
-        startTime: formatTime(appointment.start_time),
-        endTime: formatTime(appointment.end_time),
+        date: appointment.res_date,
+        startTime: appointment.start_time.slice(0, 5),
+        endTime: appointment.end_time.slice(0, 5),
       };
     }),
   );

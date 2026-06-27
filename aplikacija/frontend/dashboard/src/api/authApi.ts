@@ -48,3 +48,11 @@ export const updateProfile = async (newUser: IUser) => {
 
   return response;
 };
+
+export const changePassword = async (current: string, newPassword: string) => {
+  const response = await api.put("/users/change-password/", {
+    current: current,
+    new: newPassword,
+  });
+  return response;
+};

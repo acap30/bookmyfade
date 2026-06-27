@@ -3,6 +3,7 @@ import { CircleAlert } from "lucide-react";
 
 import Modal from "../ui/Modal";
 import PasswordInput from "../profile/PasswordInput";
+import { changePassword } from "../../api/authApi";
 
 type Props = {
   open: boolean;
@@ -50,12 +51,7 @@ const ChangePasswordModal = ({ open, onClose }: Props) => {
     }
 
     try {
-      // await changePassword({
-      //   currentPassword:
-      //     formData.currentPassword,
-      //   newPassword:
-      //     formData.newPassword,
-      // });
+      await changePassword(formData.currentPassword, formData.newPassword);
 
       setFormData({
         currentPassword: "",
@@ -87,6 +83,8 @@ const ChangePasswordModal = ({ open, onClose }: Props) => {
           name="currentPassword"
           value={formData.currentPassword}
           onChange={handleChange}
+          placeholder="Enter current password"
+          enableShow={true}
         />
 
         <PasswordInput
@@ -94,6 +92,7 @@ const ChangePasswordModal = ({ open, onClose }: Props) => {
           name="newPassword"
           value={formData.newPassword}
           onChange={handleChange}
+          placeholder="Enter new password"
         />
 
         <PasswordInput
@@ -101,6 +100,7 @@ const ChangePasswordModal = ({ open, onClose }: Props) => {
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleChange}
+          placeholder="Confirm new password"
         />
 
         {error && (

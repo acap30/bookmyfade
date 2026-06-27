@@ -159,7 +159,7 @@ const Salons = () => {
             required: false,
           },
           {
-            name: "phoneNumber",
+            name: "phone",
             label: "Phone Number",
             placeholder: "Enter phone number",
             required: false,

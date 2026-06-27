@@ -1,6 +1,12 @@
 import type { ISalon } from "../types/salon";
 import api from "./axios";
 
+const mapDay = (day: { start: string; end: string; off: boolean }) => ({
+  from: day.start?.slice(0, 5),
+  to: day.end?.slice(0, 5),
+  off: day.off,
+});
+
 export const getSalons = async (): Promise<ISalon[]> => {
   const response = await api.get("/salon");
   return response.data;
@@ -8,12 +14,44 @@ export const getSalons = async (): Promise<ISalon[]> => {
 
 export const getSalonById = async (id: string) => {
   const response = await api.get(`/salon/${id}`);
-  return response.data;
+  const data = response.data;
+
+  return {
+    ...data,
+    wh: {
+      monday: mapDay(data.wh.monday),
+      tuesday: mapDay(data.wh.tuesday),
+      wednesday: mapDay(data.wh.wednesday),
+      thursday: mapDay(data.wh.thursday),
+      friday: mapDay(data.wh.friday),
+      saturday: mapDay(data.wh.saturday),
+      sunday: mapDay(data.wh.sunday),
+    },
+  };
 };
 
 export const getMySalon = async () => {
   const response = await api.get("/salon");
-  return response.data;
+  const data = response.data;
+
+  return {
+    ...data,
+    wh: {
+      monday: mapDay(data.wh.monday),
+      tuesday: mapDay(data.wh.tuesday),
+      wednesday: mapDay(data.wh.wednesday),
+      thursday: mapDay(data.wh.thursday),
+      friday: mapDay(data.wh.friday),
+      saturday: mapDay(data.wh.saturday),
+      sunday: mapDay(data.wh.sunday),
+    },
+  };
+};
+
+export const getMySalonId = async () => {
+  const response = await api.get("/salon");
+
+  return response.data.id;
 };
 
 export const deleteSalon = async (id: number) => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CircleAlert } from "lucide-react";
 
 import Modal from "../ui/Modal";
+import PasswordInput from "../profile/PasswordInput";
 
 type Field = {
   name: string;
@@ -119,20 +120,31 @@ const AddUserModal = ({
         onSubmit={handleSubmit}
         className="space-y-4 grid grid-cols-1 gap-4 md:grid-cols-2"
       >
-        {fields.map((field) => (
-          <div key={field.name} className="space-y-2">
-            <label className="text-sm text-muted">{field.label}</label>
-
-            <input
-              type={field.type || "text"}
+        {fields.map((field) =>
+          field.type === "password" ? (
+            <PasswordInput
+              key={field.name}
+              label="Password"
               name={field.name}
-              value={formData[field.name]}
+              value={formData[field.name] || ""}
               onChange={handleChange}
               placeholder={field.placeholder}
-              className="light-input"
+              enableShow={true}
             />
-          </div>
-        ))}
+          ) : (
+            <div key={field.name} className="space-y-2">
+              <label className="text-sm text-muted">{field.label}</label>
+              <input
+                type={field.type || "text"}
+                name={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                placeholder={field.placeholder}
+                className="light-input"
+              />
+            </div>
+          ),
+        )}
 
         {selects.map((select) => (
           <div key={select.name} className="space-y-2">
