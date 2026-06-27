@@ -46,7 +46,7 @@ def update_service(db: Session, id: int, request: schemas.ServiceCreate):
                             detail="Service not found")
     
     service.name = request.name if request.name is not None else service.name
-    service.length = request.length if request.length is not None else service.length_minutes
+    service.length_minutes = request.length if request.length is not None else service.length_minutes
 
     db.commit()
     db.refresh(service)

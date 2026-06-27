@@ -15,6 +15,8 @@ def create_salon(db: Session, name: str, address: str, phone: str = None, email:
     db.commit()
     db.refresh(salon)
 
+    db_wh_salon.default_wh(salon.id, db)
+
     return salon
 
 def get_salon_by_id(db: Session, salon_id: int):
@@ -97,4 +99,13 @@ def get_my_salon(db: Session, user_id: int):
             detail="Salon not found"
         )
     
-    return salon
+    wh = db_wh_salon.get_wh_by_salon_id(salon.id, db)
+    return schemas.SalonDisplay(
+        id=salon.id,
+        name=salon.name,
+        address=salon.address,
+        phone=salon.phone,
+        email=salon.mail,
+        wh=wh
+    )
+    

@@ -39,7 +39,12 @@ class UserUpdate(BaseModel):
     username: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    email: Optional[str] = None
     phone_number: Optional[str] = None
+
+class UserPassword(BaseModel):
+    current: str
+    new: str
 
 class UserAuth(BaseModel):
     id:int
@@ -58,7 +63,12 @@ class OwnerDisplay(BaseModel):
     class Config:
         from_attributes = True
 
-
+class OwnerUpdate(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    username: str | None = None
+    email: str | None = None
+    phone: str | None = None
 
 class HairdresserDisplay(BaseModel):
     id: int

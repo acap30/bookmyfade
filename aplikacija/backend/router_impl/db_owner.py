@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from db.models import DbUser, Owner, Salon
-from db.schemas import Role
+from db.schemas import Role, OwnerUpdate
 
 def create_owner(db: Session, user_id: int, salon_id: int):
     user = db.query(DbUser).filter(DbUser.id == user_id).first()
@@ -27,7 +27,7 @@ def create_owner(db: Session, user_id: int, salon_id: int):
     existing_owner = db.query(Owner).filter(
         Owner.user_id == user_id,
         Owner.salon_id == salon_id
-).first()
+    ).first()
     if existing_owner:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -59,6 +59,7 @@ def get_owner_by_id(db: Session, owner_id: int):
 
 def get_all_owners(db: Session):
     return db.query(Owner).all()
+
 
 def delete_owner(db: Session, owner_id: int):
     owner = db.query(Owner).filter(Owner.id == owner_id).first()

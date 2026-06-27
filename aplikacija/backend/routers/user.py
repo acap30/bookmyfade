@@ -32,6 +32,14 @@ def get_all_users(db: Session = Depends(get_db), current_user: schemas.UserAuth 
 def get_user_by_id(user_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_user.get_user_by_id(db, user_id)
 
+@router.put('/update/')
+def update_current_user(request: schemas.UserUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_user.update_user(db, current_user.id, request)
+
+@router.put('/change-password/')
+def change_password(request: schemas.UserPassword, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_user.update_password(db, current_user.id, request)
+
 @router.put('/{user_id}')
 def update_user(request: schemas.UserUpdate, user_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     if current_user.role == schemas.Role.ADMIN:
@@ -39,10 +47,6 @@ def update_user(request: schemas.UserUpdate, user_id: int, db: Session = Depends
     else:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
-
-@router.put('/update/')
-def update_current_user(request: schemas.UserUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
-    return db_user.update_user(db, current_user.id, request)
 
 @router.delete('/{user_id}')
 def delete_user(user_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):

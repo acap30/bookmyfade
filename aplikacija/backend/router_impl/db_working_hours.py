@@ -47,6 +47,22 @@ def create_working_hours_week(req: schemas.WorkingHoursWeekCreate, db: Session):
 
     return {"message": "good"}
 
+def default_wh(hd_id: int, db: Session):
+    default = schemas.DaySchedule(off=True)
+    wh_req = schemas.WorkingHoursWeekCreate(
+        hairdresser_id=hd_id,
+        monday=default,
+        tuesday=default,
+        wednesday=default,
+        thursday=default,
+        friday=default,
+        saturday=default,
+        sunday=default
+        )
+    create_working_hours_week(wh_req, db)
+
+    return {"message": "good"}
+
 
 def get_all_working_hours(db: Session):
 

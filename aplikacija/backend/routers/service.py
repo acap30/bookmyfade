@@ -20,6 +20,9 @@ def get_public_services_by_salon_id(salon_id: int, db: Session = Depends(get_db)
 def get_services_for_timeslot(hd_id: int, res_date: date, start: time, db: Session = Depends(get_db)):
     return db_service.get_services_for_timeslot(hd_id, res_date, start, db)
 
+@public_router.get('/hairdresser/{hairdresser_id}')
+def get_public_services_by_hairdresser_id(hd_id: int, db: Session = Depends(get_db)):
+    return db_service.get_services_by_hairdresser_id(hd_id, db)
 
 router = APIRouter(
     prefix = '/service',

@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 from db.models import DbUser, Salon, Hairdresser, Owner
-from db.schemas import Role
+from db.schemas import Role, WorkingHoursWeekCreate, DaySchedule
+from router_impl import db_working_hours
 
 def create_hairdresser(
     db: Session,
@@ -46,6 +47,8 @@ def create_hairdresser(
     db.add(hairdresser)
     db.commit()
     db.refresh(hairdresser)
+
+    db_working_hours.default_wh(hairdresser.id, db)
 
     return hairdresser
 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user
 from db.database import get_db
 from router_impl import db_owner as owner_impl
-from db.schemas import OwnerDisplay, OwnerCreate, UserAuth, Role
+from db.schemas import OwnerDisplay, OwnerCreate, UserAuth, Role, OwnerUpdate
 
 router = APIRouter(
     prefix="/owner",
@@ -43,6 +43,7 @@ def get_all_owners(
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
     
+
 
 @router.delete("/{owner_id}")
 def delete_owner(

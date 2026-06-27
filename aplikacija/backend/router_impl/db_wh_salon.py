@@ -31,6 +31,22 @@ def create_wh_salon(req: schemas.WorkingHoursSalonWeekCreate, db: Session):
 
     return {"message": "good"}
 
+def default_wh(salon_id: int, db: Session):
+    default = schemas.DaySchedule(off=True)
+    wh_req = schemas.WorkingHoursSalonWeekCreate(
+        salon_id=salon_id,
+        monday=default,
+        tuesday=default,
+        wednesday=default,
+        thursday=default,
+        friday=default,
+        saturday=default,
+        sunday=default
+        )
+    create_wh_salon(wh_req, db)
+
+    return {"message": "good"}
+
 def get_wh_by_salon_id(salon_id: int, db: Session):
 
     existing_salon = db.query(Salon).filter(Salon.id == salon_id).first()
