@@ -1,24 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getBarbers, type Barber } from "../api/barbersApi";
-
-const fallbackBarbers: Barber[] = [
-  {
-    id: 1,
-    name: "Frizer1",
-    title: "Fade Specialist",
-  },
-  {
-    id: 2,
-    name: "Frizer2",
-    title: "Classic Cuts",
-  },
-  {
-    id: 3,
-    name: "Frizer3",
-    title: "Beard & Styling",
-  },
-];
+import { getSalonBarbers, type Barber } from "../api/barbersApi";
 
 const BarberList = () => {
   const { id } = useParams();
@@ -29,22 +11,20 @@ const BarberList = () => {
   useEffect(() => {
     const fetchBarbers = async () => {
       try {
-        const data = await getBarbers();
+        const data = await getSalonBarbers(id);
 
         const filteredBarbers = data.filter(
-          (barber) => barber.salon_id === Number(id)
+          (barber) => barber.salon_id === Number(id),
         );
 
         setBarbers(filteredBarbers);
       } catch (error) {
         console.error(error);
-
-        setBarbers(fallbackBarbers);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchBarbers();
   }, [id]);
 
@@ -80,12 +60,14 @@ const BarberList = () => {
             >
               <img
                 src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=1200&auto=format&fit=crop"
-                alt={barber.name || "Barber"}
+                alt={barber.first_name}
               />
 
               <div className="salon-card-content">
                 <div>
-                  <h3>{barber.name || `Barber #${barber.id}`}</h3>
+                  <h3>
+                    {barber.first_name} {barber.last_name}
+                  </h3>
 
                   <p>{barber.title || "Professional Barber"}</p>
                 </div>

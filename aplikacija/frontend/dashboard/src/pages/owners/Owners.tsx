@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { IOwner } from "../../types/owner";
 import {
+  changeOwnerActivity,
   createOwner,
   deleteOwner,
   getOwners,
@@ -89,6 +90,12 @@ const Owners = () => {
     await fetchOwners();
   };
 
+  const handleActivityChange = async (owner: IOwner) => {
+    await changeOwnerActivity(Number(owner.id), owner.isActive);
+
+    await fetchOwners();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -127,10 +134,12 @@ const Owners = () => {
                   email={owner.user.email}
                   phoneNumber={owner.user.phoneNumber || null}
                   salonName={owner.salon.name}
+                  isActive={owner.isActive}
                   onEdit={() => {
                     setSelectedOwner(owner);
                     setEditModalOpen(true);
                   }}
+                  onToggleBarberStatus={() => handleActivityChange(owner)}
                   onDelete={() => {
                     setSelectedOwner(owner);
                     setDeleteModalOpen(true);

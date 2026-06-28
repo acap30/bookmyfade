@@ -9,31 +9,33 @@ type Props = {
 const AppointmentItem = ({ appointment }: Props) => {
   return (
     <div className="flex max-md:flex-col items-center justify-between gap-4 rounded-2xl border border-border bg-background px-5 py-4">
-      <div className="flex w-full lg:w-fit lg:gap-25 items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="lg:grid w-full grid-cols-[300px_1fr] items-center lg:gap-6 flex lg:w-fit justify-between">
+        <div className="flex items-center gap-3 min-w-0">
           <UserAvatar fullName={appointment.clientName} size={40} />
 
-          <div>
-            <p className="font-semibold">{appointment.clientName}</p>
+          <div className="min-w-0">
+            <p className="font-semibold truncate">{appointment.clientName}</p>
             <div className="flex items-center gap-2">
               <Phone size={12} />
-              <p className="text-sm text-muted">{appointment.clientPhone}</p>
+              <p className="text-sm text-muted truncate">
+                {appointment.clientPhone}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="rounded-lg p-3 border border-border bg-card">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="hidden lg:block rounded-lg p-3 border border-border bg-card shrink-0">
             <Scissors size={20} />
           </div>
-          <div>
-            <p className="font-medium">
+          <div className="min-w-0">
+            <p className="font-medium truncate">
               {appointment.service.name}{" "}
-              <span className="text-sm text-muted">
+              <span className="text-sm text-muted ">
                 ({appointment.service.length} min)
               </span>
             </p>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-muted truncate">
               {appointment.barber.user.fullName} •{" "}
               {appointment.barber.salon.name}
             </p>
@@ -41,7 +43,7 @@ const AppointmentItem = ({ appointment }: Props) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 justify-between w-full lg:w-fit">
+      <div className="flex items-center gap-4 justify-between md:justify-end w-full lg:w-fit">
         <div className="flex items-center gap-2">
           <Calendar size={18} />
           <div className="font-medium">{appointment.date}</div>

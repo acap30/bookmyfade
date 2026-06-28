@@ -32,8 +32,6 @@ const BarberPage = () => {
     const [hours, minutes] = selectedTime.split(":");
     const start = new Date(selectedDate);
     start.setHours(Number(hours), Number(minutes), 0);
-    const end = new Date(start);
-    end.setMinutes(end.getMinutes() + service.length);
 
     const payload = {
       hs_id: Number(selectedService),
@@ -41,7 +39,6 @@ const BarberPage = () => {
       client_phone: clientPhone,
       res_date: selectedDate.toISOString().split("T")[0],
       start_time: selectedTime + ":00",
-      end_time: end.toTimeString().slice(0, 5) + ":00",
     };
 
     console.log(payload);
@@ -72,19 +69,14 @@ const BarberPage = () => {
 
         setBarber({
           id: barberData.id,
-          name: barberData.name || "Selected Barber",
+          first_name: barberData.first_name,
+          last_name: barberData.last_name,
           title: barberData.title || "Professional Barber",
         });
 
         setAvailableSlots([]);
       } catch (error) {
         console.error(error);
-
-        setBarber({
-          id: Number(barberId),
-          name: "Marko Petrović",
-          title: "Fade Specialist",
-        });
 
         setAvailableSlots([]);
       } finally {
@@ -178,13 +170,15 @@ const BarberPage = () => {
       <section className="barber-profile">
         <img
           src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=1200&auto=format&fit=crop"
-          alt={barber.name || "Barber"}
+          alt={barber.first_name}
         />
 
         <div className="barber-profile-content">
           <span className="badge">Selected barber</span>
 
-          <h1>{barber.name || "Barber"}</h1>
+          <h1>
+            {barber.first_name} {barber?.last_name ?? ""}
+          </h1>
 
           <p className="barber-title">
             {barber.title || "Professional Barber"}
@@ -200,8 +194,8 @@ const BarberPage = () => {
               <h2>Appointment booked!</h2>
 
               <p>
-                Your appointment with <strong>{barber.name}</strong> has been
-                scheduled for{" "}
+                Your appointment with <strong>{barber.first_name}</strong> has
+                been scheduled for{" "}
                 <strong>
                   {selectedDate?.toISOString().split("T")[0] ?? "selected date"}
                 </strong>{" "}

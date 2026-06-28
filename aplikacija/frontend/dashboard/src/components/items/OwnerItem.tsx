@@ -5,6 +5,8 @@ import {
   Phone,
   Store,
   Trash2,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 import Dropdown from "../ui/Dropdown";
 import UserAvatar from "../ui/UserAvatar";
@@ -15,8 +17,10 @@ type OwnerItemProps = {
   email: string;
   phoneNumber?: string;
   salonName: string;
+  isActive: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onToggleBarberStatus: () => void;
 };
 
 const OwnerItem = ({
@@ -24,8 +28,10 @@ const OwnerItem = ({
   email,
   phoneNumber,
   salonName,
+  isActive,
   onEdit,
   onDelete,
+  onToggleBarberStatus,
 }: OwnerItemProps) => {
   const [open, setOpen] = useState(false);
 
@@ -65,29 +71,46 @@ const OwnerItem = ({
       </div>
 
       {/* Right */}
-      <Dropdown
-        open={open}
-        setOpen={setOpen}
-        align="right"
-        trigger={
-          <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card transition-all hover:scale-105 active:scale-95">
-            <MoreHorizontal size={18} />
-          </button>
-        }
-        items={[
-          {
-            icon: <Pencil size={16} />,
-            label: "Edit",
-            onClick: onEdit,
-          },
-          {
-            icon: <Trash2 size={16} />,
-            label: "Delete",
-            onClick: onDelete,
-            danger: true,
-          },
-        ]}
-      />
+      <div className="flex items-center gap-2">
+        <span
+          className={`rounded-full px-4 py-2 text-xs font-medium ${
+            isActive
+              ? "bg-green-500/10 text-green-500"
+              : "bg-red-500/10 text-red-500"
+          }`}
+        >
+          {isActive ? "Active" : "Inactive"}
+        </span>
+        <Dropdown
+          open={open}
+          setOpen={setOpen}
+          align="right"
+          trigger={
+            <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border bg-card transition-all hover:scale-105 active:scale-95">
+              <MoreHorizontal size={18} />
+            </button>
+          }
+          items={[
+            {
+              icon: <Pencil size={16} />,
+              label: "Edit",
+              onClick: onEdit,
+            },
+            {
+              icon: isActive ? <UserX size={16} /> : <UserCheck size={16} />,
+              label: isActive ? "Deactivate" : "Activate",
+              onClick: onToggleBarberStatus,
+              danger: isActive,
+            },
+            {
+              icon: <Trash2 size={16} />,
+              label: "Delete",
+              onClick: onDelete,
+              danger: true,
+            },
+          ]}
+        />
+      </div>
     </div>
   );
 };

@@ -38,6 +38,7 @@ export const getBarbers = async (): Promise<IBarber[]> => {
         },
 
         salon: salon,
+        isActive: barber.is_active,
       };
     }),
   );
@@ -63,6 +64,7 @@ export const getBarberById = async (id: string): Promise<IBarber> => {
       phoneNumber: user.phone_number,
     },
     salon,
+    isActive: barber.is_active,
   };
 };
 
@@ -91,6 +93,23 @@ export const updateBarber = async (user) => {
     email: user.email,
     phone_number: user.phone_number,
   });
+};
+
+export const changeBarberActivity = async (
+  barber_id: number,
+  isActive: boolean,
+) => {
+  if (isActive) {
+    const res = await api.put(
+      `/hairdresser/deactivate/{owner_id}?hd_id=${barber_id}`,
+    );
+    return res.data;
+  }
+
+  const res = await api.put(
+    `/hairdresser/activate/{owner_id}?hd_id=${barber_id}`,
+  );
+  return res.data;
 };
 
 export const deleteBarber = async (

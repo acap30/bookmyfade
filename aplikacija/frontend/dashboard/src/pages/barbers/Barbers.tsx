@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, Plus, Users } from "lucide-react";
 import SearchInput from "../../components/ui/SearchInput";
 import {
+  changeBarberActivity,
   createBarber,
   deleteBarber,
   getBarbers,
@@ -103,6 +104,12 @@ const Barbers = () => {
     await fetchBarbers();
   };
 
+  const handleActivityChange = async (barber: IBarber) => {
+    await changeBarberActivity(Number(barber.id), barber.isActive);
+
+    await fetchBarbers();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -141,11 +148,13 @@ const Barbers = () => {
                   email={barber.user.email}
                   phoneNumber={barber.user.phoneNumber || null}
                   salonName={barber.salon.name}
+                  isActive={barber.isActive}
                   onView={() => navigate(`/barbers/${barber.id}`)}
                   onEdit={() => {
                     setSelectedBarber(barber);
                     setEditModalOpen(true);
                   }}
+                  onToggleBarberStatus={() => handleActivityChange(barber)}
                   onDelete={() => {
                     setSelectedBarber(barber);
                     setDeleteModalOpen(true);

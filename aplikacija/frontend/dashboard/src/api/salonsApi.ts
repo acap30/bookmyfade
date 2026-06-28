@@ -63,6 +63,19 @@ export const addSalon = async (data: ISalon) => {
   return res;
 };
 
+export const changeSalonActivity = async (
+  salon_id: number,
+  isActive: boolean,
+) => {
+  if (isActive) {
+    const res = await api.put(`/salon/deactivate/${salon_id}`);
+    return res.data;
+  }
+
+  const res = await api.put(`/salon/activate/${salon_id}`);
+  return res.data;
+};
+
 export const updateSalon = async (id: number, data: Omit<ISalon, "id">) => {
   await api.put(`/salon/${id}`, data);
 };

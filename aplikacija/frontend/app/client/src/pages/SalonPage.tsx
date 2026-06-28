@@ -1,28 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getSalonById, type Salon } from "../api/salonsApi";
+import { getSalonById, getSalonServices } from "../api/salonsApi";
 
 const SalonPage = () => {
   const { id } = useParams();
 
-  const [salon, setSalon] = useState<Salon | null>(null);
+  const [salon, setSalon] = useState(null);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSalon = async () => {
       try {
         const data = await getSalonById(id!);
+        const servicesData = await getSalonServices(id);
 
         setSalon(data);
+        setServices(servicesData);
       } catch (error) {
         console.error(error);
-
-        setSalon({
-          id: Number(id),
-          name: "Barber Studio",
-          address: "Belgrade",
-          phone: "+381 64 123 456",
-        });
       } finally {
         setLoading(false);
       }
@@ -85,23 +81,63 @@ const SalonPage = () => {
         <div className="info-card">
           <h3>Working Hours</h3>
 
-          <p>Mon - Fri · 09:00 - 21:00</p>
-          <p>Saturday · 10:00 - 18:00</p>
+          <p>
+            Monday ·{" "}
+            {!salon.wh.monday.off
+              ? `${salon.wh.monday.start.slice(0, 5)} - ${salon.wh.monday.end.slice(0, 5)}`
+              : "Not working"}
+          </p>
+          <p>
+            Tuesday ·{" "}
+            {!salon.wh.tuesday.off
+              ? `${salon.wh.tuesday.start.slice(0, 5)} - ${salon.wh.tuesday.end.slice(0, 5)}`
+              : "Not working"}
+          </p>
+          <p>
+            Wednesday ·{" "}
+            {!salon.wh.wednesday.off
+              ? `${salon.wh.wednesday.start.slice(0, 5)} - ${salon.wh.wednesday.end.slice(0, 5)}`
+              : "Not working"}
+          </p>
+          <p>
+            Thursday ·{" "}
+            {!salon.wh.thursday.off
+              ? `${salon.wh.thursday.start.slice(0, 5)} - ${salon.wh.thursday.end.slice(0, 5)}`
+              : "Not working"}
+          </p>
+          <p>
+            Friday ·{" "}
+            {!salon.wh.friday.off
+              ? `${salon.wh.friday.start.slice(0, 5)} - ${salon.wh.friday.end.slice(0, 5)}`
+              : "Not working"}
+          </p>
+          <p>
+            Saturday ·{" "}
+            {!salon.wh.saturday.off
+              ? `${salon.wh.saturday.start.slice(0, 5)} - ${salon.wh.saturday.end.slice(0, 5)}`
+              : "Not working"}
+          </p>
+          <p>
+            Sunday ·{" "}
+            {!salon.wh.sunday.off
+              ? `${salon.wh.sunday.start.slice(0, 5)} - ${salon.wh.sunday.end.slice(0, 5)}`
+              : "Not working"}
+          </p>
         </div>
 
         <div className="info-card">
           <h3>Services</h3>
 
-          <p>Haircut</p>
-          <p>Fade</p>
-          <p>Beard Trim</p>
+          {services.map((service) => (
+            <p key={service.id}>{`${service.name} (${service.length} min)`}</p>
+          ))}
         </div>
 
         <div className="info-card">
           <h3>Contact</h3>
 
           <p>{salon.phone || "No phone number"}</p>
-          <p>barberstudio@gmail.com</p>
+          <p>{salon.mail || "No email"}</p>
         </div>
       </section>
     </div>

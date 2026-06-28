@@ -5,4 +5,5 @@ export interface IBarber {
   id: number;
   user: IUser;
   salon: ISalon;
+  isActive: boolean;
 }

@@ -3,6 +3,7 @@ import SearchInput from "../../components/ui/SearchInput";
 import { Loader2, Plus, Store } from "lucide-react";
 import {
   addSalon,
+  changeSalonActivity,
   deleteSalon,
   getSalons,
   updateSalon,
@@ -51,8 +52,12 @@ const Salons = () => {
   }, []);
 
   const handleDelete = async () => {
-    await deleteSalon(selectedSalon.id);
-    fetchSalons();
+    try {
+      await deleteSalon(selectedSalon.id);
+      fetchSalons();
+    } catch (error) {
+      alert(error?.response?.data?.detail ?? "Something went wrong");
+    }
   };
 
   const handleAdd = async (data) => {
@@ -74,6 +79,12 @@ const Salons = () => {
     await updateSalon(id, data);
 
     fetchSalons();
+  };
+
+  const handleActivityChange = async (salon: ISalon) => {
+    await changeSalonActivity(Number(salon.id), salon.is_active);
+
+    await fetchSalons();
   };
 
   return (
@@ -112,11 +123,13 @@ const Salons = () => {
                   key={salon.id}
                   name={salon.name}
                   location={salon.address}
+                  isActive={salon.is_active}
                   onEdit={() => handleEdit(salon)}
                   onDelete={() => {
                     setSelectedSalon(salon);
                     setDeleteModalOpen(true);
                   }}
+                  onToggleBarberStatus={() => handleActivityChange(salon)}
                   onView={() => navigate(`/salons/${salon.id}`)}
                 />
               ))

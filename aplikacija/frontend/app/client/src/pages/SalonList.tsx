@@ -14,24 +14,6 @@ const SalonList = () => {
         setSalons(data);
       } catch (error) {
         console.error(error);
-
-        setSalons([
-          {
-            id: 1,
-            name: "Barber Studio",
-            address: "Niš",
-          },
-          {
-            id: 2,
-            name: "Urban Fade",
-            address: "Niš",
-          },
-          {
-            id: 3,
-            name: "Blade",
-            address: "Niš",
-          },
-        ]);
       } finally {
         setLoading(false);
       }
@@ -62,7 +44,7 @@ const SalonList = () => {
 
       {loading ? (
         <p style={{ padding: "40px" }}>Loading salons...</p>
-      ) : (
+      ) : salons.length > 0 ? (
         <section className="salon-grid">
           {salons.map((salon) => (
             <Link
@@ -82,12 +64,14 @@ const SalonList = () => {
                   <p>{salon.address}</p>
                 </div>
 
-                <span className="rating">
-                  Open
-                </span>
+                <span className="rating">Open</span>
               </div>
             </Link>
           ))}
+        </section>
+      ) : (
+        <section className="list-hero">
+          <h2>There are no salons currently. Try again later.</h2>
         </section>
       )}
     </div>

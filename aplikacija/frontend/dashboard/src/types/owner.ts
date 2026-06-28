@@ -5,4 +5,5 @@ export interface IOwner {
   id: number;
   user: IUser;
   salon: ISalon;
+  isActive: boolean;
 }

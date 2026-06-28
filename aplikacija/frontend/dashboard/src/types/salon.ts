@@ -4,4 +4,5 @@ export interface ISalon {
   address: string;
   email: string;
   phone: string;
+  is_active: boolean;
 }

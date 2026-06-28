@@ -38,6 +38,7 @@ export const getOwners = async (): Promise<IOwner[]> => {
         },
 
         salon: salon,
+        isActive: owner.is_active,
       };
     }),
   );
@@ -65,6 +66,19 @@ export const updateOwner = async (user) => {
     email: user.email,
     phone_number: user.phone_number,
   });
+};
+
+export const changeOwnerActivity = async (
+  owner_id: number,
+  isActive: boolean,
+) => {
+  if (isActive) {
+    const res = await api.put(`/owner/deactivate/${owner_id}`);
+    return res.data;
+  }
+
+  const res = await api.put(`/owner/activate/${owner_id}`);
+  return res.data;
 };
 
 export const deleteOwner = async (
