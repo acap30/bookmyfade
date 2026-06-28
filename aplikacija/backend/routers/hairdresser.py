@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user
 from db.database import get_db
 from router_impl import db_hairdesser as hairdresser_impl
-from db.schemas import HairdresserDisplay, HairdresserCreate, HairdresserUpdate, UserAuth, Role
+from db.schemas import HairdresserDisplay, HairdresserUserDisplay, HairdresserCreate, HairdresserUpdate, UserAuth, Role
 
 router_public = APIRouter(
     prefix="/public/hairdresser",
@@ -17,7 +17,7 @@ def get_public_hairdressers(
     return hairdresser_impl.get_all_hairdressers_public(db)
 
 
-@router_public.get("/{hairdresser_id}", response_model=HairdresserDisplay)
+@router_public.get("/{hairdresser_id}", response_model=HairdresserUserDisplay)
 def get_public_hairdresser_by_id(
     hairdresser_id: int,
     db: Session = Depends(get_db)
@@ -27,7 +27,7 @@ def get_public_hairdresser_by_id(
         hairdresser_id
     )
 
-@router_public.get("/salon/{salon_id}", response_model=list[HairdresserDisplay])
+@router_public.get("/salon/{salon_id}", response_model=list[HairdresserUserDisplay])
 def get_public_hairdressers_by_salon_id(
     salon_id: int,
     db: Session = Depends(get_db)

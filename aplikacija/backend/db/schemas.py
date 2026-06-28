@@ -80,6 +80,13 @@ class HairdresserDisplay(BaseModel):
     class Config:
         from_attributes = True
 
+class HairdresserUserDisplay(BaseModel):
+    id: int
+    user_id: int
+    salon_id: int
+    first_name: str
+    last_name: str
+
 class OwnerCreate(BaseModel):
     user_id: int
     salon_id: int
@@ -243,7 +250,6 @@ class ReservationCreate(BaseModel):
     client_phone: str
     res_date: date
     start_time: time
-    end_time: time
 
 class ReservationUpdate(BaseModel):
     hs_id: int | None = None

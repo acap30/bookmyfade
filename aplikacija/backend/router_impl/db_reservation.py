@@ -59,20 +59,21 @@ def time_conflict(db: Session, hd_id: int, date: date, start_time: time, end_tim
 
 
 def create_reservation(req: schemas.ReservationCreate, db: Session):
-    hs = db.query(Hairdresser_Service).filter(Hairdresser_Service.id == req.hs_id).first()
+    hs = db.query(Hairdresser_Service).options(joinedload(Hairdresser_Service.service)).filter(Hairdresser_Service.id == req.hs_id).first()
     if not hs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Hairdresser/service not found")
-    
-    if(req.start_time > req.end_time):
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
-                            detail="time not good")
-    
+    end_time = (
+        datetime.combine(datetime.today(), req.start_time)
+        + timedelta(hs.service.length_minutes)
+    ).time()
+
     #TIME CHECK
-    print(hs.hairdresser_id)
-    if time_conflict(db, hs.hairdresser_id, req.res_date, req.start_time, req.end_time):
+    if time_conflict(db, hs.hairdresser_id, req.res_date, req.start_time, end_time):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="timeslot is full for this hairdresser")
+
+    
 
     new_res = Reservations(
         hs_id = hs.id,
@@ -80,7 +81,7 @@ def create_reservation(req: schemas.ReservationCreate, db: Session):
         client_phone = req.client_phone,
         date = req.res_date,
         start_time = req.start_time,
-        end_time = req.end_time
+        end_time = end_time
     )
 
     db.add(new_res)

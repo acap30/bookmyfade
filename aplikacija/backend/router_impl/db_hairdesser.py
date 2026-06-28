@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 from db.models import DbUser, Salon, Hairdresser, Owner
-from db.schemas import Role, WorkingHoursWeekCreate, DaySchedule
+from db.schemas import Role, HairdresserUserDisplay
 from router_impl import db_working_hours
 
 def create_hairdresser(
@@ -65,17 +65,29 @@ def get_hairdresser_by_id(db: Session, hairdresser_id: int):
     return h
 
 def get_hairdresser_by_id_public(db: Session, hairdresser_id: int):
-    h = db.query(Hairdresser).filter(
-        Hairdresser.id == hairdresser_id,
-        Hairdresser.is_active==True
-    ).first()
+    h = (
+        db.query(Hairdresser)
+        .options(joinedload(Hairdresser.user))
+        .filter(
+            Hairdresser.id == hairdresser_id,
+            Hairdresser.is_active==True
+        ).first()
+    )
 
     if not h:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Hairdresser not found"
         )
-    return h
+    
+    
+    return HairdresserUserDisplay(
+        id=h.id,
+        user_id=h.user_id,
+        salon_id=h.salon_id,
+        first_name=h.user.first_name,
+        last_name=h.user.last_name
+    )
 
 def get_all_hairdressers(db: Session):
     return db.query(Hairdresser).all()
@@ -103,7 +115,21 @@ def get_hairdresser_by_salon_id_public(db: Session, salon_id: int):
             detail="Salon not found"
         )
     
-    return db.query(Hairdresser).filter(Hairdresser.salon_id == salon_id).all()
+    hairdressers = db.query(Hairdresser).options(joinedload(Hairdresser.user)).filter(Hairdresser.salon_id == salon_id).all()
+
+    hd = []
+    for h in hairdressers:
+        hd.append(
+            HairdresserUserDisplay(
+                id=h.id,
+                user_id=h.user_id,
+                salon_id=h.salon_id,
+                first_name=h.user.first_name,
+                last_name=h.user.last_name
+            )
+        )
+
+    return hd
 
 def get_my_hairdressers(db: Session, user_id: int):
     salon = (
