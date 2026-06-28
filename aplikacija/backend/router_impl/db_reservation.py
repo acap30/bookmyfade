@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from db import schemas
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm import joinedload
-from db.models import Hairdresser_Service, Reservations, Owner, Hairdresser, Service, Salon, WorkingHours, WorkingHoursExceptions
+from db.models import Hairdresser_Service, Reservations, DbUser, Owner, Hairdresser, Service, Salon, WorkingHours, WorkingHoursExceptions
 from datetime import date, datetime, timedelta, time
 
 def get_hours(res_date: date, db: Session, hd_id: int):
@@ -617,78 +617,85 @@ def update_reservation_hd(user_id: int, res_id: int, req: schemas.ReservationUpd
     
     return data
 
+def check_authorized(res_id: int, user_id: int, db: Session):
+    user_role = db.query(DbUser.role).filter(DbUser.id == user_id).first()
 
-def delete_reservation(res_id: int, db: Session):
-
-    res = db.query(Reservations).filter(Reservations.id == res_id).first()
-
-    if not res:
+    if not user_role:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="reservation not found")
+                            detail="user not found")
     
-    db.delete(res)
-    db.commit()
+    if user_role == schemas.Role.OWNER:
 
-    return {"message": "deleted"}
-
-def delete_reservation_owner(user_id: int, res_id: int, db: Session):
-
-    owner = db.query(Owner).filter(Owner.user_id == user_id).first()
-    if not owner:
-        raise HTTPException(status_code=404, detail="Owner not found")
-    
-    res = db.query(Reservations).filter(Reservations.id == res_id).first()
-
-    if not res:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="reservation not found")
-    
-    authorized = (
+        owner = db.query(Owner).filter(Owner.user_id == user_id).first()
+        if not owner:
+            raise HTTPException(status_code=404, detail="Owner not found")
+        
+        authorized = (
         db.query(Reservations)
         .join(Hairdresser_Service, Reservations.hs_id == Hairdresser_Service.id)
         .join(Hairdresser, Hairdresser_Service.hairdresser_id == Hairdresser.id)
         .join(Salon, Hairdresser.salon_id == Salon.id)
         .join(Owner, Salon.id == Owner.salon_id)
-        .filter(Reservations.id == res.id, Owner.id == owner.id)
+        .filter(Reservations.id == res_id, Owner.id == owner.id)
         .first()
-    )
+        )
 
-    if not authorized:
-        raise HTTPException(status_code=404, detail="Reservation not found")
+        if not authorized:
+            raise HTTPException(status_code=404, detail="Reservation not found")
+        
     
-    db.delete(res)
-    db.commit()
+    elif user_role == schemas.Role.HAIRSTYLIST:
 
-    return {"message": "deleted"}
+        hd = db.query(Hairdresser).filter(Hairdresser.user_id == user_id).first()
+        if not hd:
+            raise HTTPException(status_code=404, detail="Hairdresser not found")
+    
+        authorized = (
+            db.query(Reservations)
+            .join(Hairdresser_Service, Reservations.hs_id == Hairdresser_Service.id)
+            .join(Hairdresser, Hairdresser_Service.hairdresser_id == Hairdresser.id)
+            .filter(Reservations.id == res_id, Hairdresser.id == hd.id)
+            .first()
+        )    
+        
+        if not authorized:
+            raise HTTPException(status_code=404, detail="Reservation not found")
+       
+    return True
 
-def delete_reservation_hd(user_id: int, res_id: int, db: Session):
 
-    hd = db.query(Hairdresser).filter(Hairdresser.user_id == user_id).first()
-    if not hd:
-        raise HTTPException(status_code=404, detail="Hairdresser not found")
+def cancel_reservation(res_id: int, user_id: int, db: Session):
 
     res = db.query(Reservations).filter(Reservations.id == res_id).first()
-
 
     if not res:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="reservation not found")
     
-    authorized = (
-        db.query(Reservations)
-        .join(Hairdresser_Service, Reservations.hs_id == Hairdresser_Service.id)
-        .join(Hairdresser, Hairdresser_Service.hairdresser_id == Hairdresser.id)
-        .filter(Reservations.id == res.id, Hairdresser.id == hd.id)
-        .first()
-    )    
+    check_authorized(res_id, user_id, db)
+        
+    res.canceled = True
+    res.commit()
+    res.refresh(res)
+
+    return {"message": "good"}
     
-    if not authorized:
-        raise HTTPException(status_code=404, detail="Reservation not found")
+
+def delete_reservation(res_id: int, user_id: int, db: Session):
+
+    res = db.query(Reservations).filter(Reservations.id == res_id).first()
+
+    if not res:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="reservation not found")
+    
+    check_authorized(res_id, user_id,  db)
     
     db.delete(res)
     db.commit()
 
     return {"message": "deleted"}
+
 
 def generate_slots(hd_id, start, end, db, interval=30):
     slots = []

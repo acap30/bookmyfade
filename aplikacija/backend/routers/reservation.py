@@ -44,6 +44,10 @@ def get_reservation_by_id(reservation_id: int, db: Session = Depends(get_db), cu
     else:
         return db_reservation.get_reservation_by_id_hd(current_user.id, reservation_id, db)
 
+@router.put("/cancel/{reservation_id}")
+def cancel_reservation(reservation_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_reservation.cancel_reservation(reservation_id, current_user.id, db)
+
 @router.put("/{reservation_id}", response_model = schemas.ReservationDisplay)
 def update_reservation(reservation_id: int, req: schemas.ReservationUpdate, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     if current_user.role == schemas.Role.ADMIN:
@@ -52,15 +56,11 @@ def update_reservation(reservation_id: int, req: schemas.ReservationUpdate, db: 
         return db_reservation.update_reservation_owner(current_user.id, reservation_id, req, db)
     else:
         return db_reservation.update_reservation_hd(current_user.id, reservation_id, req, db)
+    
 
 @router.delete("/{reservation_id}")
 def delete_reservation(reservation_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
-    if current_user.role == schemas.Role.ADMIN:
-        return db_reservation.delete_reservation(reservation_id, db)
-    elif current_user.role == schemas.Role.OWNER:
-        return db_reservation.delete_reservation_owner(current_user.id, reservation_id, db)
-    else:
-        return db_reservation.delete_reservation_hd(current_user.id, reservation_id, db)
+    return db_reservation.delete_reservation(reservation_id, current_user.id, db)
     
 
 
