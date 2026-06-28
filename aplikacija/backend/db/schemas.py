@@ -265,6 +265,7 @@ class ReservationDisplay(BaseModel):
     res_date: date
     start_time: time
     end_time: time
+    canceled: bool
     hairdresser: ReservationHairdresser
     service: ReservationService
 

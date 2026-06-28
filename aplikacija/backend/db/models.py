@@ -167,7 +167,7 @@ class Reservations(Base):
     hairdresser_service = relationship("Hairdresser_Service", back_populates="reservations")
 
     __table_args__ = (
-        UniqueConstraint("hs_id", "date", "start_time",  name="uq_timeslot_hs_start"),
+        UniqueConstraint("hs_id", "date", "start_time", "canceled", name="uq_timeslot_hs_start"),
     )
 
 

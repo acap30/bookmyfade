@@ -48,7 +48,8 @@ def time_conflict(db: Session, hd_id: int, date: date, start_time: time, end_tim
         Hairdresser_Service.hairdresser_id == hd_id,
         Reservations.date == date,
         Reservations.start_time < end_time,
-        Reservations.end_time > start_time
+        Reservations.end_time > start_time,
+        Reservations.canceled == False
     )
     .first()
     )
@@ -63,10 +64,12 @@ def create_reservation(req: schemas.ReservationCreate, db: Session):
     if not hs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Hairdresser/service not found")
+    
     end_time = (
         datetime.combine(datetime.today(), req.start_time)
-        + timedelta(hs.service.length_minutes)
+        + timedelta(minutes=hs.service.length_minutes)
     ).time()
+    print(end_time)
 
     #TIME CHECK
     if time_conflict(db, hs.hairdresser_id, req.res_date, req.start_time, end_time):
@@ -114,6 +117,7 @@ def get_all_reservations(db: Session, skip: int, limit: int):
             "res_date": r.date,
             "start_time": r.start_time,
             "end_time": r.end_time,
+            "canceled": r.canceled,
             "hairdresser": {
                 "id": r.hairdresser_service.hairdresser.id,
                 "user_id": r.hairdresser_service.hairdresser.user.id,
@@ -169,6 +173,7 @@ def get_all_reservations_by_owner_id(user_id: int, db: Session, skip: int, limit
             "res_date": r.date,
             "start_time": r.start_time,
             "end_time": r.end_time,
+            "canceled": r.canceled,
             "hairdresser": {
                 "id": r.hairdresser_service.hairdresser.id,
                 "user_id": r.hairdresser_service.hairdresser.user.id,
@@ -222,6 +227,7 @@ def get_all_reservations_by_hairdresser_id(user_id: int, db: Session, skip: int,
             "res_date": r.date,
             "start_time": r.start_time,
             "end_time": r.end_time,
+            "canceled": r.canceled,
             "hairdresser": {
                 "id": r.hairdresser_service.hairdresser.id,
                 "user_id": r.hairdresser_service.hairdresser.user.id,
@@ -270,6 +276,7 @@ def get_reservation_by_id(res_id: int, db: Session):
             "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
+            "canceled": res.canceled,
             "hairdresser": {
                 "id": res.hairdresser_service.hairdresser.id,
                 "user_id": res.hairdresser_service.hairdresser.user.id,
@@ -323,6 +330,7 @@ def get_reservation_by_id_owner(user_id: int, res_id: int, db: Session):
             "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
+            "canceled": res.canceled,
             "hairdresser": {
                 "id": res.hairdresser_service.hairdresser.id,
                 "user_id": res.hairdresser_service.hairdresser.user.id,
@@ -376,6 +384,7 @@ def get_reservation_by_id_hd(user_id: int, res_id: int, db: Session):
             "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
+            "canceled": res.canceled,
             "hairdresser": {
                 "id": res.hairdresser_service.hairdresser.id,
                 "user_id": res.hairdresser_service.hairdresser.user.id,
@@ -445,6 +454,7 @@ def update_reservation(res_id: int, req: schemas.ReservationUpdate, db: Session)
             "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
+            "canceled": res.canceled,
             "hairdresser": {
                 "id": res.hairdresser_service.hairdresser.id,
                 "user_id": res.hairdresser_service.hairdresser.user.id,
@@ -525,6 +535,7 @@ def update_reservation_owner(user_id: int, res_id: int, req: schemas.Reservation
             "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
+            "canceled": res.canceled,
             "hairdresser": {
                 "id": res.hairdresser_service.hairdresser.id,
                 "user_id": res.hairdresser_service.hairdresser.user.id,
@@ -602,6 +613,7 @@ def update_reservation_hd(user_id: int, res_id: int, req: schemas.ReservationUpd
             "res_date": res.date,
             "start_time": res.start_time,
             "end_time": res.end_time,
+            "canceled": res.canceled,
             "hairdresser": {
                 "id": res.hairdresser_service.hairdresser.id,
                 "user_id": res.hairdresser_service.hairdresser.user.id,
@@ -675,8 +687,8 @@ def cancel_reservation(res_id: int, user_id: int, db: Session):
     check_authorized(res_id, user_id, db)
         
     res.canceled = True
-    res.commit()
-    res.refresh(res)
+    db.commit()
+    db.refresh(res)
 
     return {"message": "good"}
     
