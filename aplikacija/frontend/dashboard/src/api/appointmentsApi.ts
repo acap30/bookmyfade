@@ -21,6 +21,7 @@ export const getAppointments = async (skip = 0, limit = 5) => {
         date: appointment.res_date,
         startTime: appointment.start_time.slice(0, 5),
         endTime: appointment.end_time.slice(0, 5),
+        canceled: appointment.canceled,
       };
     }),
   );
@@ -29,4 +30,9 @@ export const getAppointments = async (skip = 0, limit = 5) => {
     list: mappedAppointments,
     total: appointments.total,
   };
+};
+
+export const cancelAppointment = async (id: number) => {
+  const res = await api.put(`/reservation/cancel/${id}`);
+  return res;
 };

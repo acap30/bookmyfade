@@ -4,11 +4,14 @@ import UserAvatar from "../ui/UserAvatar";
 
 type Props = {
   appointment: IAppointment;
+  onCancel: () => void;
 };
 
-const AppointmentItem = ({ appointment }: Props) => {
+const AppointmentItem = ({ appointment, onCancel }: Props) => {
   return (
-    <div className="flex max-md:flex-col items-center justify-between gap-4 rounded-2xl border border-border bg-background px-5 py-4">
+    <div
+      className={`flex max-md:flex-col items-center justify-between gap-4 rounded-2xl border border-border bg-background px-5 py-4 ${appointment.canceled ? "opacity-60 grayscale" : ""}`}
+    >
       <div className="lg:grid w-full grid-cols-[300px_1fr] items-center lg:gap-6 flex lg:w-fit justify-between">
         <div className="flex items-center gap-3 min-w-0">
           <UserAvatar fullName={appointment.clientName} size={40} />
@@ -46,13 +49,26 @@ const AppointmentItem = ({ appointment }: Props) => {
       <div className="flex items-center gap-4 justify-between md:justify-end w-full lg:w-fit">
         <div className="flex items-center gap-2">
           <Calendar size={18} />
-          <div className="font-medium">{appointment.date}</div>
+          <div className="max-sm:text-xs font-medium">{appointment.date}</div>
         </div>
 
         <div className="flex items-center gap-2 rounded-lg bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground">
           <Clock size={18} />
           <p>{appointment.startTime}</p>
         </div>
+
+        {appointment.canceled ? (
+          <div className="rounded-lg border border-muted px-3 py-2 text-sm font-medium text-muted">
+            Canceled
+          </div>
+        ) : (
+          <button
+            onClick={onCancel}
+            className="rounded-lg border border-red-500 px-3 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-500 hover:text-white cursor-pointer"
+          >
+            Cancel
+          </button>
+        )}
       </div>
     </div>
   );

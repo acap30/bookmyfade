@@ -10,4 +10,5 @@ export interface IAppointment {
   date: string;
   startTime: string;
   endTime: string;
+  canceled: boolean;
 }
