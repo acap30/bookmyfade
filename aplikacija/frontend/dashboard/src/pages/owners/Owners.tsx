@@ -16,6 +16,7 @@ import { getSalons } from "../../api/salonsApi";
 import { ROLES } from "../../types/auth";
 import EditUserModal from "../../components/modals/EditUserModal";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
+import { useAuth } from "../../context/AuthContext";
 
 const Owners = () => {
   const [search, setSearch] = useState("");
@@ -28,13 +29,19 @@ const Owners = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
+  const { user } = useAuth();
+
+  const [salonFilter, setSalonFilter] = useState("");
+
   const filteredOwners = useMemo(() => {
-    return owners.filter((owner) =>
-      `${owner.user.firstName} ${owner.user.lastName}`
-        .toLowerCase()
-        .includes(search.toLowerCase()),
+    return owners.filter(
+      (owner) =>
+        `${owner.user.firstName} ${owner.user.lastName}`
+          .toLowerCase()
+          .includes(search.toLowerCase()) &&
+        (salonFilter === "" || owner.salon.id === Number(salonFilter)),
     );
-  }, [search, owners]);
+  }, [search, owners, salonFilter]);
 
   const fetchOwners = async () => {
     try {
@@ -99,11 +106,28 @@ const Owners = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <SearchInput
-          placeholder="Search owners..."
-          value={search}
-          onChange={setSearch}
-        />
+        <div className="flex items-center gap-2">
+          <SearchInput
+            placeholder="Search owners..."
+            value={search}
+            onChange={setSearch}
+          />
+          {user.role === ROLES.ADMIN && (
+            <select
+              value={salonFilter}
+              onChange={(e) => setSalonFilter(e.target.value)}
+              className="rounded-xl border border-border bg-card px-4 py-3 text-text outline-none focus:border-primary"
+            >
+              <option value="">All salons</option>
+
+              {salons.map((salon) => (
+                <option key={salon.id} value={salon.id}>
+                  {salon.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
 
         <button className="button-add" onClick={() => setAddModalOpen(true)}>
           <Plus size={18} />

@@ -4,10 +4,14 @@ import type { IAppointment } from "../../types/appointments";
 import { cancelAppointment, getAppointments } from "../../api/appointmentsApi";
 import AppointmentItem from "../../components/items/AppointmentItem";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
+import { useAuth } from "../../context/AuthContext";
+import { ROLES } from "../../types/auth";
 
 const ITEMS_PER_PAGE = 5;
 
 const Appointments = () => {
+  const { user } = useAuth();
+
   const [appointments, setAppointments] = useState<IAppointment[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -19,7 +23,8 @@ const Appointments = () => {
     clientName: "",
     barber: "",
     salon: "",
-    date: "",
+    dateFrom: "",
+    dateTo: "",
   });
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "canceled"
@@ -31,7 +36,21 @@ const Appointments = () => {
 
       const skip = (pageNumber - 1) * ITEMS_PER_PAGE;
 
-      const data = await getAppointments(skip, ITEMS_PER_PAGE);
+      const canceledStatus =
+        statusFilter === "active"
+          ? false
+          : statusFilter === "canceled"
+            ? true
+            : 0;
+
+      const data = await getAppointments(skip, ITEMS_PER_PAGE, {
+        clientName: filters.clientName ?? null,
+        barberId: Number(filters.barber) ?? null,
+        salonId: Number(filters.salon) ?? null,
+        canceled: canceledStatus,
+        dateFrom: filters.dateFrom ?? null,
+        dateTo: filters.dateTo ?? null,
+      });
 
       setAppointments(data.list);
       setTotal(data.total);
@@ -44,7 +63,7 @@ const Appointments = () => {
 
   useEffect(() => {
     fetchAppointments(page);
-  }, [page]);
+  }, [page, filters, statusFilter]);
 
   const handleCancelAppointment = async () => {
     if (!selectedAppointment) return;
@@ -81,119 +100,118 @@ const Appointments = () => {
     new Map(barbers.map((barber) => [barber.salon.id, barber.salon])).values(),
   );
 
-  const filteredAppointments = appointments.filter((appointment) => {
-    const matchesClient =
-      filters.clientName === "" ||
-      appointment.clientName
-        .toLowerCase()
-        .includes(filters.clientName.toLowerCase());
-
-    const matchesBarber =
-      filters.barber === "" || appointment.barber.id === Number(filters.barber);
-
-    const matchesSalon =
-      filters.salon === "" ||
-      appointment.barber.salon.id === Number(filters.salon);
-
-    const matchesDate =
-      filters.date === "" || appointment.date === filters.date;
-
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && !appointment.canceled) ||
-      (statusFilter === "canceled" && appointment.canceled);
-
-    return (
-      matchesClient &&
-      matchesBarber &&
-      matchesSalon &&
-      matchesDate &&
-      matchesStatus
-    );
-  });
-
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
-        <input
-          type="text"
-          placeholder="Client name..."
-          value={filters.clientName}
-          onChange={(e) => handleFilterChange("clientName", e.target.value)}
-          className="rounded-xl border border-border bg-card px-4 py-3 outline-none focus:border-primary"
-        />
+        <div className="flex flex-col">
+          <label className="text-sm text-muted">Client name:</label>
+          <input
+            type="text"
+            placeholder="Client name..."
+            value={filters.clientName}
+            onChange={(e) => handleFilterChange("clientName", e.target.value)}
+            className="rounded-xl border border-border bg-card px-4 py-3 outline-none focus:border-primary"
+          />
+        </div>
 
-        <select
-          value={filters.barber}
-          onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              barber: e.target.value,
-            }))
-          }
-          className="rounded-xl border border-border bg-card px-4 py-3 text-text outline-none focus:border-primary"
-        >
-          <option value="">All barbers</option>
+        <div className="flex flex-col">
+          <label className="text-sm text-muted">Barber:</label>
+          <select
+            value={filters.barber}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                barber: e.target.value,
+              }))
+            }
+            className="rounded-xl border border-border bg-card px-4 py-3 text-text outline-none focus:border-primary"
+          >
+            <option value="">All barbers</option>
 
-          {barbers.map((barber) => (
-            <option key={barber.id} value={barber.id}>
-              {barber.user.fullName}
-            </option>
-          ))}
-        </select>
+            {barbers.map((barber) => (
+              <option key={barber.id} value={barber.id}>
+                {barber.user.fullName}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <select
-          value={filters.salon}
-          onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              salon: e.target.value,
-            }))
-          }
-          className="rounded-xl border border-border bg-card px-4 py-3 text-text outline-none focus:border-primary"
-        >
-          <option value="">All salons</option>
+        {user.role === ROLES.ADMIN && (
+          <div className="flex flex-col">
+            <label className="text-sm text-muted">Salon:</label>
+            <select
+              value={filters.salon}
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  salon: e.target.value,
+                }))
+              }
+              className="rounded-xl border border-border bg-card px-4 py-3 text-text outline-none focus:border-primary"
+            >
+              <option value="">All salons</option>
 
-          {salons.map((salon) => (
-            <option key={salon.id} value={salon.id}>
-              {salon.name}
-            </option>
-          ))}
-        </select>
+              {salons.map((salon) => (
+                <option key={salon.id} value={salon.id}>
+                  {salon.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-        <input
-          type="date"
-          value={filters.date}
-          onChange={(e) => handleFilterChange("date", e.target.value)}
-          className="rounded-xl border border-border bg-card px-4 py-3 outline-none focus:border-primary"
-        />
+        <div className="flex flex-col">
+          <label className="text-sm text-muted">Date from:</label>
+          <input
+            type="date"
+            value={filters.dateFrom}
+            onChange={(e) => handleFilterChange("dateFrom", e.target.value)}
+            className="rounded-xl border border-border bg-card px-4 py-3 outline-none focus:border-primary"
+          />
+        </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) =>
-            setStatusFilter(e.target.value as "all" | "active" | "canceled")
-          }
-          className="rounded-xl border border-border bg-card px-4 py-3 text-text outline-none focus:border-primary"
-        >
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="canceled">Cancelled</option>
-        </select>
+        <div className="flex flex-col">
+          <label className="text-sm text-muted">Date to:</label>
+          <input
+            type="date"
+            value={filters.dateTo}
+            onChange={(e) => handleFilterChange("dateTo", e.target.value)}
+            className="rounded-xl border border-border bg-card px-4 py-3 outline-none focus:border-primary"
+          />
+        </div>
 
-        <button
-          onClick={() => {
-            setFilters({
-              clientName: "",
-              barber: "",
-              salon: "",
-              date: "",
-            });
-            setStatusFilter("all");
-          }}
-          className="w-full md:w-fit rounded-xl border border-border px-4 py-3 cursor-pointer transition-transform hover:scale-102 active:scale-95"
-        >
-          Clear filters
-        </button>
+        <div className="flex flex-col">
+          <label className="text-sm text-muted">Status:</label>
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as "all" | "active" | "canceled")
+            }
+            className="rounded-xl border border-border bg-card px-4 py-3 text-text outline-none focus:border-primary"
+          >
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="canceled">Cancelled</option>
+          </select>
+        </div>
+
+        <div className="flex items-center">
+          <button
+            onClick={() => {
+              setFilters({
+                clientName: "",
+                barber: "",
+                salon: "",
+                dateFrom: "",
+                dateTo: "",
+              });
+              setStatusFilter("all");
+            }}
+            className="w-full md:w-fit h-fit rounded-xl border border-border px-4 py-3 cursor-pointer transition-transform hover:scale-102 active:scale-95"
+          >
+            Clear filters
+          </button>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5">
@@ -211,10 +229,10 @@ const Appointments = () => {
 
             <p className="text-sm">Loading appointments...</p>
           </div>
-        ) : filteredAppointments.length > 0 ? (
+        ) : appointments.length > 0 ? (
           <>
             <div className="space-y-3">
-              {filteredAppointments.map((appointment) => (
+              {appointments.map((appointment) => (
                 <AppointmentItem
                   key={appointment.id}
                   appointment={appointment}

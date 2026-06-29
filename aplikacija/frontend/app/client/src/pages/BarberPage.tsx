@@ -5,6 +5,8 @@ import "react-date-picker/dist/DatePicker.css";
 import "react-calendar/dist/Calendar.css";
 import DatePicker from "react-date-picker";
 
+const baseUrl = import.meta.env.VITE_API_URL;
+
 const BarberPage = () => {
   const { id, barberId } = useParams();
 
@@ -44,7 +46,7 @@ const BarberPage = () => {
     console.log(payload);
 
     try {
-      const res = await fetch(`http://localhost:8000/reservation/`, {
+      const res = await fetch(`${baseUrl}/reservation/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,7 +95,7 @@ const BarberPage = () => {
 
       try {
         const res = await fetch(
-          `http://localhost:8000/public/service/salon/${id}`,
+          `${baseUrl}/public/service/hairdresser/{hairdresser_id}?hd_id=${barberId}`,
         );
         const data = await res.json();
 
@@ -107,39 +109,39 @@ const BarberPage = () => {
     fetchServices();
   }, [id]);
 
+  const fetchSlots = async () => {
+    if (!barberId || !selectedDate || !selectedService) return;
+
+    const hdId = Number(barberId);
+    if (isNaN(hdId)) return;
+
+    console.log("BARBER ID:", hdId);
+    try {
+      const formattedDate = selectedDate.toISOString().split("T")[0];
+
+      console.log("DATE:", formattedDate);
+      const res = await fetch(
+        `${baseUrl}/public/reservation/available/hairdresser/${hdId}/${selectedService}?date=${formattedDate}`,
+      );
+
+      const data = await res.json();
+
+      const safeSlots = Array.isArray(data?.slots)
+        ? data.slots
+        : Array.isArray(data)
+          ? data
+          : [];
+
+      const slicedSlots = safeSlots.map((time) => time.slice(0, 5));
+
+      setAvailableSlots(slicedSlots);
+      setSelectedTime(null);
+    } catch (err) {
+      console.error("Slots error:", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchSlots = async () => {
-      if (!barberId || !selectedDate || !selectedService) return;
-
-      const hdId = Number(barberId);
-      if (isNaN(hdId)) return;
-
-      console.log("BARBER ID:", hdId);
-      try {
-        const formattedDate = selectedDate.toISOString().split("T")[0];
-
-        console.log("DATE:", formattedDate);
-        const res = await fetch(
-          `http://localhost:8000/public/reservation/available/hairdresser/${hdId}/${selectedService}?date=${formattedDate}`,
-        );
-
-        const data = await res.json();
-
-        const safeSlots = Array.isArray(data?.slots)
-          ? data.slots
-          : Array.isArray(data)
-            ? data
-            : [];
-
-        const slicedSlots = safeSlots.map((time) => time.slice(0, 5));
-
-        setAvailableSlots(slicedSlots);
-        setSelectedTime(null);
-      } catch (err) {
-        console.error("Slots error:", err);
-      }
-    };
-
     fetchSlots();
   }, [selectedDate, barberId, selectedService]);
 
@@ -204,7 +206,10 @@ const BarberPage = () => {
 
               <div className="btn-section">
                 <button
-                  onClick={() => setBookingCompleted(false)}
+                  onClick={async () => {
+                    await fetchSlots();
+                    setBookingCompleted(false);
+                  }}
                   className="primary-btn"
                 >
                   Book another appointment

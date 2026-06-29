@@ -1,9 +1,20 @@
 import api from "./axios";
 import { getBarberById } from "./barbersApi";
 
-export const getAppointments = async (skip = 0, limit = 5) => {
+export const getAppointments = async (
+  skip = 0,
+  limit = 5,
+  filters: {
+    clientName: string | null;
+    barberId: number | null;
+    salonId: number | null;
+    canceled: boolean | number;
+    dateFrom: string | null;
+    dateTo: string | null;
+  },
+) => {
   const { data: appointments } = await api.get(
-    `/reservation/?skip=${skip}&limit=${limit}`,
+    `/reservation/?client_name=${filters.clientName}&hairdresser_id=${filters.barberId}&salon_id=${filters.salonId}${filters.dateFrom ? `&date_from=${filters.dateFrom}` : ""}${filters.dateTo ? `&date_to=${filters.dateTo}` : ""}${typeof filters.canceled === "boolean" ? `&canceled=${filters.canceled}` : ""}&skip=${skip}&limit=${limit}`,
   );
   const mappedAppointments = await Promise.all(
     appointments.data.map(async (appointment: any) => {

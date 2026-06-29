@@ -137,7 +137,7 @@ const SalonPage = () => {
           <h3>Contact</h3>
 
           <p>{salon.phone || "No phone number"}</p>
-          <p>{salon.mail || "No email"}</p>
+          <p>{salon.email || "No email"}</p>
         </div>
       </section>
     </div>
