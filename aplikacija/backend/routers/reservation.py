@@ -27,13 +27,27 @@ def create_reservation(req: schemas.ReservationCreate, db: Session = Depends(get
     return db_reservation.create_reservation(req, db)
 
 @router.get("/", response_model = schemas.ReservationWrapper)
-def get_all_reservations(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
-    if current_user.role == schemas.Role.ADMIN:
-        return db_reservation.get_all_reservations(db, skip, limit)
-    elif current_user.role == schemas.Role.OWNER:
-        return db_reservation.get_all_reservations_by_owner_id(current_user.id, db, skip, limit)
-    else:
-        return db_reservation.get_all_reservations_by_hairdresser_id(current_user.id, db, skip, limit)   
+def get_all_reservations(
+    client_name: str | None = None,
+    hairdresser_id: int | None = None,
+    salon_id: int | None = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    canceled: bool | None = None,
+    skip: int = 0, 
+    limit: int = 10, 
+    db: Session = Depends(get_db), 
+    current_user: schemas.UserAuth = Depends(get_current_user)
+):
+    return db_reservation.get_reservations(db, skip, limit, current_user.id, 
+            client_name, hairdresser_id, salon_id, date_from, date_to, canceled)
+    
+    # if current_user.role == schemas.Role.ADMIN:
+    #     return db_reservation.get_all_reservations(db, skip, limit)
+    # elif current_user.role == schemas.Role.OWNER:
+    #     return db_reservation.get_all_reservations_by_owner_id(current_user.id, db, skip, limit)
+    # else:
+    #     return db_reservation.get_all_reservations_by_hairdresser_id(current_user.id, db, skip, limit)   
 
 @router.get("/{reservation_id}", response_model = schemas.ReservationDisplay)
 def get_reservation_by_id(reservation_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):

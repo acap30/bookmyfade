@@ -93,16 +93,59 @@ def create_reservation(req: schemas.ReservationCreate, db: Session):
 
     return new_res
 
-def get_all_reservations(db: Session, skip: int, limit: int):
-    reservations = (
-        db.query(Reservations)
-        .options(
-            joinedload(Reservations.hairdresser_service)
-            .joinedload(Hairdresser_Service.hairdresser)
-            .joinedload(Hairdresser.user),
-            joinedload(Reservations.hairdresser_service)
-            .joinedload(Hairdresser_Service.service),
+        
+
+def get_reservations(db: Session, skip: int, limit: int, user_id: int,
+        client_name: str | None, hairdresser_id: int | None, salon_id: int | None, 
+        date_from: date | None, date_to: date | None, canceled: bool | None):
+    user = db.query(DbUser).filter(DbUser.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="User not found")
+    
+    
+    if user.role == schemas.Role.ADMIN:
+        query = get_all_reservations(db)
+    elif user.role == schemas.Role.OWNER:
+        query = get_all_reservations_by_owner_id(user_id, db)
+    else:
+        query = get_all_reservations_by_hairdresser_id(user_id, db)
+    
+
+    if client_name:
+        query = query.filter(
+            Reservations.client_name.ilike(f"%{client_name}%")
         )
+
+    if hairdresser_id:
+        query = query.filter(
+            Hairdresser_Service.hairdresser_id == hairdresser_id
+        )
+
+    if salon_id:
+        query = query.filter(
+            Hairdresser.salon_id == salon_id
+        )
+
+    if date_from:
+        query = query.filter(
+            Reservations.date >= date_from
+        )
+    if date_to:
+        query = query.filter(
+            Reservations.date <= date_to
+        )
+
+    if canceled is not None:
+        query = query.filter(
+            Reservations.canceled == canceled
+        )
+
+    total = query.count()
+
+    reservations = (
+        query
+        .order_by(Reservations.canceled.asc(), Reservations.date, Reservations.start_time)
         .offset(skip)
         .limit(limit)
         .all()
@@ -132,13 +175,30 @@ def get_all_reservations(db: Session, skip: int, limit: int):
         })
 
     return {
-        "total": db.query(Reservations).count(),
+        "total": total,
         "skip": skip,
         "limit": limit,
         "data": data
     }
 
-def get_all_reservations_by_owner_id(user_id: int, db: Session, skip: int, limit: int):
+def get_all_reservations(db: Session):
+    reservations = (
+        db.query(Reservations)
+        .join(Hairdresser_Service, Reservations.hs_id == Hairdresser_Service.id)
+        .join(Hairdresser, Hairdresser_Service.hairdresser_id == Hairdresser.id)
+        .options(
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.hairdresser)
+            .joinedload(Hairdresser.user),
+            joinedload(Reservations.hairdresser_service)
+            .joinedload(Hairdresser_Service.service),
+        )
+    )
+    return reservations
+
+    
+
+def get_all_reservations_by_owner_id(user_id: int, db: Session):
     owner = db.query(Owner).filter(Owner.user_id == user_id).first()
 
     if not owner:
@@ -161,41 +221,14 @@ def get_all_reservations_by_owner_id(user_id: int, db: Session, skip: int, limit
         .filter(Owner.id == owner.id)
     )
 
-    res = query.offset(skip).limit(limit).all()
-    total = query.count()
+    return query
 
-    data = []
-    for r in res:
-        data.append({
-            "id": r.id,
-            "client_name": r.client_name,
-            "client_phone": r.client_phone,
-            "res_date": r.date,
-            "start_time": r.start_time,
-            "end_time": r.end_time,
-            "canceled": r.canceled,
-            "hairdresser": {
-                "id": r.hairdresser_service.hairdresser.id,
-                "user_id": r.hairdresser_service.hairdresser.user.id,
-                "first_name": r.hairdresser_service.hairdresser.user.first_name,
-                "last_name": r.hairdresser_service.hairdresser.user.last_name
-            },
-            "service": {
-                "id": r.hairdresser_service.service.id,
-                "name": r.hairdresser_service.service.name,
-                "length_minutes": r.hairdresser_service.service.length_minutes
-            }
-        })
+    
 
 
-    return {
-        "total": total,
-        "skip": skip,
-        "limit": limit,
-        "data": data
-    }
+    
 
-def get_all_reservations_by_hairdresser_id(user_id: int, db: Session, skip: int, limit: int):
+def get_all_reservations_by_hairdresser_id(user_id: int, db: Session):
     hd = db.query(Hairdresser).filter(Hairdresser.user_id == user_id).first()
 
     if not hd:
@@ -205,6 +238,7 @@ def get_all_reservations_by_hairdresser_id(user_id: int, db: Session, skip: int,
     query = (
         db.query(Reservations)
         .join(Hairdresser_Service, Reservations.hs_id == Hairdresser_Service.id)
+        .join(Hairdresser, Hairdresser_Service.hairdresser_id == Hairdresser.id)
         .options(
             joinedload(Reservations.hairdresser_service)
             .joinedload(Hairdresser_Service.hairdresser)
@@ -215,39 +249,8 @@ def get_all_reservations_by_hairdresser_id(user_id: int, db: Session, skip: int,
         .filter(Hairdresser_Service.hairdresser_id == hd.id)
     )
 
-    res = query.offset(skip).limit(limit).all()
-    total = query.count()
+    return query
     
-    data = []
-    for r in res:
-        data.append({
-            "id": r.id,
-            "client_name": r.client_name,
-            "client_phone": r.client_phone,
-            "res_date": r.date,
-            "start_time": r.start_time,
-            "end_time": r.end_time,
-            "canceled": r.canceled,
-            "hairdresser": {
-                "id": r.hairdresser_service.hairdresser.id,
-                "user_id": r.hairdresser_service.hairdresser.user.id,
-                "first_name": r.hairdresser_service.hairdresser.user.first_name,
-                "last_name": r.hairdresser_service.hairdresser.user.last_name
-            },
-            "service": {
-                "id": r.hairdresser_service.service.id,
-                "name": r.hairdresser_service.service.name,
-                "length_minutes": r.hairdresser_service.service.length_minutes
-            }
-        })
-
-
-    return {
-        "total": total,
-        "skip": skip,
-        "limit": limit,
-        "data": data
-    }
 
 
 def get_reservation_by_id(res_id: int, db: Session):
