@@ -46,6 +46,7 @@ def update_user(request: schemas.UserUpdate, user_id: int, db: Session = Depends
     else:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
+    
 
 @router.delete('/{user_id}')
 def delete_user(user_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
@@ -54,6 +55,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: schem
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
 
-@router.post("/upload-image")
+@router.patch("/upload-image")
 async def upload_user_image(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
     return db_user.upload_picture(file, db, current_user.id)
+

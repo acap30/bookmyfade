@@ -86,7 +86,8 @@ def get_hairdresser_by_id_public(db: Session, hairdresser_id: int):
         user_id=h.user_id,
         salon_id=h.salon_id,
         first_name=h.user.first_name,
-        last_name=h.user.last_name
+        last_name=h.user.last_name,
+        image_url=h.user.image_url
     )
 
 def get_all_hairdressers(db: Session):
@@ -125,7 +126,8 @@ def get_hairdresser_by_salon_id_public(db: Session, salon_id: int):
                 user_id=h.user_id,
                 salon_id=h.salon_id,
                 first_name=h.user.first_name,
-                last_name=h.user.last_name
+                last_name=h.user.last_name,
+                image_url=h.user.image_url
             )
         )
 

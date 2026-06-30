@@ -150,19 +150,27 @@ def upload_picture(file: UploadFile, db: Session, user_id: int):
     folder = "static/images/users"
     os.makedirs(folder, exist_ok=True)
 
-    file_path = f"{folder}/{user_id}_{file.filename}"
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
     user = db.query(DbUser).filter(DbUser.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user.image_url = f"/static/{user_id}_{file.filename}"
+    file_path = f"{folder}/{user_id}_{file.filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    
+    if user.image_url:
+        relative_path = user.image_url.lstrip("/") 
+        old_path = os.path.join(BASE_DIR, relative_path)  
+        if os.path.exists(old_path):
+            os.remove(old_path)
+
+    user.image_url = f"/{folder}/{user_id}_{file.filename}"
     db.commit()
     db.refresh(user)
 
     return {
         "message": "Image uploaded successfully",
-        "url": f"/static/{user_id}_{file.filename}"
+        "url": f"/static/images/users/{user_id}_{file.filename}"
     }

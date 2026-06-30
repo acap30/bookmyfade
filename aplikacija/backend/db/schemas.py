@@ -87,6 +87,7 @@ class HairdresserUserDisplay(BaseModel):
     salon_id: int
     first_name: str
     last_name: str
+    image_url: str | None = None
 
 class OwnerCreate(BaseModel):
     user_id: int
