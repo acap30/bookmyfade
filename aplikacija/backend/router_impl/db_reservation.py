@@ -820,23 +820,45 @@ def get_unavailable_days(hd_id: int, svc_id: int, year: int, month: int, db: Ses
 
     days_in_month = calendar.monthrange(year, month)[1]
     unavailable_days = []
+    unavailable_adjacent_dates = []
 
     today = date.today()
     max_month = today.month + 3
     max_year = today.year + (max_month - 1) // 12
     max_month = ((max_month - 1) % 12) + 1
-    max_date = date(max_year, max_month, today.day)
+    max_day = min(today.day, calendar.monthrange(max_year, max_month)[1])
+    max_date = date(max_year, max_month, max_day)
 
-    for day in range(1, days_in_month + 1):
-        current_date = date(year, month, day)
+    month_start = date(year, month, 1)
+    prev_start = month_start - timedelta(days=6)
+
+    next_month = month + 1
+    next_year = year
+    if next_month > 12:
+        next_month = 1
+        next_year += 1
+    next_start = date(next_year, next_month, 1)
+    next_end = next_start + timedelta(days=5)
+
+    current_date = prev_start
+    while current_date <= next_end:
+        is_current_month = current_date.year == year and current_date.month == month
 
         if current_date < today or current_date > max_date:
-            unavailable_days.append(day)
+            if is_current_month:
+                unavailable_days.append(current_date.isoformat())
+            else:
+                unavailable_adjacent_dates.append(current_date.isoformat())
+            current_date += timedelta(days=1)
             continue
 
         start, end = get_hours(current_date, db, hd_id)
         if start >= end:
-            unavailable_days.append(day)
+            if is_current_month:
+                unavailable_days.append(current_date.isoformat())
+            else:
+                unavailable_adjacent_dates.append(current_date.isoformat())
+            current_date += timedelta(days=1)
             continue
 
         start_dt = datetime.combine(current_date, start)
@@ -851,12 +873,18 @@ def get_unavailable_days(hd_id: int, svc_id: int, year: int, month: int, db: Ses
             current += timedelta(minutes=30)
 
         if not available:
-            unavailable_days.append(day)
+            if is_current_month:
+                unavailable_days.append(current_date.isoformat())
+            else:
+                unavailable_adjacent_dates.append(current_date.isoformat())
+
+        current_date += timedelta(days=1)
 
     return {
         "year": year,
         "month": month,
-        "unavailable_days": unavailable_days
+        "unavailable_days": unavailable_days,
+        "unavailable_adjacent_dates": unavailable_adjacent_dates
     }
 
     
