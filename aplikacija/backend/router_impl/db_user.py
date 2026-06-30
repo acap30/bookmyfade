@@ -2,8 +2,10 @@ from sqlalchemy.orm.session import Session
 from db.schemas import User, UserDisplay, UserUpdate, Role, UserPassword
 from db.database import get_db
 from db.models import DbUser
-from fastapi import HTTPException, status
+from fastapi import HTTPException, UploadFile, status
 from db.hashing import Hash
+import os
+import shutil
 
 def create_admin():
     
@@ -138,3 +140,27 @@ def delete_user(db: Session, user_id: int):
     db.commit()
 
     return {"message": "User deleted successfully"}
+
+def upload_picture(file: UploadFile, db: Session, user_id: int):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+
+    folder = "static/images/users"
+    os.makedirs(folder, exist_ok=True)
+
+    file_path = f"{folder}/{user_id}_{file.filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    user = db.query(DbUser).filter(DbUser.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.image_url = file_path
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "message": "Image uploaded successfully",
+        "url": f"/static/images/users/{user_id}_{file.filename}"
+    }

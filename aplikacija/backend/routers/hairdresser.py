@@ -142,3 +142,4 @@ def delete_hairdresser(
 
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
+

@@ -1,6 +1,5 @@
 from typing import List
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from db.database import get_db
 from sqlalchemy.orm.session import Session
 from db import schemas
@@ -54,3 +53,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db), current_user: schem
         return db_user.delete_user(db, user_id)
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
+
+@router.post("/{user_id}/upload-image")
+async def upload_user_image(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
+    return db_user.upload_picture(file, db, current_user.id)

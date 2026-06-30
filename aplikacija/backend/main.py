@@ -1,10 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import IntegrityError
 from fastapi.middleware.cors import CORSMiddleware
 from routers import user, hairdresser, owner, salon, service, working_hours, reservation, wh_exceptions, wh_salon
 from auth import authentication
 from router_impl import db_user
+import os
 
 app = FastAPI()
 
@@ -15,6 +17,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )  
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static", "images", "users")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 app.include_router(user.router)
 app.include_router(authentication.router)
