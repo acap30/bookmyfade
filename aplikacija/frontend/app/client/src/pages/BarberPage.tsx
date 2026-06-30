@@ -20,6 +20,11 @@ const BarberPage = () => {
   const [clientPhone, setClientPhone] = useState("");
   const [loading, setLoading] = useState(true);
   const [bookingCompleted, setBookingCompleted] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState({
+    month: new Date().getMonth(),
+    year: new Date().getFullYear(),
+  });
+  const [disabledDates, setDisabledDates] = useState<string[]>([]);
 
   const navigate = useNavigate();
 
@@ -145,6 +150,27 @@ const BarberPage = () => {
     fetchSlots();
   }, [selectedDate, barberId, selectedService]);
 
+  const fetchDisabledDates = async () => {
+    if (!selectedService && !currentMonth) return;
+
+    try {
+      const res = await fetch(
+        `${baseUrl}/public/reservation/get-unavailable/?hairdresser_id=${barberId}&service_id=${selectedService}&year=${currentMonth.year}&month=${currentMonth.month}`,
+      );
+      const data = await res.json();
+      setDisabledDates([
+        ...data.unavailable_days,
+        ...data.unavailable_adjacent_dates,
+      ]);
+    } catch (err) {
+      console.error("Disable dates error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchDisabledDates();
+  }, [currentMonth, barberId, selectedService]);
+
   if (loading) {
     return (
       <div style={{ padding: "40px", color: "white" }}>Loading barber...</div>
@@ -227,23 +253,6 @@ const BarberPage = () => {
               <h3>Choose appointment time</h3>
 
               <div className="booking-section">
-                <h4>Select date</h4>
-
-                <DatePicker
-                  onChange={(value) => {
-                    if (value instanceof Date) {
-                      setSelectedDate(value);
-                    }
-                    setSelectedTime(null);
-                    setAvailableSlots([]);
-                  }}
-                  value={selectedDate}
-                  minDate={new Date()}
-                  clearIcon={null}
-                />
-              </div>
-
-              <div className="booking-section">
                 <h4>Select service</h4>
 
                 <select
@@ -261,6 +270,39 @@ const BarberPage = () => {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="booking-section">
+                <h4>Select date</h4>
+
+                <DatePicker
+                  onChange={(value) => {
+                    if (value instanceof Date) {
+                      setSelectedDate(value);
+                    }
+                    setSelectedTime(null);
+                    setAvailableSlots([]);
+                  }}
+                  value={selectedDate}
+                  minDate={new Date()}
+                  clearIcon={null}
+                  calendarProps={{
+                    tileDisabled: ({ date, view }) =>
+                      view === "month" &&
+                      disabledDates.includes(
+                        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
+                      ),
+                    onActiveStartDateChange: async ({ activeStartDate }) => {
+                      if (activeStartDate) {
+                        setCurrentMonth({
+                          month: activeStartDate.getMonth(),
+                          year: activeStartDate.getFullYear(),
+                        });
+                      }
+                    },
+                  }}
+                  disableCalendar={selectedService ? false : true}
+                />
               </div>
 
               {availableSlots?.length > 0 ? (
