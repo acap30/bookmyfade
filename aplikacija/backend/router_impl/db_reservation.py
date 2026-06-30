@@ -4,6 +4,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.orm import joinedload
 from db.models import Hairdresser_Service, Reservations, DbUser, Owner, Hairdresser, Service, Salon, WorkingHours, WorkingHoursExceptions
 from datetime import date, datetime, timedelta, time
+import calendar
 
 def get_hours(res_date: date, db: Session, hd_id: int):
     weekday_str = res_date.strftime("%A").lower()
@@ -788,5 +789,74 @@ def get_available_timeslots(hd_id: int, service_id: int, res_date: date, db: Ses
         
         return get_available_timeslots_by_hairdresser_and_service(hd_id, service_id, res_date, db)
     
+def get_unavailable_days(hd_id: int, svc_id: int, year: int, month: int, db: Session):
+    
+    hd = db.query(Hairdresser).filter(Hairdresser.id == hd_id).first()
+    if not hd:
+        raise HTTPException(status_code=404, detail="Hairdresser not found")
+    
+    if month > 12 or month < 1:
+        raise HTTPException(status_code=400, detail="bad month")
+    
+    if year < date.today().year or (year == date.today().year and month < date.today().month):
+        raise HTTPException(status_code=400, detail="can't check for past")
+
+    interval = 30
+    if svc_id != 0:
+        service = db.query(Service).filter(Service.id == svc_id).first()
+        if not service:
+            raise HTTPException(status_code=404, detail="Service not found")
+        hs = (
+            db.query(Hairdresser_Service)
+            .options(joinedload(Hairdresser_Service.service))
+            .filter(Hairdresser_Service.hairdresser_id==hd_id,
+                    Hairdresser_Service.service_id==svc_id)
+            .first()
+        )
+
+        if not hs:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wrong service")
+        interval = hs.service.length_minutes
+
+    days_in_month = calendar.monthrange(year, month)[1]
+    unavailable_days = []
+
+    today = date.today()
+    max_month = today.month + 3
+    max_year = today.year + (max_month - 1) // 12
+    max_month = ((max_month - 1) % 12) + 1
+    max_date = date(max_year, max_month, today.day)
+
+    for day in range(1, days_in_month + 1):
+        current_date = date(year, month, day)
+
+        if current_date < today or current_date > max_date:
+            unavailable_days.append(day)
+            continue
+
+        start, end = get_hours(current_date, db, hd_id)
+        if start >= end:
+            unavailable_days.append(day)
+            continue
+
+        start_dt = datetime.combine(current_date, start)
+        end_dt = datetime.combine(current_date, end)
+
+        available = False
+        current = start_dt
+        while current + timedelta(minutes=interval) <= end_dt:
+            if not time_conflict(db, hd_id, current.date(), current.time(), (current + timedelta(minutes=interval)).time()):
+                available = True
+                break
+            current += timedelta(minutes=30)
+
+        if not available:
+            unavailable_days.append(day)
+
+    return {
+        "year": year,
+        "month": month,
+        "unavailable_days": unavailable_days
+    }
 
     

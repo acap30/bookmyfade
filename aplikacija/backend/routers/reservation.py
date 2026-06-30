@@ -16,6 +16,10 @@ public_router = APIRouter(
 def get_available_timeslots(hd_id: int, service_id: int, date: date, db: Session = Depends(get_db)):
     return db_reservation.get_available_timeslots(hd_id, service_id, date, db)
 
+@public_router.get("/get-unavailable/")
+def get_unavailable_days(hairdresser_id: int, service_id: int, year: int, month: int, db: Session = Depends(get_db)):
+    return db_reservation.get_unavailable_days(hairdresser_id, service_id, year, month + 1, db)
+
 
 router = APIRouter(
     tags=["reservation"],
@@ -57,6 +61,8 @@ def get_reservation_by_id(reservation_id: int, db: Session = Depends(get_db), cu
         return db_reservation.get_reservation_by_id_owner(current_user.id, reservation_id, db)
     else:
         return db_reservation.get_reservation_by_id_hd(current_user.id, reservation_id, db)
+
+
 
 @router.put("/cancel/{reservation_id}")
 def cancel_reservation(reservation_id: int, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
