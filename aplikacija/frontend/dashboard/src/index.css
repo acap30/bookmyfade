@@ -21,6 +21,10 @@ body {
 
   --color-primary: oklch(0.2 0 0);
   --color-primary-foreground: oklch(1 0 0);
+
+  --chart-primary: oklch(0.55 0.2 260);
+  --chart-secondary: oklch(0.65 0.18 160);
+  --chart-grid: oklch(0.9 0 0);
 }
 
 .rdp {
