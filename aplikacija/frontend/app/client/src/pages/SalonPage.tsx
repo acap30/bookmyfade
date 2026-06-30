@@ -67,8 +67,6 @@ const SalonPage = () => {
 
           <div className="salon-meta">
             <span>{salon.address}</span>
-
-            <span>Open today</span>
           </div>
 
           <Link to={`/salon/${id}/barbers`} className="primary-btn">
