@@ -171,7 +171,8 @@ def get_reservations(db: Session, skip: int, limit: int, user_id: int,
             "service": {
                 "id": r.hairdresser_service.service.id,
                 "name": r.hairdresser_service.service.name,
-                "length_minutes": r.hairdresser_service.service.length_minutes
+                "length_minutes": r.hairdresser_service.service.length_minutes,
+                "price": r.hairdresser_service.price
             }
         })
 
@@ -290,7 +291,8 @@ def get_reservation_by_id(res_id: int, db: Session):
             "service": {
                 "id": res.hairdresser_service.service.id,
                 "name": res.hairdresser_service.service.name,
-                "length_minutes": res.hairdresser_service.service.length_minutes
+                "length_minutes": res.hairdresser_service.service.length_minutes,
+                "price": res.hairdresser_service.price
             }
         }
     
@@ -344,7 +346,8 @@ def get_reservation_by_id_owner(user_id: int, res_id: int, db: Session):
             "service": {
                 "id": res.hairdresser_service.service.id,
                 "name": res.hairdresser_service.service.name,
-                "length_minutes": res.hairdresser_service.service.length_minutes
+                "length_minutes": res.hairdresser_service.service.length_minutes,
+                "price": res.hairdresser_service.price
             }
         }
     
@@ -398,7 +401,8 @@ def get_reservation_by_id_hd(user_id: int, res_id: int, db: Session):
             "service": {
                 "id": res.hairdresser_service.service.id,
                 "name": res.hairdresser_service.service.name,
-                "length_minutes": res.hairdresser_service.service.length_minutes
+                "length_minutes": res.hairdresser_service.service.length_minutes,
+                "price": res.hairdresser_service.price
             }
         }
     
@@ -468,7 +472,8 @@ def update_reservation(res_id: int, req: schemas.ReservationUpdate, db: Session)
             "service": {
                 "id": res.hairdresser_service.service.id,
                 "name": res.hairdresser_service.service.name,
-                "length_minutes": res.hairdresser_service.service.length_minutes
+                "length_minutes": res.hairdresser_service.service.length_minutes,
+                "price": res.hairdresser_service.price
             }
         }
     
@@ -549,7 +554,8 @@ def update_reservation_owner(user_id: int, res_id: int, req: schemas.Reservation
             "service": {
                 "id": res.hairdresser_service.service.id,
                 "name": res.hairdresser_service.service.name,
-                "length_minutes": res.hairdresser_service.service.length_minutes
+                "length_minutes": res.hairdresser_service.service.length_minutes,
+                "price": res.hairdresser_service.price
             }
         }
     
@@ -627,7 +633,8 @@ def update_reservation_hd(user_id: int, res_id: int, req: schemas.ReservationUpd
             "service": {
                 "id": res.hairdresser_service.service.id,
                 "name": res.hairdresser_service.service.name,
-                "length_minutes": res.hairdresser_service.service.length_minutes
+                "length_minutes": res.hairdresser_service.service.length_minutes,
+                "price": res.hairdresser_service.price
             }
         }
     

@@ -237,6 +237,7 @@ class ReservationService(BaseModel):
     id: int
     name: str
     length_minutes: int
+    price: float
 
 class ReservationHairdresser(BaseModel):
     id: int
