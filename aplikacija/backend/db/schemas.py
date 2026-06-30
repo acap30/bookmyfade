@@ -34,7 +34,7 @@ class UserDisplay(BaseModel):
     last_name: str
     phone_number: Optional[str] = None
     role:Role
-    image_url: str
+    image_url: str | None = None
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None

@@ -158,11 +158,11 @@ def upload_picture(file: UploadFile, db: Session, user_id: int):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user.image_url = file_path
+    user.image_url = f"/static/{user_id}_{file.filename}"
     db.commit()
     db.refresh(user)
 
     return {
         "message": "Image uploaded successfully",
-        "url": f"/static/images/users/{user_id}_{file.filename}"
+        "url": f"/static/{user_id}_{file.filename}"
     }
