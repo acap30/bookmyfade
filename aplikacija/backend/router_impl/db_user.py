@@ -78,7 +78,8 @@ def get_user_by_id(db: Session, user_id: int):
         first_name=user.first_name,
         last_name=user.last_name,
         phone_number=user.phone_number,
-        role=user.role
+        role=user.role,
+        image_url=user.image_url
     )
 
 def update_user(db: Session, user_id: int, request: UserUpdate):
@@ -104,7 +105,8 @@ def update_user(db: Session, user_id: int, request: UserUpdate):
         first_name=user.first_name,
         last_name=user.last_name,
         phone_number=user.phone_number,
-        role=user.role
+        role=user.role,
+        image_url=user.image_url
     )
 
 def update_password(db: Session, user_id: int, request: UserPassword):
