@@ -15,6 +15,8 @@ interface ICreateBarber {
   salon_id: number;
 }
 
+const baseUrl = import.meta.env.VITE_API_URL;
+
 export const getBarbers = async (): Promise<IBarber[]> => {
   const { data: barbers } = await api.get("/hairdresser");
   const mappedBarbers = await Promise.all(
@@ -35,6 +37,7 @@ export const getBarbers = async (): Promise<IBarber[]> => {
           email: user.email,
           role: user.role,
           phoneNumber: user.phone_number,
+          profileImage: user.image_url ? `${baseUrl}${user.image_url}` : null,
         },
 
         salon: salon,
@@ -62,6 +65,7 @@ export const getBarberById = async (id: string): Promise<IBarber> => {
       email: user.email,
       role: user.role,
       phoneNumber: user.phone_number,
+      profileImage: user.image_url ? `${baseUrl}${user.image_url}` : null,
     },
     salon,
     isActive: barber.is_active,

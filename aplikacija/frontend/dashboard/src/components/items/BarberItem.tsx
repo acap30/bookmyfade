@@ -17,6 +17,7 @@ type BarberItemProps = {
   phoneNumber?: string;
   salonName: string;
   isActive: boolean;
+  profileImage?: string | null;
   onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -27,6 +28,7 @@ const BarberItem = ({
   fullName,
   salonName,
   isActive,
+  profileImage,
   onView,
   onEdit,
   onDelete,
@@ -41,7 +43,7 @@ const BarberItem = ({
     >
       {/* Left */}
       <div className="flex items-center gap-4">
-        <UserAvatar fullName={fullName} />
+        <UserAvatar fullName={fullName} image={profileImage} />
 
         <div>
           <h3 className="font-medium text-text">{fullName}</h3>

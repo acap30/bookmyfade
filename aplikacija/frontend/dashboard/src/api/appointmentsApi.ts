@@ -28,6 +28,7 @@ export const getAppointments = async (
           id: appointment.service.id,
           name: appointment.service.name,
           length: appointment.service.length_minutes,
+          price: appointment.service.price,
         },
         date: appointment.res_date,
         startTime: appointment.start_time.slice(0, 5),

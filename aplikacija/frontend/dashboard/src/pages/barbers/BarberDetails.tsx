@@ -158,7 +158,11 @@ const BarberDetails = () => {
           <div className="rounded-2xl border border-border bg-card p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex items-start gap-5">
-                <UserAvatar fullName={barber.user.fullName} size={70} />
+                <UserAvatar
+                  fullName={barber.user.fullName}
+                  image={barber.user.profileImage}
+                  size={70}
+                />
 
                 <div>
                   <div className="flex items-center gap-3">

@@ -7,6 +7,7 @@ export type Barber = {
   first_name?: string;
   last_name?: string;
   title?: string;
+  image_url?: string | null;
 };
 
 export const getBarbers = async (): Promise<Barber[]> => {

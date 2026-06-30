@@ -170,6 +170,7 @@ const Barbers = () => {
                   phoneNumber={barber.user.phoneNumber || null}
                   salonName={barber.salon.name}
                   isActive={barber.isActive}
+                  profileImage={barber.user.profileImage}
                   onView={() => navigate(`/barbers/${barber.id}`)}
                   onEdit={() => {
                     setSelectedBarber(barber);

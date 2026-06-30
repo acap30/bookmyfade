@@ -15,6 +15,8 @@ interface ICreateOwner {
   salon_id: number;
 }
 
+const baseUrl = import.meta.env.VITE_API_URL;
+
 export const getOwners = async (): Promise<IOwner[]> => {
   const { data: owners } = await api.get("/owner");
   const mappedOwners = await Promise.all(
@@ -35,6 +37,7 @@ export const getOwners = async (): Promise<IOwner[]> => {
           email: user.email,
           role: user.role,
           phoneNumber: user.phone_number,
+          profileImage: user.image_url ? `${baseUrl}${user.image_url}` : null,
         },
 
         salon: salon,

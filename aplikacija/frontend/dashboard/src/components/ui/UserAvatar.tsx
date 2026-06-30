@@ -1,8 +1,9 @@
 type UserAvatarProps = {
   fullName: string;
+  image?: string | null;
   size?: number;
 };
-const UserAvatar = ({ fullName, size = 40 }: UserAvatarProps) => {
+const UserAvatar = ({ fullName, image, size = 40 }: UserAvatarProps) => {
   const initials = fullName
     .split(" ")
     .map((word) => word[0])
@@ -23,7 +24,7 @@ const UserAvatar = ({ fullName, size = 40 }: UserAvatarProps) => {
     .split("")
     .reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const backgroundColor = colors[hash % colors.length];
-  return (
+  return !image ? (
     <div
       style={{
         width: size,
@@ -35,6 +36,16 @@ const UserAvatar = ({ fullName, size = 40 }: UserAvatarProps) => {
     >
       {initials}
     </div>
+  ) : (
+    <img
+      src={image}
+      alt={fullName}
+      style={{
+        width: size,
+        height: size,
+      }}
+      className="rounded-full object-cover"
+    />
   );
 };
 

@@ -35,7 +35,8 @@ const AppointmentItem = ({ appointment, onCancel }: Props) => {
             <p className="font-medium truncate">
               {appointment.service.name}{" "}
               <span className="text-sm text-muted ">
-                ({appointment.service.length} min)
+                ({appointment.service.length} min) •{" "}
+                <strong>{appointment.service.price} din</strong>
               </span>
             </p>
             <p className="text-sm text-muted truncate">

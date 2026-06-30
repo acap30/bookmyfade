@@ -266,7 +266,7 @@ const BarberPage = () => {
                   <option value="">-- choose service --</option>
                   {services.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.name} ({s.length} min)
+                      {s.name} ({s.length} min) - {s.price} din
                     </option>
                   ))}
                 </select>

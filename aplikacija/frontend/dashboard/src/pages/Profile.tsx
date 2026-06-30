@@ -1,11 +1,11 @@
-import { Mail, Phone, Shield, User } from "lucide-react";
+import { Mail, Pencil, Phone, Shield, User } from "lucide-react";
 
 import UserAvatar from "../components/ui/UserAvatar";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import ProfileInput from "../components/profile/ProfileInput";
 import ChangePasswordModal from "../components/modals/ChangePasswordModal";
-import { updateProfile } from "../api/authApi";
+import { getUserById, updateProfile, uploadProfileImage } from "../api/authApi";
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -30,6 +30,11 @@ const Profile = () => {
     }));
   };
 
+  const refreshUser = async () => {
+    const updatedUser = await getUserById(Number(user.id));
+    updateUser(updatedUser);
+  };
+
   const handleSave = async () => {
     try {
       const newUser = {
@@ -42,7 +47,7 @@ const Profile = () => {
       const res = await updateProfile(newUser);
       console.log(res.data.message);
 
-      updateUser(newUser);
+      await refreshUser();
 
       setIsEditing(false);
     } catch (error) {
@@ -62,6 +67,20 @@ const Profile = () => {
     setIsEditing(false);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    await uploadProfileImage(formData);
+
+    await refreshUser();
+  };
+
   return (
     <div className="space-y-6">
       {/* Main Card */}
@@ -69,7 +88,28 @@ const Profile = () => {
         {/* Top Section */}
         <div className="flex flex-col gap-6 md:flex-row md:items-center">
           {/* Avatar */}
-          <UserAvatar fullName={user.fullName} size={72} />
+          <div className="group relative w-fit">
+            <UserAvatar
+              fullName={user.fullName}
+              image={
+                user?.profileImage
+                  ? `${import.meta.env.VITE_API_URL}${user?.profileImage}`
+                  : null
+              }
+              size={72}
+            />
+
+            <label className="absolute inset-0 hidden cursor-pointer items-center justify-center rounded-full bg-black/50 transition group-hover:flex">
+              <Pencil size={20} className="text-white" />
+
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </label>
+          </div>
 
           {/* User Info */}
           <div className="space-y-2">

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getSalonBarbers, type Barber } from "../api/barbersApi";
 
+const baseUrl = import.meta.env.VITE_API_URL;
+
 const BarberList = () => {
   const { id } = useParams();
 
@@ -16,7 +18,6 @@ const BarberList = () => {
         const filteredBarbers = data.filter(
           (barber) => barber.salon_id === Number(id),
         );
-
         setBarbers(filteredBarbers);
       } catch (error) {
         console.error(error);
@@ -59,7 +60,11 @@ const BarberList = () => {
               className="salon-card"
             >
               <img
-                src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=1200&auto=format&fit=crop"
+                src={
+                  barber.image_url
+                    ? `${baseUrl}${barber.image_url}`
+                    : "https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=1200&auto=format&fit=crop"
+                }
                 alt={barber.first_name}
               />
 

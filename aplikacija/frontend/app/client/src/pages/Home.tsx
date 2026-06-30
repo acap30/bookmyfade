@@ -42,12 +42,6 @@ const Home = () => {
             src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?q=80&w=1400&auto=format&fit=crop"
             alt="Barber shop"
           />
-
-          <div className="floating-card">
-            <strong>Next available</strong>
-
-            <span>Today · 18:30</span>
-          </div>
         </section>
       </main>
 

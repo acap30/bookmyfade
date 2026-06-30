@@ -18,6 +18,7 @@ type OwnerItemProps = {
   phoneNumber?: string;
   salonName: string;
   isActive: boolean;
+  profileImage?: string | null;
   onEdit: () => void;
   onDelete: () => void;
   onToggleBarberStatus: () => void;
@@ -29,6 +30,7 @@ const OwnerItem = ({
   phoneNumber,
   salonName,
   isActive,
+  profileImage,
   onEdit,
   onDelete,
   onToggleBarberStatus,
@@ -44,7 +46,7 @@ const OwnerItem = ({
         {/* <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
           <User size={18} />
         </div> */}
-        <UserAvatar fullName={fullName} />
+        <UserAvatar fullName={fullName} image={profileImage} />
 
         <div>
           <h3 className="font-medium text-text">{fullName}</h3>

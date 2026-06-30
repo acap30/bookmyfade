@@ -33,7 +33,16 @@ const Topbar = () => {
       {/* Right */}
       <Dropdown
         align="right"
-        trigger={<UserAvatar fullName={user.fullName} />}
+        trigger={
+          <UserAvatar
+            fullName={user.fullName}
+            image={
+              user?.profileImage
+                ? `${import.meta.env.VITE_API_URL}${user?.profileImage}`
+                : null
+            }
+          />
+        }
         header={{
           name: user.fullName,
           role: user.role.charAt(0).toUpperCase() + user.role.slice(1),

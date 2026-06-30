@@ -15,6 +15,7 @@ export interface IUser {
   email: string;
   role: Role;
   phoneNumber: string | null;
+  profileImage?: string | null;
 }
 
 export interface IAuthData {

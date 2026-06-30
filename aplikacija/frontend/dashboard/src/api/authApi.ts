@@ -26,6 +26,7 @@ export const signIn = async (
       email: response.data.email,
       role: response.data.role,
       phoneNumber: response.data.phone_number,
+      profileImage: response.data.image_url,
     },
     token: response.data.access_token,
     refreshToken: response.data.refresh_token,
@@ -55,4 +56,29 @@ export const changePassword = async (current: string, newPassword: string) => {
     new: newPassword,
   });
   return response;
+};
+
+export const getUserById = async (user_id: number) => {
+  const { data: user } = await api.get(`/users/${user_id}`);
+  return {
+    id: user.id,
+    fullName: `${user.first_name} ${user.last_name}`,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+    phoneNumber: user.phone_number,
+    profileImage: user.image_url,
+  };
+};
+
+export const uploadProfileImage = async (formData: FormData) => {
+  const response = await api.patch(`/users/upload-image`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
 };

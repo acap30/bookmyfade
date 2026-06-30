@@ -159,6 +159,7 @@ const Owners = () => {
                   phoneNumber={owner.user.phoneNumber || null}
                   salonName={owner.salon.name}
                   isActive={owner.isActive}
+                  profileImage={owner.user.profileImage}
                   onEdit={() => {
                     setSelectedOwner(owner);
                     setEditModalOpen(true);
