@@ -15,6 +15,8 @@ def get_hours(res_date: date, db: Session, hd_id: int):
                 WorkingHours.weekday==schemas.Weekday(weekday_str))
         .first()
     )
+    if not wh_main:
+        raise HTTPException(status_code=404)
 
     wh_exception = (
         db.query(WorkingHoursExceptions)
@@ -22,7 +24,7 @@ def get_hours(res_date: date, db: Session, hd_id: int):
                 WorkingHoursExceptions.hairdresser_id==hd_id)
         .first()
     )
-    
+    # print(wh_main.weekday, wh_main.start, wh_main.end, "pozpzozp")
     start = None
     end = None
     if wh_exception is not None and wh_exception.day_off is False:
@@ -68,7 +70,7 @@ def create_reservation(req: schemas.ReservationCreate, db: Session):
                 Hairdresser_Service.service_id == req.hs_id)
         .first() 
     )
-    
+
     if not hs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Hairdresser/service not found")
@@ -730,9 +732,14 @@ def delete_reservation(res_id: int, user_id: int, db: Session):
 def generate_slots(hd_id, start, end, db, interval=30):
     slots = []
     current = start
+    now = datetime.now()
     while current < end:
         if time_conflict(db, hd_id, current.date(), current.time(), (current + timedelta(minutes=interval)).time()):
             print("Conflict")
+        elif current <= now:
+            print(f"res_date = {current.date()}")
+            print(f"start_dt = {start}")
+            print(f"now      = {datetime.now()}")
         else:
             slots.append(current.time())
         current += timedelta(minutes=30)
@@ -743,6 +750,7 @@ def generate_slots(hd_id, start, end, db, interval=30):
 def get_available_timeslots_by_hairdresser(hd_id: int, res_date: date, db: Session):
     
     start, end = get_hours(res_date, db, hd_id)
+    print(res_date, start, end)
     
     start_dt = datetime.combine(res_date, start)
     end_dt = datetime.combine(res_date, end)
@@ -768,9 +776,11 @@ def get_available_timeslots_by_hairdresser_and_service(hd_id: int, service_id: i
     if not hs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wrong service")
     
-    print(hs.id)
+    # print(hs.id)
 
     start, end = get_hours(res_date, db, hd_id)
+
+    print(res_date, start, end)
 
     start_dt = datetime.combine(res_date, start)
     end_dt = datetime.combine(res_date, end)
