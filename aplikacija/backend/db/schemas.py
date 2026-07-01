@@ -2,6 +2,7 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict
 from enum import Enum
 from datetime import time, datetime, date
+import datetime as dt
 
 class Role(str, Enum):
     ADMIN = "admin"
@@ -300,4 +301,20 @@ class ServiceDisplay(BaseModel):
     res_date: date
     start: time
     services: List[Service]
+
+class IncomeData(BaseModel):
+    date: dt.date
+    income: float | None = None
+
+class AppointmentData(BaseModel):
+    date: dt.date
+    appointments: int
+
+class DashboardStatistics(BaseModel):
+    todayAppointments: int
+    monthlyRevenue: float
+    activeBarbers: int
+    monthAppointments: int
+    incomeData: List[IncomeData]
+    appointmentData: List[AppointmentData]
 
