@@ -87,12 +87,25 @@ const fakeDashboard: IDashboard = {
 
 const Dashboard = () => {
   const [dashboard, setDashboard] = useState<IDashboard | null>(null);
+  const [selectedIncomeDate, setSelectedIncomeDate] = useState(new Date());
+  const [selectedAppointmentDate, setSelectedAppointmentDate] = useState(
+    new Date(),
+  );
 
   const [loading, setLoading] = useState(true);
 
   const fetchDashboard = async () => {
     try {
-      const data = await getDashboard();
+      const monthIncome = selectedIncomeDate.getMonth() + 1;
+      const yearIncome = selectedIncomeDate.getFullYear();
+      const monthAppointment = selectedIncomeDate.getMonth() + 1;
+      const yearAppointment = selectedIncomeDate.getFullYear();
+      const data = await getDashboard(
+        monthIncome,
+        yearIncome,
+        monthAppointment,
+        yearAppointment,
+      );
       setDashboard(data);
     } catch (error) {
       console.error(error);
@@ -103,7 +116,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboard();
-  }, []);
+  }, [selectedAppointmentDate, selectedIncomeDate]);
 
   return loading ? (
     <div className="flex flex-col items-center justify-center py-12 text-muted">
@@ -127,7 +140,7 @@ const Dashboard = () => {
         />
 
         <StatCard
-          label="Revenue This Month"
+          label="Expected Monthly Revenue"
           icon={DollarSign}
           value={`${dashboard?.monthlyRevenue ?? 0} RSD`}
         />
@@ -141,8 +154,16 @@ const Dashboard = () => {
 
       {/* Bottom Section */}
       <div className="grid grid-cols-1 gap-6">
-        <IncomeChart incomeData={dashboard.incomeData} />
-        <AppointmentChart appointmentData={dashboard.appointmentData} />
+        <IncomeChart
+          incomeData={dashboard.incomeData}
+          selectedDate={selectedIncomeDate}
+          setSelectedDate={setSelectedIncomeDate}
+        />
+        <AppointmentChart
+          appointmentData={dashboard.appointmentData}
+          selectedDate={selectedAppointmentDate}
+          setSelectedDate={setSelectedAppointmentDate}
+        />
       </div>
     </div>
   );

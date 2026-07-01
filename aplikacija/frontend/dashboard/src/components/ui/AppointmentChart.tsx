@@ -1,12 +1,19 @@
 import { ResponsiveBar } from "@nivo/bar";
 import type { IAppointmentPoint } from "../../types/dashboard";
 import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type ChartProps = {
   appointmentData: IAppointmentPoint[];
+  selectedDate: Date;
+  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
 };
 
-const AppointmentChart = ({ appointmentData }: ChartProps) => {
+const AppointmentChart = ({
+  appointmentData,
+  selectedDate,
+  setSelectedDate,
+}: ChartProps) => {
   const formattedData = appointmentData.map((d) => ({
     date: new Date(d.date).toLocaleDateString("en-US", {
       month: "short",
@@ -40,6 +47,40 @@ const AppointmentChart = ({ appointmentData }: ChartProps) => {
         <div>
           <h2 className="text-lg font-semibold text-text">Appointmnents</h2>
           <p className="text-sm text-muted">Daily activity this month</p>
+        </div>
+
+        <div className="flex items-center gap-4 border border-border rounded-2xl p-2 bg-background">
+          <button
+            onClick={() =>
+              setSelectedDate(
+                (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+              )
+            }
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          <span className="font-medium">
+            {selectedDate.toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })}
+          </span>
+
+          <button
+            disabled={
+              selectedDate.getMonth() === new Date().getMonth() &&
+              selectedDate.getFullYear() === new Date().getFullYear()
+            }
+            onClick={() =>
+              setSelectedDate(
+                (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+              )
+            }
+            className="disabled:opacity-50"
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
       <div className="h-80 w-full">

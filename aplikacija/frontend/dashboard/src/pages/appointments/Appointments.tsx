@@ -114,27 +114,29 @@ const Appointments = () => {
           />
         </div>
 
-        <div className="flex flex-col">
-          <label className="text-sm text-muted">Barber:</label>
-          <select
-            value={filters.barber}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                barber: e.target.value,
-              }))
-            }
-            className="rounded-xl border border-border bg-card px-4 py-3 text-text outline-none focus:border-primary"
-          >
-            <option value="">All barbers</option>
+        {user.role !== ROLES.BARBER && (
+          <div className="flex flex-col">
+            <label className="text-sm text-muted">Barber:</label>
+            <select
+              value={filters.barber}
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  barber: e.target.value,
+                }))
+              }
+              className="rounded-xl border border-border bg-card px-4 py-3 text-text outline-none focus:border-primary"
+            >
+              <option value="">All barbers</option>
 
-            {barbers.map((barber) => (
-              <option key={barber.id} value={barber.id}>
-                {barber.user.fullName}
-              </option>
-            ))}
-          </select>
-        </div>
+              {barbers.map((barber) => (
+                <option key={barber.id} value={barber.id}>
+                  {barber.user.fullName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {user.role === ROLES.ADMIN && (
           <div className="flex flex-col">

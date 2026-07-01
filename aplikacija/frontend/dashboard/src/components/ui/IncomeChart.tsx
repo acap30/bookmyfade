@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import type { IIncomePoint } from "../../types/dashboard";
 import { ResponsiveLine } from "@nivo/line";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type ChartProps = {
   incomeData: IIncomePoint[];
+  selectedDate: Date;
+  setSelectedDate: React.Dispatch<React.SetStateAction<Date>>;
 };
 
-const IncomeChart = ({ incomeData }: ChartProps) => {
+const IncomeChart = ({
+  incomeData,
+  selectedDate,
+  setSelectedDate,
+}: ChartProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const breakpoint = 768;
   const today = new Date().toISOString().split("T")[0];
@@ -51,6 +58,40 @@ const IncomeChart = ({ incomeData }: ChartProps) => {
         <div>
           <h2 className="text-lg font-semibold text-text">Revenue</h2>
           <p className="text-sm text-muted">Daily revenue this month</p>
+        </div>
+
+        <div className="flex items-center gap-4 border border-border rounded-2xl p-2 bg-background">
+          <button
+            onClick={() =>
+              setSelectedDate(
+                (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+              )
+            }
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          <span className="font-medium">
+            {selectedDate.toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })}
+          </span>
+
+          <button
+            disabled={
+              selectedDate.getMonth() === new Date().getMonth() &&
+              selectedDate.getFullYear() === new Date().getFullYear()
+            }
+            onClick={() =>
+              setSelectedDate(
+                (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+              )
+            }
+            className="disabled:opacity-50"
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
       </div>
       <div className="h-80 w-full">
