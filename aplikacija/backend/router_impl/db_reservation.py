@@ -61,7 +61,14 @@ def time_conflict(db: Session, hd_id: int, date: date, start_time: time, end_tim
 
 
 def create_reservation(req: schemas.ReservationCreate, db: Session):
-    hs = db.query(Hairdresser_Service).options(joinedload(Hairdresser_Service.service)).filter(Hairdresser_Service.id == req.hs_id).first()
+    hs = (
+        db.query(Hairdresser_Service)
+        .options(joinedload(Hairdresser_Service.service))
+        .filter(Hairdresser_Service.hairdresser_id == req.hairdresser_id, 
+                Hairdresser_Service.service_id == req.hs_id)
+        .first() 
+    )
+    
     if not hs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail="Hairdresser/service not found")
@@ -760,6 +767,8 @@ def get_available_timeslots_by_hairdresser_and_service(hd_id: int, service_id: i
 
     if not hs:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wrong service")
+    
+    print(hs.id)
 
     start, end = get_hours(res_date, db, hd_id)
 

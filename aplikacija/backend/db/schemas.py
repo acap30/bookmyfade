@@ -249,6 +249,7 @@ class ReservationHairdresser(BaseModel):
     last_name: str
 
 class ReservationCreate(BaseModel):
+    hairdresser_id: int
     hs_id: int
     client_name: str
     client_phone: str
@@ -318,3 +319,8 @@ class DashboardStatistics(BaseModel):
     incomeData: List[IncomeData]
     appointmentData: List[AppointmentData]
 
+class DashboardDates(BaseModel):
+    incomeMonth: int
+    incomeYear: int
+    appointmentMonth: int
+    appointmentYear: int

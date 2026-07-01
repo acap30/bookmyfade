@@ -13,7 +13,7 @@ router = APIRouter(
 
 @router.post('/')
 def create_user(request: schemas.User, db: Session = Depends(get_db), current_user: schemas.UserAuth = Depends(get_current_user)):
-    if current_user.role == schemas.Role.ADMIN:
+    if current_user.role == schemas.Role.ADMIN or current_user.role == schemas.Role.OWNER:
         return db_user.create_user(db, request)
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")

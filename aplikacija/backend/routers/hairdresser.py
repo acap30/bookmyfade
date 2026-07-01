@@ -49,7 +49,7 @@ def create_hairdresser(
     db: Session = Depends(get_db),
     current_user: UserAuth = Depends(get_current_user)
 ):
-    if current_user.role == Role.ADMIN:
+    if current_user.role == Role.ADMIN or current_user.role == Role.OWNER:
 
         return hairdresser_impl.create_hairdresser(
             db,
