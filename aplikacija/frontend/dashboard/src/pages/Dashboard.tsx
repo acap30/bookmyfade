@@ -98,8 +98,8 @@ const Dashboard = () => {
     try {
       const monthIncome = selectedIncomeDate.getMonth();
       const yearIncome = selectedIncomeDate.getFullYear();
-      const monthAppointment = selectedIncomeDate.getMonth();
-      const yearAppointment = selectedIncomeDate.getFullYear();
+      const monthAppointment = selectedAppointmentDate.getMonth();
+      const yearAppointment = selectedAppointmentDate.getFullYear();
       const data = await getDashboard(
         monthIncome,
         yearIncome,
