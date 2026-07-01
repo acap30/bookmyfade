@@ -11,6 +11,9 @@ __pycache__/
 aplikacija/backend/static/images/users/*
 !aplikacija/backend/static/images/users/.gitkeep
 
+aplikacija/backend/static/images/salons/*
+!aplikacija/backend/static/images/salons/.gitkeep
+
 build/
 dist/
 *.egg-info/
