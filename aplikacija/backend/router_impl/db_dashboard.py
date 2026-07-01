@@ -59,11 +59,11 @@ def get_statistics_admin(req: schemas.DashboardDates, db: Session):
     monthlyRevenue = month_stats[1]
 
 
-    start = date(req.incomeYear, req.incomeMonth, 1)
-    if today.month == 12:
-        end = date(today.year + 1, 1, 1)
+    start_inc = date(req.incomeYear, req.incomeMonth, 1)
+    if start_inc.month == 12:
+        end_inc = date(start_inc.year + 1, 1, 1)
     else:
-        end = date(today.year, today.month + 1, 1)
+        end_inc = date(start_inc.year, start_inc.month + 1, 1)
     income_rows = (
         db.query(
             Reservations.date.label("date"),
@@ -71,33 +71,33 @@ def get_statistics_admin(req: schemas.DashboardDates, db: Session):
         )
         .join(Hairdresser_Service)
         .filter(
-            Reservations.date >= start,
-            Reservations.date < end
+            Reservations.date >= start_inc,
+            Reservations.date < end_inc
         )
         .group_by(Reservations.date)
         .all()
     )
 
-    start = date(req.appointmentYear, req.appointmentMonth, 1)
-    if today.month == 12:
-        end = date(today.year + 1, 1, 1)
+    start_app = date(req.appointmentYear, req.appointmentMonth, 1)
+    if start_app.month == 12:
+        end_app = date(start_app.year + 1, 1, 1)
     else:
-        end = date(today.year, today.month + 1, 1)
+        end_app = date(start_app.year, start_app.month + 1, 1)
     appointment_rows = (
         db.query(
             Reservations.date.label("date"),
             func.count(Reservations.id).label("appointments")
         )
         .filter(
-            Reservations.date >= start,
-            Reservations.date < end
+            Reservations.date >= start_app,
+            Reservations.date < end_app
         )
         .group_by(Reservations.date)
         .all()
     )
 
-    incomeData = fill_month(start, end, income_rows, "income")
-    appointmentData = fill_month(start, end, appointment_rows, "appointments")
+    incomeData = fill_month(start_inc, end_inc, income_rows, "income")
+    appointmentData = fill_month(start_app, end_app, appointment_rows, "appointments")
 
     
     return schemas.DashboardStatistics(
@@ -162,11 +162,11 @@ def get_statistics_owner(req: schemas.DashboardDates, db: Session, user_id: int)
     monthAppointments = month_stats[0]
     monthlyRevenue = month_stats[1]
 
-    start = date(req.incomeYear, req.incomeMonth, 1)
-    if today.month == 12:
-        end = date(today.year + 1, 1, 1)
+    start_inc = date(req.incomeYear, req.incomeMonth, 1)
+    if start_inc.month == 12:
+        end_inc = date(start_inc.year + 1, 1, 1)
     else:
-        end = date(today.year, today.month + 1, 1)
+        end_inc = date(start_inc.year, start_inc.month + 1, 1)
     income_rows = (
         db.query(
             Reservations.date.label("date"),
@@ -175,18 +175,18 @@ def get_statistics_owner(req: schemas.DashboardDates, db: Session, user_id: int)
         .join(Hairdresser_Service, Reservations.hs_id == Hairdresser_Service.id)
         .join(Hairdresser, Hairdresser.id == Hairdresser_Service.hairdresser_id)
         .filter(
-            Reservations.date >= start,
-            Reservations.date < end,
+            Reservations.date >= start_inc,
+            Reservations.date < end_inc,
             Hairdresser.salon_id == owner.salon_id
         )
         .group_by(Reservations.date)
         .all()
     )
-    start = date(req.appointmentYear, req.appointmentMonth, 1)
-    if today.month == 12:
-        end = date(today.year + 1, 1, 1)
+    start_app = date(req.appointmentYear, req.appointmentMonth, 1)
+    if start_app.month == 12:
+        end_app = date(start_app.year + 1, 1, 1)
     else:
-        end = date(today.year, today.month + 1, 1)
+        end_app = date(start_app.year, start_app.month + 1, 1)
     appointment_rows = (
         db.query(
             Reservations.date.label("date"),
@@ -195,16 +195,16 @@ def get_statistics_owner(req: schemas.DashboardDates, db: Session, user_id: int)
         .join(Hairdresser_Service, Reservations.hs_id == Hairdresser_Service.id)
         .join(Hairdresser, Hairdresser.id == Hairdresser_Service.hairdresser_id)
         .filter(
-            Reservations.date >= start,
-            Reservations.date < end,
+            Reservations.date >= start_app,
+            Reservations.date < end_app,
             Hairdresser.salon_id == owner.salon_id
         )
         .group_by(Reservations.date)
         .all()
     )
 
-    incomeData = fill_month(start, end, income_rows, "income")
-    appointmentData = fill_month(start, end, appointment_rows, "appointments")
+    incomeData = fill_month(start_inc, end_inc, income_rows, "income")
+    appointmentData = fill_month(start_app, end_app, appointment_rows, "appointments")
 
     
     return schemas.DashboardStatistics(
@@ -266,11 +266,11 @@ def get_statistics_hd(req: schemas.DashboardDates, db: Session, user_id: int):
     monthAppointments = month_stats[0]
     monthlyRevenue = month_stats[1]
 
-    start = date(req.incomeYear, req.incomeMonth, 1)
-    if start.month == 12:
-        end = date(start.year + 1, 1, 1)
+    start_inc = date(req.incomeYear, req.incomeMonth, 1)
+    if start_inc.month == 12:
+        end_inc = date(start_inc.year + 1, 1, 1)
     else:
-        end = date(start.year, start.month + 1, 1)
+        end_inc = date(start_inc.year, start_inc.month + 1, 1)
     income_rows = (
         db.query(
             Reservations.date.label("date"),
@@ -278,18 +278,18 @@ def get_statistics_hd(req: schemas.DashboardDates, db: Session, user_id: int):
         )
         .join(Hairdresser_Service)
         .filter(
-            Reservations.date >= start,
-            Reservations.date < end,
+            Reservations.date >= start_inc,
+            Reservations.date < end_inc,
             Hairdresser_Service.hairdresser_id == hd.id
         )
         .group_by(Reservations.date)
         .all()
     )
-    start = date(req.appointmentYear, req.appointmentMonth, 1)
-    if start.month == 12:
-        end = date(start.year + 1, 1, 1)
+    start_app = date(req.appointmentYear, req.appointmentMonth, 1)
+    if start_app.month == 12:
+        end_app = date(start_app.year + 1, 1, 1)
     else:
-        end = date(start.year, start.month + 1, 1)
+        end_app = date(start_app.year, start_app.month + 1, 1)
     appointment_rows = (
         db.query(
             Reservations.date.label("date"),
@@ -297,16 +297,16 @@ def get_statistics_hd(req: schemas.DashboardDates, db: Session, user_id: int):
         )
         .join(Hairdresser_Service)
         .filter(
-            Reservations.date >= start,
-            Reservations.date < end,
+            Reservations.date >= start_app,
+            Reservations.date < end_app,
             Hairdresser_Service.hairdresser_id == hd.id
         )
         .group_by(Reservations.date)
         .all()
     )
 
-    incomeData = fill_month(start, end, income_rows, "income")
-    appointmentData = fill_month(start, end, appointment_rows, "appointments")
+    incomeData = fill_month(start_inc, end_inc, income_rows, "income")
+    appointmentData = fill_month(start_app, end_app, appointment_rows, "appointments")
 
     
     return schemas.DashboardStatistics(
