@@ -29,6 +29,10 @@ const AppointmentChart = ({ appointmentData }: ChartProps) => {
   const visibleData = isMobile
     ? formattedData.filter((_, i) => i % 2 === 0)
     : formattedData;
+
+  const hasData = visibleData.some(
+    (item) => item.appointments !== null && item.appointments > 0,
+  );
   return (
     <div className="w-full rounded-2xl border border-border bg-card p-5 shadow-sm">
       {/* Header */}
@@ -45,7 +49,7 @@ const AppointmentChart = ({ appointmentData }: ChartProps) => {
           indexBy="date"
           margin={{ top: 20, right: 20, bottom: 60, left: isMobile ? 30 : 50 }}
           padding={0.3}
-          valueScale={{ type: "linear" }}
+          valueScale={{ type: "linear", max: hasData ? "auto" : 10 }}
           indexScale={{ type: "band", round: true }}
           colors={["#3b82f6"]}
           borderRadius={8}

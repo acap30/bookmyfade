@@ -9,6 +9,7 @@ type ChartProps = {
 const IncomeChart = ({ incomeData }: ChartProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const breakpoint = 768;
+  const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < breakpoint);
@@ -18,9 +19,18 @@ const IncomeChart = ({ incomeData }: ChartProps) => {
     return () => window.removeEventListener("resize", check);
   }, [breakpoint]);
 
+  const updatedIncomeData = incomeData.map((item) => ({
+    ...item,
+    income: item.date > today ? null : item.income,
+  }));
+
   const filteredIncomeData = isMobile
-    ? incomeData.filter((_, i) => i % 2 === 0) // every 2nd day
-    : incomeData;
+    ? updatedIncomeData.filter((_, i) => i % 2 === 0) // every 2nd day
+    : updatedIncomeData;
+
+  const hasData = filteredIncomeData.some(
+    (item) => item.income !== null && item.income > 0,
+  );
 
   const formattedData = [
     {
@@ -56,7 +66,7 @@ const IncomeChart = ({ incomeData }: ChartProps) => {
           yScale={{
             type: "linear",
             min: 0,
-            max: "auto",
+            max: hasData ? "auto" : 100,
             stacked: false,
           }}
           curve="monotoneX"

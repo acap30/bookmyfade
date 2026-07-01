@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import type { IDashboard } from "../types/dashboard";
 import IncomeChart from "../components/ui/IncomeChart";
 import AppointmentChart from "../components/ui/AppointmentChart";
+import { getDashboard } from "../api/dashboardApi";
 
 const fakeDashboard: IDashboard = {
   todayAppointments: 14,
@@ -91,8 +92,8 @@ const Dashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      // const data = await getDashboard();
-      setDashboard(fakeDashboard);
+      const data = await getDashboard();
+      setDashboard(data);
     } catch (error) {
       console.error(error);
     } finally {
