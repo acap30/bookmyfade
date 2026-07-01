@@ -39,12 +39,15 @@ const BarberPage = () => {
     const [hours, minutes] = selectedTime.split(":");
     const start = new Date(selectedDate);
     start.setHours(Number(hours), Number(minutes), 0);
+    const formattedDate = `${selectedDate.getFullYear()}-${String(
+      selectedDate.getMonth() + 1,
+    ).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
 
     const payload = {
       hs_id: Number(selectedService),
       client_name: clientName,
       client_phone: clientPhone,
-      res_date: selectedDate.toISOString().split("T")[0],
+      res_date: formattedDate,
       start_time: selectedTime + ":00",
       hairdresser_id: Number(barberId),
     };
@@ -121,7 +124,9 @@ const BarberPage = () => {
 
     console.log("BARBER ID:", hdId);
     try {
-      const formattedDate = selectedDate.toISOString().split("T")[0];
+      const formattedDate = `${selectedDate.getFullYear()}-${String(
+        selectedDate.getMonth() + 1,
+      ).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
 
       console.log("DATE:", formattedDate);
       const res = await fetch(
@@ -150,7 +155,7 @@ const BarberPage = () => {
   }, [selectedDate, barberId, selectedService]);
 
   const fetchDisabledDates = async () => {
-    if (!selectedService && !currentMonth) return;
+    if (!selectedService || !currentMonth) return;
 
     try {
       const res = await fetch(
@@ -224,7 +229,14 @@ const BarberPage = () => {
                 Your appointment with <strong>{barber.first_name}</strong> has
                 been scheduled for{" "}
                 <strong>
-                  {selectedDate?.toISOString().split("T")[0] ?? "selected date"}
+                  {selectedDate
+                    ? `${selectedDate.getFullYear()}-${String(
+                        selectedDate.getMonth() + 1,
+                      ).padStart(
+                        2,
+                        "0",
+                      )}-${String(selectedDate.getDate()).padStart(2, "0")}`
+                    : "selected date"}
                 </strong>{" "}
                 at <strong>{selectedTime ?? "selected time"}</strong>.
               </p>
