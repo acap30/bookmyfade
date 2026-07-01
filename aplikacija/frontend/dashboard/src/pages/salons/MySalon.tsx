@@ -48,6 +48,7 @@ const MySalon = () => {
         address: data.address,
         email: data.email,
         phone: data.phone,
+        active: data.is_active,
 
         stats: {
           barbers: 8,
@@ -101,7 +102,7 @@ const MySalon = () => {
         </div>
       ) : (
         <>
-          <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="relative rounded-2xl border border-border bg-card p-6">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex items-start gap-5">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
@@ -132,6 +133,15 @@ const MySalon = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+              <div
+                className={`absolute top-6 right-6 w-fit rounded-full px-4 py-2 text-sm font-medium ${
+                  salon.active
+                    ? "bg-green-500/10 text-green-500"
+                    : "bg-red-500/10 text-red-500"
+                }`}
+              >
+                {salon.active ? "Active" : "Inactive"}
               </div>
             </div>
           </div>
