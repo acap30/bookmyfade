@@ -2,17 +2,13 @@ import {
   MapPin,
   Mail,
   Phone,
-  Users,
   Calendar,
-  Scissors,
-  DollarSign,
   Store,
   Loader2,
   Plus,
   Pencil,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import StatCard from "../../components/ui/StatCard";
 import type { IService } from "../../types/service";
 import {
   addServiceWithSalonId,
@@ -28,27 +24,6 @@ import type { IWorkSchedule } from "../../types/workSchedule";
 import { updateSalonSchedule } from "../../api/workScheduleApi";
 import WorkScheduleModal from "../../components/modals/WorkScheduleModal";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
-
-const recentAppointments = [
-  {
-    id: 1,
-    client: "Marko Jovanovic (fake)",
-    barber: "Nikola (fake)",
-    time: "13:00 (fake)",
-  },
-  {
-    id: 2,
-    client: "Luka Petrovic (fake)",
-    barber: "Stefan (fake)",
-    time: "14:30 (fake)",
-  },
-  {
-    id: 3,
-    client: "Nikola Nikolic (fake)",
-    barber: "Milos (fake)",
-    time: "16:00 (fake)",
-  },
-];
 
 const MySalon = () => {
   const [loading, setLoading] = useState(true);
@@ -161,36 +136,8 @@ const MySalon = () => {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              key={"Barbers"}
-              label={"Barbers"}
-              icon={Users}
-              value={salon.stats.barbers}
-            />
-            <StatCard
-              key={"Appointments Today"}
-              label={"Appointments Today"}
-              icon={Calendar}
-              value={salon.stats.appointmentsToday}
-            />
-            <StatCard
-              key={"Monthly Revenue"}
-              label={"Monthly Revenue"}
-              icon={DollarSign}
-              value={salon.stats.monthlyRevenue}
-            />
-            <StatCard
-              key={"Services"}
-              label={"Services"}
-              icon={Scissors}
-              value={salon.stats.services}
-            />
-          </div>
-
           {/* Bottom */}
-          <div className="columns-1 gap-6 md:columns-2 xl:columns-3">
+          <div className="columns-1 gap-6 md:columns-2">
             {/* Services */}
             <div className="mb-6 break-inside-avoid">
               <div className="h-fit xl:col-span-2 rounded-2xl border border-border bg-card p-5">
@@ -271,38 +218,6 @@ const MySalon = () => {
                       ))}
                   </div>
                 )}
-              </div>
-            </div>
-
-            {/* Recent Appointments */}
-            <div className="mb-6 break-inside-avoid">
-              <div className="rounded-2xl border border-border bg-card p-5">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-text">
-                    Recent Appointments
-                  </h2>
-                </div>
-
-                <div className="space-y-3">
-                  {recentAppointments.map((appointment) => (
-                    <div
-                      key={appointment.id}
-                      className="rounded-xl border border-border bg-background p-4"
-                    >
-                      <p className="font-medium text-text">
-                        {appointment.client}
-                      </p>
-
-                      <p className="mt-1 text-sm text-muted">
-                        Barber: {appointment.barber}
-                      </p>
-
-                      <div className="mt-3 text-sm text-muted">
-                        {appointment.time}
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>

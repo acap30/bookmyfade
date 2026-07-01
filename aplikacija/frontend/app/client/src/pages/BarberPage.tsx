@@ -46,9 +46,8 @@ const BarberPage = () => {
       client_phone: clientPhone,
       res_date: selectedDate.toISOString().split("T")[0],
       start_time: selectedTime + ":00",
+      hairdresser_id: Number(barberId),
     };
-
-    console.log(payload);
 
     try {
       const res = await fetch(`${baseUrl}/reservation/`, {
