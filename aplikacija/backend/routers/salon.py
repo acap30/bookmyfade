@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 from auth.oauth2 import get_current_user
 from db.database import get_db
@@ -124,4 +124,8 @@ def delete_salon(
         return salon_impl.delete_salon(db, salon_id)
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                              detail="Unauthorized behavior")
+
+@router.patch("/{salon_id}/upload-image")
+async def upload_user_image(salon_id: int, file: UploadFile = File(...), db: Session = Depends(get_db), current_user: UserAuth = Depends(get_current_user)):
+    return salon_impl.upload_picture(file, db, salon_id)
     

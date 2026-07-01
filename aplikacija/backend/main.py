@@ -19,9 +19,13 @@ app.add_middleware(
 )  
 
 
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# STATIC_DIR = os.path.join(BASE_DIR, "static", "images", "users")
+# app.mount("/static/images/users", StaticFiles(directory=STATIC_DIR), name="static")
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static", "images", "users")
-app.mount("/static/images/users", StaticFiles(directory=STATIC_DIR), name="static")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 app.include_router(user.router)
 app.include_router(authentication.router)

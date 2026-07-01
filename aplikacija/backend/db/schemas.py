@@ -173,6 +173,7 @@ class SalonDisplay(BaseModel):
     phone: str | None = None
     email: str | None = None
     is_active: bool
+    image_url: str | None = None
     wh: Optional[WorkingHoursSalonWeekCreate] = None
 
     class Config:

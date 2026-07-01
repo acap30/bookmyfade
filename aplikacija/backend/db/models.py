@@ -49,6 +49,7 @@ class Salon(Base):
     phone = Column(String(50), nullable=True)
     mail = Column(String(255), nullable=True)
     is_active = Column(Boolean, nullable=False, default=True)
+    image_url = Column(String(255), nullable=True)
     owners = relationship("Owner", back_populates="salon")
     hairdressers = relationship("Hairdresser", back_populates="salon")
     services = relationship("Service", back_populates="salon", cascade="all, delete-orphan")

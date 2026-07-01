@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
+from fastapi import HTTPException, UploadFile, status
 from db.models import Salon, Owner, Hairdresser
 from router_impl import db_wh_salon
 from db import schemas
+import os
+import shutil
 
 def create_salon(db: Session, name: str, address: str, phone: str = None, email: str = None):
     salon = Salon(
@@ -36,6 +38,7 @@ def get_salon_by_id(db: Session, salon_id: int):
         phone=salon.phone,
         email=salon.mail,
         is_active=salon.is_active,
+        image_url=salon.image_url,
         wh=wh
     )
 
@@ -56,6 +59,7 @@ def get_salon_by_id_public(db: Session, salon_id: int):
         phone=salon.phone,
         email=salon.mail,
         is_active=salon.is_active,
+        image_url=salon.image_url,
         wh=wh
     )
 
@@ -147,6 +151,7 @@ def get_my_salon(db: Session, user_id: int):
         phone=salon.phone,
         email=salon.mail,
         is_active=salon.is_active,
+        image_url=salon.image_url,
         wh=wh
     )
 
@@ -191,3 +196,35 @@ def deactivate_salon(db: Session, salon_id: int):
     db.refresh(salon)
     
     return {"message": "good"}
+
+def upload_picture(file: UploadFile, db: Session, salon_id: int):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+
+    folder = "static/images/salons"
+    os.makedirs(folder, exist_ok=True)
+
+    salon = db.query(Salon).filter(Salon.id == salon_id).first()
+    if not salon:
+        raise HTTPException(status_code=404, detail="salon not found")
+
+    file_path = f"{folder}/{salon_id}_{file.filename}"
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    
+    if salon.image_url:
+        relative_path = salon.image_url.lstrip("/") 
+        old_path = os.path.join(BASE_DIR, relative_path)  
+        if os.path.exists(old_path):
+            os.remove(old_path)
+
+    salon.image_url = f"/{folder}/{salon_id}_{file.filename}"
+    db.commit()
+    db.refresh(salon)
+
+    return {
+        "message": "Image uploaded successfully",
+        "url": f"/static/images/salons/{salon_id}_{file.filename}"
+    }
