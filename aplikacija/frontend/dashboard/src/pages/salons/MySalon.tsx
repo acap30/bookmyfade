@@ -7,6 +7,7 @@ import {
   Loader2,
   Plus,
   Pencil,
+  Image,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { IService } from "../../types/service";
@@ -19,7 +20,7 @@ import {
 import AddModal from "../../components/modals/AddModal";
 import SalonServiceItem from "../../components/items/SalonServiceItem";
 import EditServiceModal from "../../components/modals/EditServiceModal";
-import { getMySalon } from "../../api/salonsApi";
+import { getMySalon, uploadSalonImage } from "../../api/salonsApi";
 import type { IWorkSchedule } from "../../types/workSchedule";
 import { updateSalonSchedule } from "../../api/workScheduleApi";
 import WorkScheduleModal from "../../components/modals/WorkScheduleModal";
@@ -49,6 +50,7 @@ const MySalon = () => {
         email: data.email,
         phone: data.phone,
         active: data.is_active,
+        image_url: data.image_url,
 
         stats: {
           barbers: 8,
@@ -91,6 +93,20 @@ const MySalon = () => {
   const handleDeleteService = async () => {
     await deleteService(selectedService.id);
     fetchData();
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    await uploadSalonImage(Number(salon.id), formData);
+
+    await fetchData();
   };
 
   return (
@@ -148,6 +164,41 @@ const MySalon = () => {
 
           {/* Bottom */}
           <div className="columns-1 gap-6 md:columns-2">
+            {/* Cover Image */}
+            <div className="h-fit xl:col-span-2 rounded-2xl border border-border bg-card p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-text">Salon image</h2>
+                <label className="flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:brightness-110 cursor-pointer">
+                  {salon.image_url ? <Pencil size={16} /> : <Plus size={16} />}
+                  {salon.image_url ? "Edit Image" : "Add Image"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                </label>
+              </div>
+              <div className="group relative h-64 w-full cursor-pointer overflow-hidden rounded-3xl border border-border bg-card">
+                {salon.image_url ? (
+                  <img
+                    src={`${import.meta.env.VITE_API_URL}${salon.image_url}`}
+                    alt="Salon cover"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-10 text-center h-full">
+                    <Image size={32} className="mb-3 text-muted" />
+
+                    <h3 className="font-medium text-text">Image not added</h3>
+
+                    <p className="mt-1 text-sm text-muted">
+                      Add cover image for this salon
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
             {/* Services */}
             <div className="mb-6 break-inside-avoid">
               <div className="h-fit xl:col-span-2 rounded-2xl border border-border bg-card p-5">

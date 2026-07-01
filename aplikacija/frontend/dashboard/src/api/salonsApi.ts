@@ -79,3 +79,19 @@ export const changeSalonActivity = async (
 export const updateSalon = async (id: number, data: Omit<ISalon, "id">) => {
   await api.put(`/salon/${id}`, data);
 };
+
+export const uploadSalonImage = async (
+  salon_id: number,
+  formData: FormData,
+) => {
+  const response = await api.patch(
+    `/salon/${salon_id}/upload-image`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
+  return response.data;
+};

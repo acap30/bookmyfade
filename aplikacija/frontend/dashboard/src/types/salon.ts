@@ -5,4 +5,5 @@ export interface ISalon {
   email: string;
   phone: string;
   is_active: boolean;
+  image_url?: string | null;
 }

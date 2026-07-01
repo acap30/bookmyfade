@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSalons, type Salon } from "../api/salonsApi";
 
+const baseUrl = import.meta.env.VITE_API_URL;
+
 const SalonList = () => {
   const [salons, setSalons] = useState<Salon[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +55,11 @@ const SalonList = () => {
               key={salon.id}
             >
               <img
-                src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=1200&auto=format&fit=crop"
+                src={
+                  salon.image_url
+                    ? `${baseUrl}${salon.image_url}`
+                    : "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=1200&auto=format&fit=crop"
+                }
                 alt={salon.name}
               />
 

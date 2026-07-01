@@ -5,6 +5,7 @@ export type Salon = {
   phone?: string;
   mail: string;
   is_active: boolean;
+  image_url?: string | null;
 };
 
 import api from "./axios";
