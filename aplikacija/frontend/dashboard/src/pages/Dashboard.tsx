@@ -96,9 +96,9 @@ const Dashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const monthIncome = selectedIncomeDate.getMonth() + 1;
+      const monthIncome = selectedIncomeDate.getMonth();
       const yearIncome = selectedIncomeDate.getFullYear();
-      const monthAppointment = selectedIncomeDate.getMonth() + 1;
+      const monthAppointment = selectedIncomeDate.getMonth();
       const yearAppointment = selectedIncomeDate.getFullYear();
       const data = await getDashboard(
         monthIncome,

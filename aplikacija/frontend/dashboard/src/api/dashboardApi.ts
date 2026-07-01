@@ -7,6 +7,8 @@ export const getDashboard = async (
   monthAppointment: number,
   yearAppointment: number,
 ): Promise<IDashboard> => {
-  const res = await api.get("/dashboard/");
+  const res = await api.get(
+    `/dashboard/?incomeMonth=${monthIncome}&incomeYear=${yearIncome}&appointmentMonth=${monthAppointment}&appointmentYear=${yearAppointment}`,
+  );
   return res.data;
 };
